@@ -3,78 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة المركزية</title>
+    <title>لوحة الإدارة | كنترول رمضان</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #030712; color: white; }
-        .nav-btn { padding: 12px 20px; border-radius: 8px; font-weight: bold; background: #1e293b; color: #94a3b8; cursor: pointer; border: none; }
+        .nav-btn { padding: 12px; border-radius: 8px; font-weight: bold; background: #1e293b; color: #94a3b8; cursor: pointer; border: none; }
         .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .q-block { background: #111827; border: 1px solid #374151; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
     </style>
 </head>
-<body class="p-4 max-w-7xl mx-auto pb-20">
+<body class="p-4 max-w-5xl mx-auto pb-20">
 
     <header class="flex justify-center gap-3 mb-6 border-b border-gray-800 pb-4 flex-wrap">
-        <button id="nav-users" class="nav-btn active" onclick="switchTab('users')"><i class="fas fa-users"></i> المتسابقين</button>
-        <button id="nav-groups" class="nav-btn" onclick="switchTab('groups')"><i class="fas fa-layer-group"></i> المجموعات</button>
-        <button id="nav-quizzes" class="nav-btn" onclick="switchTab('quizzes')"><i class="fas fa-gamepad"></i> الكنترول</button>
+        <button onclick="switchTab('users')" id="btn-users" class="nav-btn active">المتسابقين</button>
+        <button onclick="switchTab('quizzes')" id="btn-quizzes" class="nav-btn">إدارة الكويز</button>
     </header>
 
     <div id="tab-users" class="tab-content active">
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow-xl border border-gray-800">
+        <div class="overflow-x-auto bg-gray-900 rounded-xl border border-gray-800 shadow-xl">
             <table class="w-full text-right text-sm">
-                <thead class="bg-gray-800 text-gray-400">
-                    <tr><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإجراءات</th></tr>
+                <thead class="bg-gray-800 text-gray-400 font-bold">
+                    <tr><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">إجراءات</th></tr>
                 </thead>
-                <tbody id="users-list-body">
-                    <tr><td colspan="4" class="text-center p-8 text-yellow-500">جاري التحميل...</td></tr>
+                <tbody id="users-list">
+                    <tr><td colspan="4" class="text-center p-10 text-yellow-500"><i class="fas fa-spinner fa-spin"></i> جاري جلب الأبطال...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div id="tab-groups" class="tab-content">
-        <h2 class="text-xl font-bold text-yellow-500 mb-4 border-b border-gray-800 pb-2">ترتيب المجموعات</h2>
-        <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    </div>
-
-    <div id="tab-quizzes" class="tab-content space-y-6">
-        
-        <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
-            <h3 class="text-yellow-500 font-bold mb-4 text-lg">1. التحكم المباشر</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div><label class="text-sm text-gray-400 block mb-2">اليوم المٌفعل حالياً:</label><select id="active-day-select" class="w-full bg-gray-800 p-3 rounded-lg text-white border border-gray-700"></select></div>
-                <div><label class="text-sm text-gray-400 block mb-2">وقت الإغلاق التلقائي:</label><input type="datetime-local" id="quiz-expiry-time" class="w-full bg-gray-800 p-3 rounded-lg text-white border border-gray-700"></div>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="updateGlobalStatus('soon')" class="bg-blue-600 p-3 rounded-xl font-bold">قريباً</button>
-                <button onclick="updateGlobalStatus('active')" class="bg-green-600 p-3 rounded-xl font-bold">تفعيل</button>
-                <button onclick="updateGlobalStatus('closed')" class="bg-red-600 p-3 rounded-xl font-bold">إغلاق</button>
+    <div id="tab-quizzes" class="tab-content">
+        <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl mb-6">
+            <h3 class="text-yellow-500 font-bold mb-4 text-lg text-center underline">حالة الموقع الآن (مهم جداً)</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="updateStatus('soon')" class="bg-blue-600 p-4 rounded-xl font-black shadow-lg">عرض "قريباً"</button>
+                <button onclick="updateStatus('active')" class="bg-green-600 p-4 rounded-xl font-black shadow-lg">تفعيل اللعب الآن</button>
+                <button onclick="updateStatus('closed')" class="bg-red-600 p-4 rounded-xl font-black shadow-lg col-span-2">إغلاق الجولة نهائياً</button>
             </div>
         </div>
 
         <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
-            <h3 class="text-blue-400 font-bold mb-4 text-lg">2. الخزنة</h3>
-            <div class="flex gap-4 mb-4">
-                <select id="view-day-select" class="bg-gray-800 p-3 rounded-lg text-white border border-gray-700 flex-grow"></select>
-                <button onclick="viewDayQuizzes()" class="bg-blue-600 px-6 rounded-lg font-bold">عرض</button>
-            </div>
-            <div id="saved-quizzes-viewer" class="bg-gray-800 p-4 rounded-xl text-gray-400 text-sm">اختر اليوم لعرض محتواه.</div>
-        </div>
+            <h3 class="text-gray-300 font-bold mb-4">رفع كويز جديد</h3>
+            <input type="text" id="quiz-title" placeholder="عنوان الجولة (مثلاً: تحدي اليوم الأول)" class="w-full p-4 bg-gray-800 rounded-xl mb-6 text-white border border-gray-700 outline-none focus:border-yellow-500">
+            
+            <div id="questions-area"></div>
 
-        <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl" id="builder-section">
-            <h3 class="text-gray-300 font-bold mb-4 text-lg" id="builder-title">3. منشئ الكويزات</h3>
-            <div class="flex items-center gap-4 mb-6 bg-gray-800 p-4 rounded-xl">
-                <label class="font-bold text-yellow-500">حفظ في يوم:</label><select id="q-day-target" class="bg-gray-900 p-2 rounded-lg text-white font-bold border border-gray-600 w-32"></select>
-            </div>
-            <div id="questions-builder" class="space-y-4"></div>
-            <div class="flex gap-2 mt-6">
-                <button id="save-quiz-btn" onclick="saveQuizToDay()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-lg">حفظ الكويز</button>
-                <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-red-600 text-white font-bold py-4 px-6 rounded-xl">إلغاء التعديل</button>
-            </div>
+            <button onclick="saveQuiz()" id="save-btn" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-5 rounded-2xl text-xl mt-6 shadow-xl hover:scale-[1.02] transition">رفع الكويز للموقع</button>
         </div>
     </div>
 
@@ -82,127 +60,92 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // إعدادات الفايربيز
+        // إعدادات الربط
         const firebaseConfig = { apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // بناء القوائم المنسدلة
-        const daySelects = ['active-day-select', 'view-day-select', 'q-day-target'];
-        daySelects.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) {
-                if(id === 'view-day-select') el.innerHTML += `<option value="">اختر اليوم...</option>`;
-                for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
-            }
-        });
+        // تبديل التبويبات
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+            if(tabId === 'users') loadUsers();
+        }
 
-        // بناء 15 سؤال
-        const builder = document.getElementById('questions-builder');
+        // تحديث الحالة (تفعيل/إغلاق)
+        function updateStatus(newStatus) {
+            db.collection("settings").doc("quiz_status").set({ 
+                currentStatus: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("✅ تم تحديث حالة الموقع بنجاح!");
+            }).catch(e => alert("❌ فشل الاتصال بالسيرفر!"));
+        }
+
+        // جلب المتسابقين
+        function loadUsers() {
+            const list = document.getElementById('users-list');
+            db.collection("users").get().then((snap) => {
+                list.innerHTML = "";
+                let users = [];
+                snap.forEach(d => { let u = d.data(); u.id = d.id; users.push(u); });
+                users.sort((a, b) => (b.score || 0) - (a.score || 0));
+                
+                users.forEach(u => {
+                    list.innerHTML += `
+                        <tr class="border-b border-gray-800">
+                            <td class="p-4 text-yellow-500 font-bold">${u.name}</td>
+                            <td class="p-4 text-xs">${u.group || '---'}</td>
+                            <td class="p-4 text-center font-black">${u.score || 0}</td>
+                            <td class="p-4 text-center">
+                                <button onclick="editScore('${u.id}', ${u.score || 0})" class="bg-gray-700 p-2 rounded mr-1"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteUser('${u.id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                });
+            });
+        }
+
+        // تعديل النقط يدوياً
+        function editScore(id, current) {
+            let nw = prompt("أدخل النقاط الجديدة:", current);
+            if(nw !== null) db.collection("users").doc(id).update({ score: parseInt(nw) }).then(loadUsers);
+        }
+
+        // حذف مستخدم
+        function deleteUser(id) {
+            if(confirm("حذف اللاعب نهائياً؟")) db.collection("users").doc(id).delete().then(loadUsers);
+        }
+
+        // بناء حقول الأسئلة
+        const area = document.getElementById('questions-area');
         for(let i=1; i<=15; i++) {
-            builder.innerHTML += `
-                <div class="q-block bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-inner">
-                    <p class="text-yellow-500 font-bold text-sm mb-2">سؤال ${i}</p>
-                    <textarea class="q-txt w-full bg-gray-900 p-2 text-sm rounded mb-3 text-white border border-gray-700" placeholder="السؤال..."></textarea>
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <input class="o1 bg-gray-900 p-2 text-sm rounded border border-gray-700 text-white" placeholder="1">
-                        <input class="o2 bg-gray-900 p-2 text-sm rounded border border-gray-700 text-white" placeholder="2">
-                        <input class="o3 bg-gray-900 p-2 text-sm rounded border border-gray-700 text-white" placeholder="3">
-                        <input class="o4 bg-gray-900 p-2 text-sm rounded border border-gray-700 text-white" placeholder="4">
+            area.innerHTML += `
+                <div class="q-block">
+                    <p class="text-yellow-500 text-xs font-bold mb-2">سؤال ${i}</p>
+                    <textarea class="q-txt w-full bg-gray-800 p-2 rounded mb-2 text-white border border-gray-700" placeholder="نص السؤال..."></textarea>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <input class="o1 bg-gray-800 p-2 rounded text-xs text-white border border-gray-700" placeholder="خيار 1">
+                        <input class="o2 bg-gray-800 p-2 rounded text-xs text-white border border-gray-700" placeholder="خيار 2">
+                        <input class="o3 bg-gray-800 p-2 rounded text-xs text-white border border-gray-700" placeholder="خيار 3">
+                        <input class="o4 bg-gray-800 p-2 rounded text-xs text-white border border-gray-700" placeholder="خيار 4">
                     </div>
-                    <select class="cor w-full bg-gray-900 p-2 text-sm font-bold text-green-400 rounded border border-gray-700">
-                        <option value="0">الصحيح: 1</option><option value="1">الصحيح: 2</option><option value="2">الصحيح: 3</option><option value="3">الصحيح: 4</option>
+                    <select class="cor w-full bg-gray-800 p-2 rounded text-xs font-bold text-green-400 border border-gray-700">
+                        <option value="0">الإجابة الصحيحة هي: خيار 1</option>
+                        <option value="1">الإجابة الصحيحة هي: خيار 2</option>
+                        <option value="2">الإجابة الصحيحة هي: خيار 3</option>
+                        <option value="3">الإجابة الصحيحة هي: خيار 4</option>
                     </select>
                 </div>`;
         }
 
-        let editMode = false; let editDay = null; let editIndex = null;
-
-        // الدوال الأساسية للوحة
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`nav-${tab}`).classList.add('active');
-            if(tab === 'users' || tab === 'groups') loadUsersAndGroups();
-        }
-
-        function updateGlobalStatus(status) {
-            const actDay = document.getElementById('active-day-select').value;
-            const expTime = document.getElementById('quiz-expiry-time').value;
-            let timeVal = expTime ? new Date(expTime).getTime() : null;
-
-            db.collection("settings").doc("global_status").set({ 
-                status: status, 
-                currentDay: parseInt(actDay), 
-                expiryTime: timeVal, 
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            }).then(() => {
-                alert(`✅ تم تحديث الموقع بنجاح!\nالحالة الآن: ${status}`);
-            }).catch(e => alert("❌ خطأ في التحديث!"));
-        }
-
-        function viewDayQuizzes() {
-            const day = document.getElementById('view-day-select').value;
-            const viewer = document.getElementById('saved-quizzes-viewer');
-            if(!day) return;
-            viewer.innerHTML = 'جاري التحميل...';
-            
-            db.collection("quizzes_pool").doc(`day_${day}`).get().then((snap) => {
-                if (snap.exists && snap.data().variations?.length > 0) {
-                    const vars = snap.data().variations;
-                    let html = `<p class="text-green-400 mb-2">يوجد ${vars.length} كويز</p>`;
-                    vars.forEach((v, i) => {
-                        html += `<div class="bg-gray-900 p-3 rounded mb-2 border border-gray-700"><div class="flex justify-between border-b border-gray-800 pb-2"><span class="text-yellow-500">كويز ${i+1}</span><div><button onclick="loadQuizForEdit(${day}, ${i})" class="text-blue-400 ml-3">تعديل</button><button onclick="deleteQuizVariation(${day}, ${i})" class="text-red-400">حذف</button></div></div><span class="text-xs text-gray-400">${v.questions[0].q.substring(0,30)}...</span></div>`;
-                    });
-                    viewer.innerHTML = html;
-                } else viewer.innerHTML = 'لا يوجد أسئلة محفوظة هنا.';
-            }).catch(e => viewer.innerHTML = 'خطأ.');
-        }
-
-        function deleteQuizVariation(day, idx) {
-            if(!confirm('تأكيد الحذف؟')) return;
-            const ref = db.collection("quizzes_pool").doc(`day_${day}`);
-            ref.get().then(snap => {
-                let vars = snap.data().variations;
-                vars.splice(idx, 1);
-                return ref.update({ variations: vars });
-            }).then(() => viewDayQuizzes()).catch(e => alert("خطأ"));
-        }
-
-        function loadQuizForEdit(day, idx) {
-            db.collection("quizzes_pool").doc(`day_${day}`).get().then(snap => {
-                const qList = snap.data().variations[idx].questions;
-                const blocks = document.querySelectorAll('.q-block');
-                qList.forEach((qD, i) => {
-                    if(blocks[i]){
-                        blocks[i].querySelector('.q-txt').value = qD.q||'';
-                        blocks[i].querySelector('.o1').value = qD.options[0]||'';
-                        blocks[i].querySelector('.o2').value = qD.options[1]||'';
-                        blocks[i].querySelector('.o3').value = qD.options[2]||'';
-                        blocks[i].querySelector('.o4').value = qD.options[3]||'';
-                        blocks[i].querySelector('.cor').value = qD.correctIndex||0;
-                    }
-                });
-                editMode = true; editDay = day; editIndex = idx;
-                document.getElementById('q-day-target').value = day; document.getElementById('q-day-target').disabled = true;
-                document.getElementById('save-quiz-btn').innerText = 'حفظ التعديلات';
-                document.getElementById('cancel-edit-btn').classList.remove('hidden');
-                document.getElementById('builder-section').scrollIntoView();
-            });
-        }
-
-        function cancelEdit() {
-            editMode = false; editDay = null; editIndex = null;
-            document.getElementById('q-day-target').disabled = false;
-            document.getElementById('save-quiz-btn').innerText = 'حفظ الكويز';
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
-            document.querySelectorAll('.q-txt, .o1, .o2, .o3, .o4').forEach(i => i.value='');
-        }
-
-        function saveQuizToDay() {
-            const targetDay = editMode ? editDay : document.getElementById('q-day-target').value;
-            const btn = document.getElementById('save-quiz-btn'); btn.disabled = true;
+        // حفظ الكويز
+        function saveQuiz() {
+            const title = document.getElementById('quiz-title').value;
+            if(!title) return alert("اكتب عنوان الجولة أولاً!");
+            document.getElementById('save-btn').innerText = "جاري الحفظ...";
             
             const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
                 q: b.querySelector('.q-txt').value,
@@ -210,62 +153,17 @@
                 correctIndex: parseInt(b.querySelector('.cor').value)
             }));
 
-            if(!qs[0].q) { alert("لا يمكن حفظ كويز فارغ!"); btn.disabled = false; return; }
-
-            const ref = db.collection("quizzes_pool").doc(`day_${targetDay}`);
-            
-            if (editMode) {
-                ref.get().then(snap => {
-                    let vars = snap.data().variations;
-                    vars[editIndex] = { questions: qs };
-                    return ref.update({ variations: vars });
-                }).then(() => {
-                    cancelEdit(); viewDayQuizzes(); alert("تم الحفظ!"); btn.disabled = false;
-                });
-            } else {
-                ref.set({ variations: firebase.firestore.FieldValue.arrayUnion({ questions: qs }) }, { merge: true }).then(() => {
-                    document.querySelectorAll('.q-txt, .o1, .o2, .o3, .o4').forEach(i => i.value='');
-                    alert("تم الحفظ!"); btn.disabled = false;
-                });
-            }
+            db.collection("settings").doc("active_quiz_data").set({
+                title: title,
+                questions: qs,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("🚀 الكويز بقى لايف على الموقع!");
+                document.getElementById('save-btn').innerText = "رفع الكويز للموقع";
+            });
         }
 
-        function loadUsersAndGroups() {
-            const tbody = document.getElementById('users-list-body');
-            const groupsDiv = document.getElementById('groups-container');
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8"><i class="fas fa-spinner fa-spin"></i></td></tr>';
-            
-            db.collection("users").get().then((snap) => {
-                let users = []; let groupsMap = {};
-                snap.forEach(d => {
-                    const u = d.data(); u.id = d.id; users.push(u);
-                    if(!groupsMap[u.group]) groupsMap[u.group] = [];
-                    groupsMap[u.group].push(u);
-                });
-
-                tbody.innerHTML = '';
-                users.sort((a,b) => (b.score||0) - (a.score||0)).forEach(u => {
-                    tbody.innerHTML += `<tr class="border-b border-gray-800"><td class="p-4 text-yellow-500">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-center font-black">${u.score||0} <button onclick="editScore('${u.id}','${u.name}',${u.score||0})" class="bg-gray-700 px-2 py-1 rounded text-xs ml-2">تعديل</button></td><td class="p-4 text-center"><button onclick="toggleBan('${u.id}',${u.isBanned||false})" class="bg-gray-700 px-2 py-1 rounded text-xs">${u.isBanned?'فك':'حظر'}</button><button onclick="delUser('${u.id}')" class="text-red-500 ml-2"><i class="fas fa-trash"></i></button></td></tr>`;
-                });
-
-                groupsDiv.innerHTML = '';
-                for (const [g, mems] of Object.entries(groupsMap)) {
-                    mems.sort((a,b) => (b.score||0) - (a.score||0));
-                    let h = mems.map((m,i)=>`<div class="flex justify-between bg-gray-900 p-2 mb-1 rounded text-sm"><span>${i+1}. ${m.name}</span><span class="text-yellow-500">${m.score||0}</span></div>`).join('');
-                    groupsDiv.innerHTML += `<div class="bg-gray-800 p-4 rounded-xl"><h3 class="text-blue-400 mb-2">${g}</h3>${h}</div>`;
-                }
-            }).catch(e => tbody.innerHTML = '<tr><td colspan="4">خطأ</td></tr>');
-        }
-
-        function editScore(id, name, cur) {
-            const nw = prompt(`تعديل نقاط (${name}):`, cur);
-            if(nw && !isNaN(nw)) { db.collection("users").doc(id).update({score: parseInt(nw)}).then(loadUsersAndGroups); }
-        }
-        function toggleBan(id, st) { db.collection("users").doc(id).update({isBanned: !st}).then(loadUsersAndGroups); }
-        function delUser(id) { if(confirm('حذف؟')){ db.collection("users").doc(id).delete().then(loadUsersAndGroups); } }
-
-        window.onload = loadUsersAndGroups;
+        window.onload = loadUsers;
     </script>
 </body>
-                                                                                                      </html>
-    
+</html>
