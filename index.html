@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة | v8.1</title>
+    <title>لوحة الإدارة | v9.0 Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -17,50 +17,71 @@
 </head>
 <body class="p-4 max-w-7xl mx-auto pb-20">
 
-    <header class="flex justify-center gap-2 mb-6 border-b border-gray-800 pb-4">
-        <button id="nav-users" class="nav-btn active" onclick="window.switchTab('users')">المتسابقين 👥</button>
-        <button id="nav-quizzes" class="nav-btn" onclick="window.switchTab('quizzes')">إدارة الكويز 🎮</button>
-        <button id="nav-settings" class="nav-btn" onclick="window.switchTab('settings')">الإعدادات ⚙️</button>
+    <header class="flex justify-center gap-2 mb-6 border-b border-gray-800 pb-4 overflow-x-auto">
+        <button id="nav-users" class="nav-btn active" onclick="window.switchTab('users')">المتسابقين</button>
+        <button id="nav-groups" class="nav-btn" onclick="window.switchTab('groups')">المجموعات</button>
+        <button id="nav-quizzes" class="nav-btn" onclick="window.switchTab('quizzes')">إدارة الكويز</button>
+        <button id="nav-settings" class="nav-btn" onclick="window.switchTab('settings')">الإعدادات</button>
     </header>
 
     <div id="tab-users" class="tab-content active">
-        <table class="w-full text-right text-sm bg-gray-900 rounded-lg">
-            <thead class="bg-gray-800 text-gray-400">
-                <tr><th class="p-3">الاسم (للتفاصيل)</th><th class="p-3">المجموعة</th><th class="p-3">النقاط</th><th class="p-3">الحظر</th><th class="p-3">حذف</th></tr>
-            </thead>
-            <tbody id="users-list-body"></tbody>
-        </table>
+        <div class="overflow-x-auto bg-gray-900 rounded-lg">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-gray-800 text-gray-400">
+                    <tr><th class="p-3">الاسم</th><th class="p-3">المجموعة</th><th class="p-3">النقاط</th><th class="p-3">حظر</th></tr>
+                </thead>
+                <tbody id="users-list-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-groups" class="tab-content">
+        <h2 class="text-xl font-bold text-yellow-500 mb-4">ترتيب المجموعات</h2>
+        <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
     <div id="tab-quizzes" class="tab-content">
-        <div class="bg-gray-900 p-4 rounded-xl mb-6">
-            <p class="mb-3 text-yellow-500 font-bold text-center">حالة الموقع الآن:</p>
+        <div class="bg-gray-900 p-4 rounded-xl mb-6 border border-gray-700">
+            <h3 class="text-yellow-500 font-bold mb-3">1. التحكم في الموقع (ماذا يرى المتسابق الآن؟)</h3>
+            <div class="flex items-center gap-4 mb-4">
+                <label class="text-sm">اليوم المٌفعل حالياً:</label>
+                <select id="active-day-select" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
+                    <script>for(let i=1;i<=30;i++) document.write(`<option value="${i}">اليوم ${i}</option>`);</script>
+                </select>
+            </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="window.updateStatus('saved')" class="bg-gray-600 p-2 rounded">تم الحفظ</button>
-                <button onclick="window.updateStatus('soon')" class="bg-blue-600 p-2 rounded">قريباً</button>
-                <button onclick="window.updateStatus('active')" class="bg-green-600 p-2 rounded">تفعيل الآن</button>
-                <button onclick="window.updateStatus('closed')" class="bg-red-600 p-2 rounded">إغلاق الجولة</button>
+                <button onclick="window.updateGlobalStatus('soon')" class="bg-blue-600 p-2 rounded font-bold">عرض "قريباً"</button>
+                <button onclick="window.updateGlobalStatus('active')" class="bg-green-600 p-2 rounded font-bold">تفعيل اللعب الآن</button>
+                <button onclick="window.updateGlobalStatus('closed')" class="bg-red-600 p-2 rounded font-bold col-span-2">إغلاق الغرفة (منع اللعب)</button>
             </div>
         </div>
 
-        <div class="bg-gray-900 p-4 rounded-xl">
-            <input type="text" id="q-title" placeholder="اسم الجولة" class="w-full p-2 bg-gray-800 mb-4 rounded text-white">
+        <div class="bg-gray-900 p-4 rounded-xl border border-gray-700">
+            <h3 class="text-blue-400 font-bold mb-3">2. إضافة كويز جديد (النظام العشوائي)</h3>
+            <div class="flex items-center gap-4 mb-4">
+                <label class="text-sm">أضف هذا الكويز إلى:</label>
+                <select id="q-day-target" class="bg-gray-800 p-2 rounded text-yellow-500 font-bold border border-yellow-600">
+                    <script>for(let i=1;i<=30;i++) document.write(`<option value="${i}">اليوم ${i}</option>`);</script>
+                </select>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">ملاحظة: يمكنك إضافة أكثر من كويز لنفس اليوم، وسيتم توزيعهم عشوائياً على المتسابقين.</p>
+            
             <div id="questions-builder" class="space-y-4"></div>
-            <button onclick="window.saveQuiz()" class="w-full bg-yellow-600 py-3 mt-4 rounded font-bold text-black">رفع الكويز</button>
+            <button onclick="window.saveQuizToDay()" class="w-full bg-yellow-600 py-3 mt-4 rounded font-bold text-black text-lg">إضافة الكويز لبنك أسئلة هذا اليوم</button>
         </div>
     </div>
 
     <div id="tab-settings" class="tab-content">
-        <div class="bg-gray-900 p-6 rounded-xl text-center border border-gray-800">
-            <h2 class="text-xl font-bold text-yellow-500 mb-4">رسالة اليوم (تظهر في صفحة الدخول)</h2>
-            <textarea id="daily-msg-input" class="w-full p-4 bg-gray-800 rounded-xl text-white border border-gray-700 h-32 mb-4"></textarea>
-            <button onclick="window.saveMessage()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">حفظ الرسالة</button>
+        <div class="bg-gray-900 p-6 rounded-xl border border-gray-800">
+            <h2 class="text-yellow-500 font-bold mb-2">رسالة اليوم</h2>
+            <textarea id="daily-msg-input" class="w-full p-3 bg-gray-800 rounded text-white h-24 mb-4"></textarea>
+            <button onclick="window.saveMessage()" class="w-full bg-yellow-600 text-black font-bold py-2 rounded">حفظ الرسالة</button>
         </div>
     </div>
 
     <div id="logs-modal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 p-4 flex items-center justify-center">
         <div class="bg-gray-900 border border-yellow-600 rounded-xl p-6 w-full max-w-sm relative">
-            <button onclick="document.getElementById('logs-modal').classList.add('hidden')" class="absolute top-2 left-3 text-red-500 font-bold text-xl">X</button>
+            <button onclick="document.getElementById('logs-modal').classList.add('hidden')" class="absolute top-2 left-3 text-red-500 font-bold">X</button>
             <h2 class="font-bold text-yellow-500 mb-4" id="log-name"></h2>
             <div id="logs-content" class="space-y-2 max-h-80 overflow-y-auto"></div>
         </div>
@@ -68,7 +89,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" };
         const app = initializeApp(firebaseConfig);
@@ -79,71 +100,116 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             document.getElementById(`nav-${tab}`).classList.add('active');
-            if(tab === 'users') window.loadUsers();
+            if(tab === 'users' || tab === 'groups') window.loadUsersAndGroups();
             if(tab === 'settings') window.loadMessage();
         };
 
-        window.updateStatus = async (status) => {
-            await setDoc(doc(db, "settings", "quiz_status"), { currentStatus: status }, { merge: true });
-            alert(`تم التحديث لـ: ${status}`);
+        // --- نظام التحكم الجديد ---
+        window.updateGlobalStatus = async (status) => {
+            const activeDay = document.getElementById('active-day-select').value;
+            await setDoc(doc(db, "settings", "global_status"), { 
+                status: status, 
+                currentDay: parseInt(activeDay),
+                updatedAt: serverTimestamp() 
+            });
+            alert(`تم التحديث! الموقع الآن: ${status} | لليوم: ${activeDay}`);
         };
 
-        window.saveQuiz = async () => {
-            const title = document.getElementById('q-title').value;
+        window.saveQuizToDay = async () => {
+            const targetDay = document.getElementById('q-day-target').value;
+            const btn = event.target; btn.innerText = "جاري الحفظ..."; btn.disabled = true;
+
             const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
                 q: b.querySelector('.q-txt').value,
                 options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
                 correctIndex: parseInt(b.querySelector('.cor').value),
                 info: b.querySelector('.q-info').value || ""
             }));
-            await setDoc(doc(db, "settings", "active_quiz_data"), { title, questions: qs, createdAt: serverTimestamp() });
-            alert("تم حفظ الكويز!");
+
+            // التأكد من عدم إرسال كويز فارغ
+            if(!qs[0].q) { alert("لا يمكن حفظ كويز فارغ!"); btn.innerText = "إضافة الكويز"; btn.disabled = false; return; }
+
+            try {
+                // إضافة الكويز كمصفوفة داخل اليوم المحدد
+                const dayRef = doc(db, "quizzes_pool", `day_${targetDay}`);
+                await setDoc(dayRef, {
+                    variations: arrayUnion({ questions: qs })
+                }, { merge: true });
+                
+                alert(`تم إضافة الكويز بنجاح لبنك أسئلة (اليوم ${targetDay}) ✅`);
+                // مسح الحقول
+                document.querySelectorAll('.q-txt, .o1, .o2, .o3, .o4, .q-info').forEach(i => i.value = '');
+            } catch(e) { console.error(e); alert("حدث خطأ!"); }
+            
+            btn.innerText = "إضافة الكويز لبنك أسئلة هذا اليوم"; btn.disabled = false;
         };
 
-        window.loadUsers = async () => {
+        // --- جلب المستخدمين والمجموعات ---
+        window.loadUsersAndGroups = async () => {
             const tbody = document.getElementById('users-list-body');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">جاري التحميل...</td></tr>';
+            const groupsDiv = document.getElementById('groups-container');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4">جاري التحميل...</td></tr>';
+            
             const snap = await getDocs(collection(db, "users"));
-            tbody.innerHTML = '';
+            let users = [];
+            let groupsMap = {};
+
             snap.forEach(d => {
-                const u = d.data(); const isBanned = u.isBanned || false;
+                const u = d.data();
+                u.id = d.id;
+                users.push(u);
+                if(!groupsMap[u.group]) groupsMap[u.group] = [];
+                groupsMap[u.group].push(u);
+            });
+
+            // رسم جدول المتسابقين
+            tbody.innerHTML = '';
+            users.sort((a,b) => (b.score||0) - (a.score||0)).forEach(u => {
+                const isBanned = u.isBanned || false;
                 tbody.innerHTML += `
                     <tr class="border-b border-gray-800">
-                        <td class="p-3 text-yellow-500 font-bold cursor-pointer" onclick="window.viewLogs('${d.id}','${u.name}')">${u.name}</td>
+                        <td class="p-3 text-yellow-500 font-bold cursor-pointer hover:underline" onclick="window.viewLogs('${u.id}','${u.name}')">${u.name}</td>
                         <td class="p-3 text-xs text-blue-300">${u.group}</td>
                         <td class="p-3 font-black">${u.score || 0}</td>
-                        <td class="p-3"><button onclick="window.toggleBan('${d.id}',${isBanned})" class="${isBanned?'bg-gray-600':'text-red-500'} p-1 text-xs rounded">${isBanned?'فك':'حظر'}</button></td>
-                        <td class="p-3"><button onclick="window.delUser('${d.id}')" class="text-gray-600"><i class="fas fa-trash"></i></button></td>
+                        <td class="p-3"><button onclick="window.toggleBan('${u.id}',${isBanned})" class="${isBanned?'bg-gray-600':'bg-red-900'} p-1 text-xs rounded border border-red-500">${isBanned?'فك':'حظر'}</button></td>
                     </tr>`;
             });
+
+            // رسم المجموعات
+            groupsDiv.innerHTML = '';
+            for (const [groupName, members] of Object.entries(groupsMap)) {
+                members.sort((a,b) => (b.score||0) - (a.score||0));
+                let membersHtml = members.map((m, i) => `
+                    <div class="flex justify-between items-center bg-gray-900 p-2 mb-1 rounded text-sm border border-gray-800">
+                        <span><span class="text-gray-500 mr-2">${i+1}.</span> ${m.name}</span>
+                        <span class="font-bold text-yellow-500">${m.score||0}</span>
+                    </div>
+                `).join('');
+                groupsDiv.innerHTML += `
+                    <div class="bg-gray-800 p-3 rounded-xl border border-gray-700">
+                        <h3 class="text-blue-400 font-bold mb-2 border-b border-gray-700 pb-1">${groupName}</h3>
+                        ${membersHtml}
+                    </div>`;
+            }
         };
 
-        window.toggleBan = async (id, status) => { await updateDoc(doc(db, "users", id), { isBanned: !status }); window.loadUsers(); };
-        window.delUser = async (id) => { if(confirm("تأكيد الحذف؟")){ await deleteDoc(doc(db, "users", id)); window.loadUsers(); } };
+        window.toggleBan = async (id, status) => { await updateDoc(doc(db, "users", id), { isBanned: !status }); window.loadUsersAndGroups(); };
 
         window.viewLogs = async (uid, name) => {
             document.getElementById('log-name').innerText = name;
             const content = document.getElementById('logs-content'); content.innerHTML = 'تحميل...';
             document.getElementById('logs-modal').classList.remove('hidden');
             const snap = await getDocs(collection(db, "users", uid, "game_logs"));
-            content.innerHTML = snap.empty ? 'لا يوجد لعب.' : '';
+            content.innerHTML = snap.empty ? 'لم يلعب بعد.' : '';
             snap.forEach(l => {
                 const data = l.data();
-                let resHtml = data.results ? data.results.map((r,i) => `<span class="${r?'text-green-500':'text-red-500'}">س${i+1}</span>`).join(' ') : 'لا تفاصيل';
-                content.innerHTML += `<div class="bg-gray-800 p-2 mb-2 rounded border border-gray-700 text-xs"><p class="text-blue-400 mb-1">${data.title || 'جولة'}</p>${resHtml}</div>`;
+                let resHtml = data.results ? data.results.map((r,i) => `<span class="${r?'text-green-500':'text-red-500'}">س${i+1}</span>`).join(' ') : '';
+                content.innerHTML += `<div class="bg-gray-800 p-2 mb-2 rounded text-xs"><p class="text-blue-400">اليوم: ${data.day}</p>${resHtml}</div>`;
             });
         };
 
-        // إدارة رسالة اليوم
-        window.saveMessage = async () => {
-            const msg = document.getElementById('daily-msg-input').value;
-            await setDoc(doc(db, "settings", "dailyData"), { message: msg }, { merge: true });
-            alert("تم حفظ الرسالة بنجاح!");
-        };
-        window.loadMessage = async () => {
-            const snap = await getDoc(doc(db, "settings", "dailyData"));
-            if(snap.exists()) document.getElementById('daily-msg-input').value = snap.data().message || "";
-        };
+        window.saveMessage = async () => { await setDoc(doc(db, "settings", "dailyData"), { message: document.getElementById('daily-msg-input').value }, { merge: true }); alert("تم الحفظ"); };
+        window.loadMessage = async () => { const snap = await getDoc(doc(db, "settings", "dailyData")); if(snap.exists()) document.getElementById('daily-msg-input').value = snap.data().message || ""; };
 
         // بناء الفورم
         for(let i=1; i<=15; i++) {
@@ -151,10 +217,11 @@
                 <div class="q-block bg-gray-800 p-3 rounded border border-gray-700"><p class="text-yellow-500 text-xs mb-1">سؤال ${i}</p>
                 <textarea class="q-txt w-full bg-gray-900 p-1 text-sm rounded mb-1"></textarea>
                 <div class="grid grid-cols-2 gap-1 mb-1"><input class="o1 bg-gray-900 p-1 text-xs" placeholder="1"><input class="o2 bg-gray-900 p-1 text-xs" placeholder="2"><input class="o3 bg-gray-900 p-1 text-xs" placeholder="3"><input class="o4 bg-gray-900 p-1 text-xs" placeholder="4"></div>
-                <select class="cor w-full bg-gray-900 p-1 text-xs text-yellow-500 mb-1"><option value="0">إجابة 1</option><option value="1">إجابة 2</option><option value="2">إجابة 3</option><option value="3">إجابة 4</option></select>
-                <input class="q-info w-full bg-gray-900 p-1 text-xs" placeholder="معلومة الشرح (اختياري)"></div>`;
+                <select class="cor w-full bg-gray-900 p-1 text-xs text-yellow-500 mb-1"><option value="0">إجابة 1 صح</option><option value="1">إجابة 2 صح</option><option value="2">إجابة 3 صح</option><option value="3">إجابة 4 صح</option></select>
+                <input class="q-info w-full bg-gray-900 p-1 text-xs" placeholder="معلومة إضافية (اختياري)"></div>`;
         }
-        window.loadUsers();
+        window.loadUsersAndGroups();
     </script>
 </body>
-</html>
+        </html>
+    
