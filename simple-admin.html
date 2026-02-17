@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة التحكم المصغرة</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #050a15; color: white; overflow-x: hidden; }
+        .admin-card { background: rgba(13, 27, 42, 0.95); border: 1px solid #b8860b; border-radius: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4">
+
+    <div id="login-screen" class="flex-1 flex flex-col items-center justify-center">
+        <div class="admin-card p-8 w-full max-w-sm text-center shadow-2xl">
+            <h2 class="text-xl font-bold text-yellow-500 mb-6">دخول الإدارة</h2>
+            <input type="password" id="admin-pass-input" placeholder="أدخل كلمة السر" class="w-full p-4 rounded-xl bg-gray-900 border border-gray-700 text-center text-white mb-4 outline-none focus:border-yellow-500 font-bold">
+            <button onclick="window.tryLogin()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 rounded-xl shadow-lg">دخول</button>
+            <p id="login-error" class="text-red-500 mt-4 hidden text-xs font-bold">كلمة السر غلط يا بطل!</p>
+        </div>
+    </div>
+
+    <div id="admin-content" class="hidden max-w-4xl mx-auto w-full pb-20">
+        <header class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+            <h1 class="text-xl font-bold text-yellow-500">لوحة الإدارة السريعة</h1>
+            <button onclick="window.logout()" class="text-red-400 text-xs font-bold">خروج</button>
+        </header>
+
+        <section class="admin-card p-6 mb-8 shadow-xl">
+            <h2 class="text-lg font-bold mb-4 border-r-4 border-green-500 pr-3">إضافة متسابق جديد</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <input type="text" id="u-name" placeholder="اسم المتسابق" class="p-3 bg-gray-900 border border-gray-700 rounded-xl text-white outline-none">
+                <input type="text" id="u-pass" placeholder="كود دخول المتسابق" class="p-3 bg-gray-900 border border-gray-700 rounded-xl text-yellow-500 font-bold outline-none">
+                <input type="text" id="u-group" placeholder="المجموعة (مثلاً: مجموعة 1)" class="p-3 bg-gray-900 border border-gray-700 rounded-xl text-white outline-none">
+                <button onclick="window.addUser()" class="bg-green-600 hover:bg-green-700 py-4 rounded-xl font-bold shadow-lg">حفظ المتسابق</button>
+            </div>
+        </section>
+
+        <section class="admin-card p-6 shadow-xl">
+            <h2 class="text-lg font-bold mb-4 border-r-4 border-blue-500 pr-3">إضافة كويز جديد (15 سؤال)</h2>
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                <input type="text" id="q-title" placeholder="عنوان الكويز" class="p-3 bg-gray-900 border border-gray-700 rounded-xl text-white outline-none font-bold">
+                <input type="number" id="q-day" placeholder="اليوم رقم (1 إلى 30)" class="p-3 bg-gray-900 border border-gray-700 rounded-xl text-white outline-none">
+            </div>
+            <div id="questions-area" class="space-y-6"></div>
+            <button onclick="window.saveQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold shadow-lg mt-8 text-lg">حفظ الكويز نهائياً</button>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const ADMIN_PASS = "Mohamed0111780";
+
+        // فحص تسجيل الدخول عند الفتح
+        window.onload = () => {
+            const saved = localStorage.getItem('adminSecret');
+            if (saved === ADMIN_PASS) {
+                showAdmin();
+            }
+            buildQuestionForms();
+        };
+
+        window.tryLogin = () => {
+            const val = document.getElementById('admin-pass-input').value;
+            if (val === ADMIN_PASS) {
+                localStorage.setItem('adminSecret', val);
+                showAdmin();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        };
+
+        function showAdmin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-content').classList.remove('hidden');
+        }
+
+        window.logout = () => {
+            localStorage.removeItem('adminSecret');
+            location.reload();
+        };
+
+        // إضافة مستخدم
+        window.addUser = async () => {
+            const n = document.getElementById('u-name').value, p = document.getElementById('u-pass').value, g = document.getElementById('u-group').value;
+            if(!n || !p || !g) return alert("أكمل البيانات!");
+            try {
+                await addDoc(collection(db, "users"), { name: n, password: p, group: g, score: 0, rounds: 0, hasCompletedToday: false });
+                alert("تمت إضافة المتسابق ✅");
+                document.getElementById('u-name').value = ''; document.getElementById('u-pass').value = '';
+            } catch(e) { alert("خطأ!"); }
+        };
+
+        // بناء فورمات الـ 15 سؤال
+        function buildQuestionForms() {
+            const area = document.getElementById('questions-area');
+            for(let i=1; i<=15; i++) {
+                area.innerHTML += `
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 q-block">
+                    <p class="text-xs text-yellow-500 font-bold mb-2">سؤال ${i}</p>
+                    <textarea class="q-txt w-full bg-gray-900 p-3 rounded-lg text-sm mb-2 outline-none" placeholder="نص السؤال"></textarea>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <input type="text" class="o1 bg-gray-900 p-2 rounded-lg text-xs" placeholder="خيار 1">
+                        <input type="text" class="o2 bg-gray-900 p-2 rounded-lg text-xs" placeholder="خيار 2">
+                        <input type="text" class="o3 bg-gray-900 p-2 rounded-lg text-xs" placeholder="خيار 3">
+                        <input type="text" class="o4 bg-gray-900 p-2 rounded-lg text-xs" placeholder="خيار 4">
+                    </div>
+                    <select class="cor w-full bg-blue-900/30 p-2 rounded-lg text-xs text-blue-300 font-bold">
+                        <option value="0">الإجابة 1 صح</option><option value="1">الإجابة 2 صح</option><option value="2">الإجابة 3 صح</option><option value="3">الإجابة 4 صح</option>
+                    </select>
+                </div>`;
+            }
+        }
+
+        // حفظ الكويز
+        window.saveQuiz = async () => {
+            const title = document.getElementById('q-title').value, day = document.getElementById('q-day').value;
+            if(!title || !day) return alert("أكمل العنوان واليوم!");
+            
+            const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
+                q: b.querySelector('.q-txt').value,
+                options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
+                correctIndex: parseInt(b.querySelector('.cor').value)
+            }));
+
+            try {
+                await addDoc(collection(db, "quizzes"), { title, day: parseInt(day), questions: qs, isActive: false });
+                alert("تم حفظ الكويز بنجاح ✅");
+                location.reload();
+            } catch(e) { alert("خطأ!"); }
+        };
+    </script>
+</body>
+  </html>
+  
