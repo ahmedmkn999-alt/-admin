@@ -10,7 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #030712; color: white; }
         .nav-btn { padding: 12px; border-radius: 10px; font-weight: bold; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; shadow: 0 0 15px rgba(184,134,11,0.4); }
+        .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; box-shadow: 0 0 15px rgba(184,134,11,0.4); }
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -30,7 +30,7 @@
         <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl">
             <table class="w-full text-right text-sm">
                 <thead class="bg-gray-800 text-gray-400 font-bold">
-                    <tr><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإجراءات</th></tr>
+                    <tr><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">تعديل النقاط</th></tr>
                 </thead>
                 <tbody id="users-list-body">
                     <tr><td colspan="4" class="text-center p-10 text-yellow-500"><i class="fas fa-spinner fa-spin"></i> جاري جلب الأبطال...</td></tr>
@@ -70,7 +70,7 @@
                 <select id="view-day-select" class="bg-gray-800 p-3 rounded-xl border border-gray-700 flex-grow text-white font-bold"></select>
                 <button onclick="viewDayQuizzes()" class="bg-blue-600 px-6 rounded-xl font-bold">عرض</button>
             </div>
-            <div id="saved-quizzes-viewer" class="bg-gray-800 p-4 rounded-xl text-gray-400 text-xs">اختر اليوم لرؤية ما بداخله من كويزات.</div>
+            <div id="saved-quizzes-viewer" class="bg-gray-800 p-4 rounded-xl text-gray-400 text-xs">اختر اليوم لرؤية ما بداخله.</div>
         </div>
 
         <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl" id="builder-section">
@@ -81,7 +81,7 @@
             </div>
             <div id="questions-builder" class="space-y-4"></div>
             <div class="flex gap-2 mt-6">
-                <button id="save-quiz-btn" onclick="saveQuizToDay()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-lg transition shadow-lg">حفظ الكويز في اليوم المحدد</button>
+                <button id="save-quiz-btn" onclick="saveQuizToDay()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-lg transition shadow-lg">حفظ الكويز</button>
                 <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-red-600 text-white font-bold py-4 px-6 rounded-xl">إلغاء التعديل</button>
             </div>
         </div>
@@ -89,9 +89,9 @@
 
     <div id="tab-settings" class="tab-content">
         <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
-            <h2 class="text-yellow-500 font-bold mb-4">رسالة اليوم (تظهر في صفحة الدخول)</h2>
-            <textarea id="daily-msg-input" class="w-full p-4 bg-gray-800 rounded-xl text-white border border-gray-700 h-32 mb-4" placeholder="اكتب رسالة ترحيبية أو تعليمات..."></textarea>
-            <button onclick="saveDailyMessage()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl shadow-lg">حفظ ونشر الرسالة</button>
+            <h2 class="text-yellow-500 font-bold mb-4">رسالة اليوم</h2>
+            <textarea id="daily-msg-input" class="w-full p-4 bg-gray-800 rounded-xl text-white border border-gray-700 h-32 mb-4" placeholder="اكتب رسالة تظهر للجميع..."></textarea>
+            <button onclick="saveDailyMessage()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl shadow-lg">حفظ الرسالة</button>
         </div>
     </div>
 
@@ -103,20 +103,18 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // تهيئة القوائم
         ['active-day-select', 'view-day-select', 'q-day-target'].forEach(id => {
             const el = document.getElementById(id);
             if(id === 'view-day-select') el.innerHTML += `<option value="">اختر اليوم...</option>`;
             for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
         });
 
-        // بناء 15 سؤال
         const builder = document.getElementById('questions-builder');
         for(let i=1; i<=15; i++) {
             builder.innerHTML += `<div class="q-block"><p class="text-yellow-500 font-bold text-xs mb-2">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-900 p-2 text-sm rounded mb-2 text-white border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-900 p-2 text-xs rounded border border-gray-700 text-white" placeholder="1"><input class="o2 bg-gray-900 p-2 text-xs rounded border border-gray-700 text-white" placeholder="2"><input class="o3 bg-gray-900 p-2 text-xs rounded border border-gray-700 text-white" placeholder="3"><input class="o4 bg-gray-900 p-2 text-xs rounded border border-gray-700 text-white" placeholder="4"></div><select class="cor w-full bg-gray-900 p-2 text-xs font-bold text-green-400 mt-2 border border-gray-700"><option value="0">الصح: 1</option><option value="1">الصح: 2</option><option value="2">الصح: 3</option><option value="3">الصح: 4</option></select></div>`;
         }
 
-        let editMode = false; let editDay = null; let editIdx = null;
+        let editMode = false, editDay = null, editIdx = null;
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -132,75 +130,7 @@
             const time = document.getElementById('quiz-expiry-time').value;
             db.collection("settings").doc("global_status").set({ 
                 status: st, currentDay: parseInt(day), expiryTime: time ? new Date(time).getTime() : null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            }).then(() => alert("تم تحديث حالة الموقع!"));
-        }
-
-        function viewDayQuizzes() {
-            const day = document.getElementById('view-day-select').value;
-            const view = document.getElementById('saved-quizzes-viewer');
-            if(!day) return;
-            view.innerHTML = "جاري التحميل...";
-            db.collection("quizzes_pool").doc("day_"+day).get().then(snap => {
-                if (snap.exists && snap.data().variations?.length > 0) {
-                    const vars = snap.data().variations;
-                    let html = `<p class="text-green-400 mb-2">موجود ${vars.length} كويز</p>`;
-                    vars.forEach((v, i) => {
-                        html += `<div class="bg-gray-900 p-3 rounded mb-2 border border-gray-700 flex justify-between items-center"><span class="text-yellow-500">كويز ${i+1}</span><div><button onclick="loadEdit(${day}, ${i})" class="text-blue-400 ml-4">تعديل</button><button onclick="delQuiz(${day}, ${i})" class="text-red-400">حذف</button></div></div>`;
-                    });
-                    view.innerHTML = html;
-                } else view.innerHTML = "لا يوجد بيانات.";
-            });
-        }
-
-        function loadEdit(d, i) {
-            db.collection("quizzes_pool").doc("day_"+d).get().then(snap => {
-                const quiz = snap.data().variations[i].questions;
-                const blocks = document.querySelectorAll('.q-block');
-                quiz.forEach((q, idx) => {
-                    if(blocks[idx]) {
-                        blocks[idx].querySelector('.q-txt').value = q.q;
-                        blocks[idx].querySelector('.o1').value = q.options[0];
-                        blocks[idx].querySelector('.o2').value = q.options[1];
-                        blocks[idx].querySelector('.o3').value = q.options[2];
-                        blocks[idx].querySelector('.o4').value = q.options[3];
-                        blocks[idx].querySelector('.cor').value = q.correctIndex;
-                    }
-                });
-                editMode = true; editDay = d; editIdx = i;
-                document.getElementById('save-quiz-btn').innerText = "تحديث الكويز";
-                document.getElementById('cancel-edit-btn').classList.remove('hidden');
-                document.getElementById('builder-section').scrollIntoView();
-            });
-        }
-
-        function saveQuizToDay() {
-            const day = editMode ? editDay : document.getElementById('q-day-target').value;
-            const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
-                q: b.querySelector('.q-txt').value,
-                options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
-                correctIndex: parseInt(b.querySelector('.cor').value)
-            }));
-            const ref = db.collection("quizzes_pool").doc("day_"+day);
-            if (editMode) {
-                ref.get().then(snap => {
-                    let vars = snap.data().variations; vars[editIdx] = { questions: qs };
-                    return ref.update({ variations: vars });
-                }).then(() => { alert("تم التعديل!"); cancelEdit(); viewDayQuizzes(); });
-            } else {
-                ref.set({ variations: firebase.firestore.FieldValue.arrayUnion({ questions: qs }) }, { merge: true }).then(() => { alert("تم الحفظ!"); location.reload(); });
-            }
-        }
-
-        function cancelEdit() { editMode = false; document.getElementById('save-quiz-btn').innerText = "حفظ الكويز"; document.getElementById('cancel-edit-btn').classList.add('hidden'); document.querySelectorAll('.q-txt, .o1, .o2, .o3, .o4').forEach(i => i.value=''); }
-
-        function delQuiz(d, idx) {
-            if(confirm('مسح؟')) {
-                const ref = db.collection("quizzes_pool").doc("day_"+d);
-                ref.get().then(snap => {
-                    let vars = snap.data().variations; vars.splice(idx, 1);
-                    return ref.update({ variations: vars });
-                }).then(() => viewDayQuizzes());
-            }
+            }).then(() => alert("تم التحديث!"));
         }
 
         function loadUsers() {
@@ -211,7 +141,7 @@
                 let users = []; let gMap = {};
                 snap.forEach(d => { let u = d.data(); u.id = d.id; users.push(u); if(!gMap[u.group]) gMap[u.group]=[]; gMap[u.group].push(u); });
                 users.sort((a,b) => (b.score||0)-(a.score||0)).forEach(u => {
-                    list.innerHTML += `<tr class="border-b border-gray-800"><td class="p-4 text-yellow-500 font-bold">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-center">${u.score||0} <button onclick="editScore('${u.id}',${u.score||0})" class="bg-gray-700 p-1 rounded text-xs ml-2">تعديل</button></td><td class="p-4 text-center"><button onclick="toggleBan('${u.id}',${u.isBanned||false})" class="text-red-500"><i class="fas fa-ban"></i></button></td></tr>`;
+                    list.innerHTML += `<tr class="border-b border-gray-800"><td class="p-4 text-yellow-500 font-bold">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-center">${u.score||0}</td><td class="p-4 text-center"><button onclick="editScore('${u.id}',${u.score||0})" class="bg-gray-700 px-3 py-1 rounded text-xs font-bold text-white"><i class="fas fa-edit"></i> تعديل</button></td></tr>`;
                 });
                 for(let g in gMap) {
                     gMap[g].sort((a,b) => (b.score||0)-(a.score||0));
@@ -222,12 +152,10 @@
         }
 
         function editScore(id, cur) { let nw = prompt("النقاط الجديدة:", cur); if(nw) db.collection("users").doc(id).update({score: parseInt(nw)}).then(loadUsers); }
-        function toggleBan(id, st) { db.collection("users").doc(id).update({isBanned: !st}).then(loadUsers); }
         function saveDailyMessage() { db.collection("settings").doc("dailyData").set({ message: document.getElementById('daily-msg-input').value }).then(() => alert("تم الحفظ!")); }
         function loadMessage() { db.collection("settings").doc("dailyData").get().then(snap => { if(snap.exists) document.getElementById('daily-msg-input').value = snap.data().message; }); }
 
         window.onload = loadUsers;
     </script>
 </body>
-                    </html>
-                                                                                                    
+</html>
