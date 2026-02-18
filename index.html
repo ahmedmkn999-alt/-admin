@@ -19,21 +19,21 @@
 </head>
 <body class="pb-20">
 
-    <div id="admin-gate">
-        <div class="bg-gray-900 p-8 rounded-2xl border border-yellow-600 text-center shadow-2xl">
+    <div id="admin-gate" class="p-4">
+        <div class="bg-gray-900 p-8 rounded-2xl border border-yellow-600 text-center shadow-2xl w-full max-w-sm mx-auto">
             <h2 class="text-xl font-black text-yellow-500 mb-6">دخول الإدارة 🔒</h2>
-            <input type="password" id="gate-pass" placeholder="كلمة السر..." class="w-full p-3 bg-gray-800 rounded-xl mb-4 text-center text-white border border-gray-700">
-            <button onclick="checkGate()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">دخول</button>
+            <input type="password" id="gate-pass" placeholder="كلمة السر..." class="w-full p-3 bg-gray-800 rounded-xl mb-4 text-center text-white border border-gray-700 outline-none">
+            <button onclick="window.checkGate()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">دخول</button>
         </div>
     </div>
 
     <div id="main-admin" class="p-4 max-w-6xl mx-auto" style="display:none;">
         <header class="flex justify-center gap-2 mb-8 border-b border-gray-800 pb-4 flex-wrap">
-            <button onclick="switchTab('room')" id="btn-room" class="nav-btn active">غرفة المجموعات 🏰</button>
-            <button onclick="switchTab('users')" id="btn-users" class="nav-btn">المتسابقين 👥</button>
-            <button onclick="switchTab('quizzes')" id="btn-quizzes" class="nav-btn">إنشاء الكويزات 📝</button>
-            <button onclick="switchTab('vault')" id="btn-vault" class="nav-btn">الخزنة والنشر 🚀</button>
-            <button onclick="switchTab('settings')" id="btn-settings" class="nav-btn">الإعدادات ⚙️</button>
+            <button onclick="window.switchTab('room')" id="btn-room" class="nav-btn active">غرفة المجموعات 🏰</button>
+            <button onclick="window.switchTab('users')" id="btn-users" class="nav-btn">المتسابقين 👥</button>
+            <button onclick="window.switchTab('quizzes')" id="btn-quizzes" class="nav-btn">إنشاء الكويزات 📝</button>
+            <button onclick="window.switchTab('vault')" id="btn-vault" class="nav-btn">الخزنة والنشر 🚀</button>
+            <button onclick="window.switchTab('settings')" id="btn-settings" class="nav-btn">الإعدادات ⚙️</button>
         </header>
 
         <div id="tab-room" class="tab-content active">
@@ -43,7 +43,7 @@
                     <input type="text" id="grp-name" placeholder="اسم المجموعة" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
                     <input type="text" id="team1-name" placeholder="اسم تيم 1" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
                     <input type="text" id="team2-name" placeholder="اسم تيم 2" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <button onclick="createGroup()" class="bg-blue-600 font-bold rounded-xl text-white">إنشاء المجموعة</button>
+                    <button onclick="window.createGroup()" class="bg-blue-600 font-bold rounded-xl text-white py-3">إنشاء المجموعة</button>
                 </div>
             </div>
             <div id="groups-viewer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
@@ -51,12 +51,12 @@
 
         <div id="tab-users" class="tab-content">
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 mb-6">
-                <h3 class="text-yellow-500 font-bold mb-4">إضافة متسابق (حسب المجموعات المتاحة)</h3>
+                <h3 class="text-yellow-500 font-bold mb-4">إضافة متسابق (بدون باسورد)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <input type="text" id="add-name" placeholder="الاسم" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <select id="sel-group" onchange="updateTeamDropdown()" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white"><option value="">اختر المجموعة</option></select>
+                    <select id="sel-group" onchange="window.updateTeamDropdown()" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white"><option value="">اختر المجموعة</option></select>
                     <select id="sel-team" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white"><option value="">اختر التيم</option></select>
-                    <button onclick="addUser()" class="bg-yellow-600 text-black font-bold rounded-xl">إضافة ➕</button>
+                    <button onclick="window.addUser()" class="bg-yellow-600 text-black font-bold rounded-xl py-3">إضافة ➕</button>
                 </div>
             </div>
             <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
@@ -70,22 +70,22 @@
         <div id="tab-quizzes" class="tab-content">
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-blue-400 font-bold">بناء كويز جديد (15 سؤال)</h3>
+                    <h3 class="text-blue-400 font-bold">بناء كويز (15 سؤال)</h3>
                     <select id="build-day" class="bg-gray-800 p-2 rounded-lg text-white border border-gray-700 font-bold"></select>
                 </div>
                 <div id="q-area"></div>
-                <button onclick="saveToVault()" class="w-full bg-gray-700 text-white font-black py-4 mt-4 rounded-xl border border-gray-600 hover:bg-gray-600">💾 حفظ الكويز في الخزنة (بدون نشر)</button>
+                <button onclick="window.saveToVault()" class="w-full bg-gray-700 text-white font-black py-4 mt-4 rounded-xl border border-gray-600 hover:bg-gray-600">💾 حفظ الكويز في الخزنة</button>
             </div>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-6">
-            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600 shadow-xl">
-                <h3 class="text-yellow-500 font-bold mb-4 text-center">التحكم في الموقع (تفعيل الأيام)</h3>
+            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600 shadow-xl text-center">
+                <h3 class="text-yellow-500 font-bold mb-4">تفعيل الأيام في الموقع</h3>
                 <div class="flex flex-wrap justify-center gap-3">
                     <select id="control-day" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white font-bold w-40"></select>
-                    <button onclick="publishStatus('soon')" class="bg-blue-600 px-6 py-3 rounded-xl font-bold">قريباً ⏳</button>
-                    <button onclick="publishStatus('active')" class="bg-green-600 px-6 py-3 rounded-xl font-bold text-black">تفعيل وبدء اللعب ▶️</button>
-                    <button onclick="publishStatus('closed')" class="bg-red-600 px-6 py-3 rounded-xl font-bold">إغلاق نهائي 🔒</button>
+                    <button onclick="window.publishStatus('soon')" class="bg-blue-600 px-6 py-3 rounded-xl font-bold">قريباً ⏳</button>
+                    <button onclick="window.publishStatus('active')" class="bg-green-600 px-6 py-3 rounded-xl font-bold text-black">بدء اللعب ▶️</button>
+                    <button onclick="window.publishStatus('closed')" class="bg-red-600 px-6 py-3 rounded-xl font-bold">إغلاق نهائي 🔒</button>
                 </div>
             </div>
             
@@ -93,7 +93,7 @@
                 <h3 class="text-gray-300 font-bold mb-4">الخزنة (إدارة ما تم حفظه)</h3>
                 <div class="flex gap-2 mb-4">
                     <select id="vault-day" class="bg-gray-800 p-3 rounded-xl border border-gray-700 flex-grow text-white"></select>
-                    <button onclick="checkVault()" class="bg-gray-700 px-6 rounded-xl font-bold border border-gray-600">فحص</button>
+                    <button onclick="window.checkVault()" class="bg-gray-700 px-6 rounded-xl font-bold border border-gray-600">فحص</button>
                 </div>
                 <div id="vault-res" class="p-4 bg-gray-800 rounded-xl text-sm text-gray-400">اختر يوماً للفحص...</div>
             </div>
@@ -103,7 +103,7 @@
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
                 <h2 class="text-yellow-500 font-bold mb-4">رسالة اليوم (تظهر للكل)</h2>
                 <textarea id="daily-msg" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 h-32 text-white mb-4"></textarea>
-                <button onclick="saveMsg()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">حفظ الجملة</button>
+                <button onclick="window.saveMsg()" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">حفظ الجملة</button>
             </div>
         </div>
     </div>
@@ -118,7 +118,7 @@
 
         let allGroups = [];
 
-        function checkGate() {
+        window.checkGate = function() {
             if(document.getElementById('gate-pass').value === ADMIN_PASS){
                 document.getElementById('admin-gate').style.display = 'none';
                 document.getElementById('main-admin').style.display = 'block';
@@ -126,7 +126,7 @@
             } else alert("باسورد غلط!");
         }
 
-        function switchTab(t) {
+        window.switchTab = function(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+t).classList.add('active');
@@ -134,35 +134,32 @@
         }
 
         function initAdmin() {
-            // تجهيز القوائم 29 يوم
             ['build-day', 'control-day', 'vault-day'].forEach(id => {
                 let el = document.getElementById(id);
                 for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
 
-            // بناء 15 سؤال
             let qa = document.getElementById('q-area');
             for(let i=1; i<=15; i++) {
                 qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-2 rounded mb-2 text-white border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-2 text-xs rounded text-white border border-gray-700" placeholder="1"><input class="o2 bg-gray-800 p-2 text-xs rounded text-white border border-gray-700" placeholder="2"><input class="o3 bg-gray-800 p-2 text-xs rounded text-white border border-gray-700" placeholder="3"><input class="o4 bg-gray-800 p-2 text-xs rounded text-white border border-gray-700" placeholder="4"></div><select class="cor w-full bg-gray-800 p-2 text-xs font-bold text-green-400 mt-2 border border-gray-700"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
             }
 
-            loadGroups();
-            loadUsers();
+            window.loadGroups();
+            window.loadUsers();
             db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('daily-msg').value = s.data().message || ""; });
         }
 
-        // --- نظام المجموعات والتيمات ---
-        function createGroup() {
+        window.createGroup = function() {
             let g = document.getElementById('grp-name').value;
             let t1 = document.getElementById('team1-name').value;
             let t2 = document.getElementById('team2-name').value;
             if(!g || !t1 || !t2) return alert("اكمل البيانات");
             db.collection("config").doc("groups_data").set({
                 list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] })
-            }, { merge: true }).then(() => { alert("تم الإنشاء!"); loadGroups(); });
+            }, { merge: true }).then(() => { alert("تم الإنشاء!"); window.loadGroups(); });
         }
 
-        function loadGroups() {
+        window.loadGroups = function() {
             db.collection("config").doc("groups_data").get().then(snap => {
                 let view = document.getElementById('groups-viewer');
                 let selG = document.getElementById('sel-group');
@@ -177,7 +174,7 @@
             });
         }
 
-        function updateTeamDropdown() {
+        window.updateTeamDropdown = function() {
             let gIdx = document.getElementById('sel-group').value;
             let selT = document.getElementById('sel-team');
             selT.innerHTML = '<option value="">اختر التيم</option>';
@@ -187,33 +184,31 @@
             }
         }
 
-        // --- نظام المتسابقين ---
-        function addUser() {
+        window.addUser = function() {
             let n = document.getElementById('add-name').value;
             let gIdx = document.getElementById('sel-group').value;
             let t = document.getElementById('sel-team').value;
             if(!n || gIdx==="" || !t) return alert("اكمل البيانات");
             db.collection("users").add({ name: n, group: allGroups[gIdx].group, team: t, score: 0, isBanned: false })
-            .then(() => { alert("تم!"); loadUsers(); document.getElementById('add-name').value=""; });
+            .then(() => { alert("تم!"); window.loadUsers(); document.getElementById('add-name').value=""; });
         }
 
-        function loadUsers() {
+        window.loadUsers = function() {
             db.collection("users").get().then(snap => {
                 let body = document.getElementById('users-body'); body.innerHTML = "";
                 let arr = []; snap.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
                 arr.sort((a,b)=>(b.score||0)-(a.score||0)).forEach(u => {
                     let bColor = u.isBanned ? "text-red-500 line-through" : "text-white font-bold";
-                    body.innerHTML += `<tr class="border-b border-gray-800"><td class="p-3 ${bColor}">${u.name}</td><td class="p-3 text-xs text-blue-300">${u.group}<br><span class="text-gray-400">(${u.team})</span></td><td class="p-3 text-center font-black text-yellow-500">${u.score||0}</td><td class="p-3 flex justify-center gap-1"><button onclick="editSc('${u.id}',${u.score||0})" class="bg-gray-800 p-2 rounded text-blue-400"><i class="fas fa-edit"></i></button><button onclick="toggleBan('${u.id}',${u.isBanned})" class="bg-gray-800 p-2 rounded ${u.isBanned?'text-green-500':'text-orange-500'}"><i class="fas fa-ban"></i></button><button onclick="delU('${u.id}')" class="bg-gray-800 p-2 rounded text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+                    body.innerHTML += `<tr class="border-b border-gray-800"><td class="p-3 ${bColor}">${u.name || 'مجهول'}</td><td class="p-3 text-xs text-blue-300">${u.group || 'بدون'}<br><span class="text-gray-400">(${u.team || 'بدون'})</span></td><td class="p-3 text-center font-black text-yellow-500">${u.score||0}</td><td class="p-3 flex justify-center gap-1"><button onclick="window.editSc('${u.id}',${u.score||0})" class="bg-gray-800 p-2 rounded text-blue-400"><i class="fas fa-edit"></i></button><button onclick="window.toggleBan('${u.id}',${u.isBanned})" class="bg-gray-800 p-2 rounded ${u.isBanned?'text-green-500':'text-orange-500'}"><i class="fas fa-ban"></i></button><button onclick="window.delU('${u.id}')" class="bg-gray-800 p-2 rounded text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
             });
         }
 
-        function editSc(id, cur) { let nw = prompt("النقط:", cur); if(nw) db.collection("users").doc(id).update({score: parseInt(nw)}).then(loadUsers); }
-        function toggleBan(id, st) { db.collection("users").doc(id).update({isBanned: !st}).then(loadUsers); }
-        function delU(id) { if(confirm("حذف؟")) db.collection("users").doc(id).delete().then(loadUsers); }
+        window.editSc = (id, cur) => { let nw = prompt("النقط:", cur); if(nw) db.collection("users").doc(id).update({score: parseInt(nw)}).then(window.loadUsers); }
+        window.toggleBan = (id, st) => { db.collection("users").doc(id).update({isBanned: !st}).then(window.loadUsers); }
+        window.delU = (id) => { if(confirm("حذف؟")) db.collection("users").doc(id).delete().then(window.loadUsers); }
 
-        // --- نظام الكويزات (الخزنة والنشر) ---
-        function saveToVault() {
+        window.saveToVault = function() {
             const day = document.getElementById('build-day').value;
             const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
                 q: b.querySelector('.q-txt').value,
@@ -221,35 +216,33 @@
                 correctIndex: parseInt(b.querySelector('.cor').value)
             }));
             db.collection("quizzes_pool").doc("day_"+day).set({ variations: [{ questions: qs }] })
-            .then(() => alert(`تم حفظ كويز اليوم ${day} في الخزنة بنجاح! (لم يتم نشره بعد)`));
+            .then(() => alert(`تم الحفظ في الخزنة لليوم ${day} بنجاح!`));
         }
 
-        function checkVault() {
+        window.checkVault = function() {
             const day = document.getElementById('vault-day').value;
             const res = document.getElementById('vault-res');
             res.innerHTML = "جاري الفحص...";
             db.collection("quizzes_pool").doc("day_"+day).get().then(snap => {
                 if(snap.exists && snap.data().variations) {
-                    res.innerHTML = `<span class="text-green-400 font-bold">يوجد كويز محفوظ لهذا اليوم!</span> <button onclick="delQuiz('${day}')" class="text-red-500 text-xs ml-3 underline">مسح الكويز</button>`;
-                } else res.innerHTML = `<span class="text-red-400">لا يوجد شيء محفوظ في هذا اليوم.</span>`;
+                    res.innerHTML = `<span class="text-green-400 font-bold">يوجد كويز!</span> <button onclick="window.delQuiz('${day}')" class="text-red-500 text-xs ml-3 underline">مسح الكويز</button>`;
+                } else res.innerHTML = `<span class="text-red-400">لا يوجد شيء محفوظ.</span>`;
             });
         }
 
-        function delQuiz(day) {
-            if(confirm("مسح الكويز من قاعدة البيانات؟")) {
-                db.collection("quizzes_pool").doc("day_"+day).delete().then(()=> checkVault());
-            }
+        window.delQuiz = function(day) {
+            if(confirm("متأكد؟")) db.collection("quizzes_pool").doc("day_"+day).delete().then(()=> window.checkVault());
         }
 
-        function publishStatus(st) {
+        window.publishStatus = function(st) {
             const day = document.getElementById('control-day').value;
             db.collection("settings").doc("global_status").set({ 
                 status: st, currentDay: parseInt(day), updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
             }).then(() => alert(`تم تغيير حالة اليوم ${day} إلى: ${st}`));
         }
 
-        function saveMsg() { db.collection("settings").doc("dailyData").set({ message: document.getElementById('daily-msg').value }).then(()=>alert("تم حفظ الرسالة!")); }
+        window.saveMsg = () => db.collection("settings").doc("dailyData").set({ message: document.getElementById('daily-msg').value }).then(()=>alert("تم الحفظ!"));
     </script>
 </body>
-                        </html>
-                        
+                                                                     </html>
+            
