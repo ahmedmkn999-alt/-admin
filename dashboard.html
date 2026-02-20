@@ -24,7 +24,7 @@
 
     <div class="p-4 max-w-5xl mx-auto relative z-10">
         <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
-            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال...</span>
+            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال... ⏳</span>
             <button onclick="logOut()" class="bg-red-900/80 text-red-300 border border-red-500 px-4 py-2 rounded-xl text-xs font-bold">خروج 🔒</button>
         </div>
 
@@ -164,13 +164,18 @@
 
         // --- 2. تهيئة عند التحميل ---
         window.onload = function() {
-            if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-            db = firebase.firestore();
-            document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
-            
-            setupDays();
-            setupQuestions();
-            startListening();
+            try {
+                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+                db = firebase.firestore();
+                document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
+                
+                setupDays();
+                setupQuestions();
+                startListening();
+            } catch (error) {
+                console.error("خطأ في التهيئة:", error);
+                document.getElementById('conn-status').innerText = "حدث خطأ في الاتصال 🔴";
+            }
         };
 
         function setupDays() {
@@ -204,7 +209,7 @@
             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+t).style.display = 'block';
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
         }
 
         function toggleGroupInputs() {
@@ -213,16 +218,24 @@
         }
 
         function startListening() {
+            // جلب المجموعات مع تحصين ضد البيانات القديمة
             db.collection("config").doc("groups_data").onSnapshot(s => {
-                if(s.exists) { globalGroups = s.data().list || []; renderGroups(); }
-            });
+                if(s.exists) { 
+                    globalGroups = s.data().list || []; 
+                    renderGroups(); 
+                } else {
+                    globalGroups = [];
+                    renderGroups();
+                }
+            }, err => console.error(err));
 
+            // جلب المتسابقين
             db.collection("users").onSnapshot(s => {
                 globalUsers = [];
                 s.forEach(d => globalUsers.push({id: d.id, ...d.data()}));
                 renderUsers();
                 calculateGlobalRanking();
-            });
+            }, err => console.error(err));
         }
 
         // --- 4. إدارة المجموعات والفرق ---
@@ -242,8 +255,10 @@
             globalGroups.push(newG);
             db.collection("config").doc("groups_data").set({ list: globalGroups }).then(() => {
                 document.getElementById('g-name').value = "";
+                document.getElementById('t1').value = "";
+                document.getElementById('t2').value = "";
                 alert("تم الحفظ بنجاح");
-            });
+            }).catch(err => alert("حدث خطأ أثناء الحفظ"));
         }
 
         function renderGroups() {
@@ -251,10 +266,25 @@
             let select = document.getElementById('u-group');
             list.innerHTML = "";
             select.innerHTML = '<option value="">اختر المجموعة</option>';
+            
             globalGroups.forEach((g, i) => {
-                select.innerHTML += `<option value="${i}">${g.group}</option>`;
+                select.innerHTML += `<option value="${i}">${g.group || "مجموعة مجهولة"}</option>`;
+                
+                // تحصين لمنع أي كراش بسبب بيانات التيمات القديمة
+                let teamStr = "";
+                if (g.type === 'single') {
+                    teamStr = "فردي";
+                } else if (g.teams && Array.isArray(g.teams)) {
+                    teamStr = g.teams.join(' vs ');
+                } else {
+                    teamStr = "مباراة";
+                }
+
                 list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">
-                    <div><b class="text-yellow-500">${g.group}</b><small class="block text-gray-400">${g.type==='single'?'فردي':g.teams.join(' vs ')}</small></div>
+                    <div>
+                        <b class="text-yellow-500">${g.group || "بدون اسم"}</b>
+                        <small class="block text-gray-400">${teamStr}</small>
+                    </div>
                     <button onclick="delGrp(${i})" class="text-red-500 text-xs font-bold">حذف</button>
                 </div>`;
             });
@@ -264,10 +294,13 @@
             let idx = document.getElementById('u-group').value;
             let teamSelect = document.getElementById('u-team');
             teamSelect.innerHTML = "";
-            if(idx !== "") {
+            if(idx !== "" && globalGroups[idx]) {
                 let g = globalGroups[idx];
-                if(g.type === 'single') teamSelect.innerHTML = '<option value="فردي">فردي</option>';
-                else g.teams.forEach(t => teamSelect.innerHTML += `<option value="${t}">${t}</option>`);
+                if(g.type === 'single') {
+                    teamSelect.innerHTML = '<option value="فردي">فردي</option>';
+                } else if(g.teams && Array.isArray(g.teams)) {
+                    g.teams.forEach(t => teamSelect.innerHTML += `<option value="${t}">${t}</option>`);
+                }
             }
         }
 
@@ -285,9 +318,11 @@
             let t = document.getElementById('u-team').value;
             if(!n || gIdx === "") return alert("اكمل البيانات");
 
+            let groupName = globalGroups[gIdx] ? globalGroups[gIdx].group : "غير معروف";
             let pass = Math.floor(100000 + Math.random() * 900000).toString();
+            
             db.collection("users").add({
-                name: n, password: pass, group: globalGroups[gIdx].group, team: t, score: 0, isBanned: false
+                name: n, password: pass, group: groupName, team: t || "", score: 0, isBanned: false
             }).then(() => {
                 document.getElementById('u-name').value = "";
                 document.getElementById('copy-modal').style.display = 'flex';
@@ -295,53 +330,28 @@
                     navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`);
                     alert("تم النسخ!");
                 };
-            });
+            }).catch(err => alert("حدث خطأ أثناء الإنشاء"));
         }
 
         function renderUsers() {
             let uL = document.getElementById('usr-list');
             uL.innerHTML = "";
-            globalUsers.sort((a,b) => (b.score||0) - (a.score||0)).forEach(u => {
+            
+            // تحصين الفرز والترتيب
+            let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
+            safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
                 uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50 transition">
                     <td class="p-4">
-                        <b class="${u.isBanned?'text-red-500 line-through':''}">${u.name}</b>
-                        <br><small class="text-yellow-500">${u.password} | ${u.team}</small>
+                        <b class="${u.isBanned?'text-red-500 line-through':''}">${u.name || "مجهول"}</b>
+                        <br><small class="text-yellow-500">${u.password || ""} | ${u.team || ""}</small>
                     </td>
-                    <td class="text-center font-bold text-yellow-500">${u.score||0}</td>
+                    <td class="text-center font-bold text-yellow-500">${u.score}</td>
                     <td class="p-4 flex flex-wrap gap-1 justify-center">
                         <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
-                        <button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
-                        <button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
+                        <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
+                        <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
                         <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px] flex-1">حذف</button>
                     </td>
                 </tr>`;
             });
-        }
-
-        // فتح البروفايل وجلب السجل
-        function openProfile(userId) {
-            let user = globalUsers.find(u => u.id === userId);
-            if(!user) return;
-
-            document.getElementById('prof-name').innerText = user.name;
-            document.getElementById('prof-team').innerText = `${user.group} | ${user.team}`;
-            document.getElementById('prof-score').innerText = user.score || 0;
-            document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
-            
-            document.getElementById('user-profile-modal').style.display = 'flex';
-
-            db.collection("users").doc(userId).collection("game_logs").get().then(snap => {
-                let logs = [];
-                snap.forEach(doc => logs.push(doc.data()));
-                logs.sort((a,b) => b.day - a.day); // ترتيب من الأحدث للأقدم
-
-                if(logs.length === 0) {
-                    document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
-                    return;
-                }
-
-                let html = "";
-                logs.forEach(log => {
-                    let dateStr = log.timestamp ? log.timestamp.toDate().toLocaleString('ar-EG', { hour12: true, month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }) : 'غير معروف';
-                    html += `<div class="bg-gray-800/80 p-3 rounded-xl flex justify-between items-center border border-gray-700 hover:border-purple-500/50 transition">
-                                                             
+  
