@@ -11,7 +11,7 @@
         body { font-family: 'Cairo', sans-serif; background: #050505; color: #fff; margin: 0; padding: 0; min-height: 100vh; }
         .glass-panel { background: rgba(20, 24, 39, 0.9); border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7); }
         .gold-btn { background: linear-gradient(135deg, #d4af37, #aa8000); color: #000; font-weight: 900; cursor: pointer; border: none; }
-        .nav-btn { background: rgba(30, 41, 59, 0.9); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; white-space: nowrap; cursor: pointer; }
+        .nav-btn { background: rgba(30, 41, 59, 0.9); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; white-space: nowrap; cursor: pointer; transition: 0.3s; }
         .nav-btn.active { background: rgba(212, 175, 55, 0.2); color: #d4af37; border: 1px solid #d4af37; }
         .tab-content { display: none; } 
         .tab-content.active { display: block; }
@@ -24,7 +24,7 @@
 
     <div class="p-4 max-w-5xl mx-auto relative z-10">
         <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
-            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال بقاعدة البيانات...</span>
+            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال...</span>
             <button onclick="logOut()" class="bg-red-900/80 text-red-300 border border-red-500 px-4 py-2 rounded-xl text-xs font-bold">خروج 🔒</button>
         </div>
 
@@ -40,12 +40,11 @@
         <div id="tab-room" class="tab-content active">
             <div class="glass-panel p-5 rounded-2xl mb-6">
                 <h3 class="text-yellow-500 font-bold mb-4 text-sm">إعداد المجموعات</h3>
-                <input type="text" id="g-name" placeholder="اسم المجموعة (مثلاً: الدوري الرمضاني)" class="w-full p-3 rounded-xl mb-3">
+                <input type="text" id="g-name" placeholder="اسم المجموعة..." class="w-full p-3 rounded-xl mb-3">
                 <div class="mb-3">
-                    <label class="text-xs text-gray-400 block mb-1">نوع المجموعة:</label>
                     <select id="g-type" onchange="toggleGroupInputs()" class="w-full p-3 rounded-xl">
                         <option value="teams">مباراة (تيم ضد تيم)</option>
-                        <option value="single">فردي (كل لاعب لوحده)</option>
+                        <option value="single">فردي (مجموعة أفراد)</option>
                     </select>
                 </div>
                 <div id="teams-input-area" class="grid grid-cols-2 gap-3 mb-3">
@@ -82,12 +81,10 @@
         <div id="tab-quizzes" class="tab-content">
             <div class="glass-panel p-5 rounded-2xl mb-4">
                 <div class="flex gap-3">
-                    <div class="flex-1"><select id="q-day" class="w-full p-3 rounded-xl text-yellow-500 font-bold border-yellow-600"></select></div>
-                    <div class="w-1/3">
-                        <select id="q-var" class="w-full p-3 rounded-xl text-blue-400 font-bold border-blue-600">
-                            <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option>
-                        </select>
-                    </div>
+                    <select id="q-day" class="flex-1 p-3 rounded-xl text-yellow-500 font-bold border-yellow-600"></select>
+                    <select id="q-var" class="w-1/3 p-3 rounded-xl text-blue-400 font-bold border-blue-600">
+                        <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option>
+                    </select>
                 </div>
             </div>
             <div id="q-area" class="space-y-3"></div>
@@ -96,12 +93,12 @@
 
         <div id="tab-vault" class="tab-content space-y-4">
             <div class="glass-panel p-6 rounded-2xl text-center">
-                <h3 class="mb-4 font-bold text-yellow-500">لوحة النشر المباشر</h3>
+                <h3 class="mb-4 font-bold text-yellow-500">الحالة المباشرة</h3>
                 <select id="pub-day" class="w-full p-3 rounded-xl mb-4 font-bold"></select>
                 <div class="flex gap-2">
-                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900 text-blue-300 p-3 rounded-xl font-bold border border-blue-500">قريباً</button>
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900 text-blue-300 p-3 rounded-xl font-bold">قريباً</button>
                     <button onclick="setStatus('active')" class="flex-1 bg-green-500 text-black p-3 rounded-xl font-black">تفعيل ▶️</button>
-                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900 text-red-300 p-3 rounded-xl font-bold border border-red-500">إغلاق 🔒</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900 text-red-300 p-3 rounded-xl font-bold">إغلاق 🔒</button>
                 </div>
             </div>
         </div>
@@ -109,20 +106,20 @@
         <div id="tab-settings" class="tab-content space-y-4">
             <div class="glass-panel p-5 rounded-2xl border-r-4 border-yellow-500">
                 <p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل الطائرة:</p>
-                <input type="text" id="msg-champ" placeholder="اكتب الرسالة هنا..." class="w-full p-3 rounded-xl mb-3">
+                <input type="text" id="msg-champ" placeholder="اكتب الرسالة..." class="w-full p-3 rounded-xl mb-3">
                 <button onclick="saveMessage('champData')" class="gold-btn w-full p-3 rounded-xl">نشر الرسالة</button>
             </div>
             <div class="glass-panel p-5 rounded-2xl border-r-4 border-blue-500">
-                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري (أعلى الموقع):</p>
+                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري:</p>
                 <textarea id="msg-daily" placeholder="تنبيهات وأخبار..." class="w-full p-3 rounded-xl mb-3 h-24"></textarea>
-                <button onclick="saveMessage('dailyData')" class="bg-blue-600 text-white font-bold w-full p-3 rounded-xl">تحديث الشريط</button>
+                <button onclick="saveMessage('dailyData')" class="bg-blue-600 text-white font-bold w-full p-3 rounded-xl">تحديث</button>
             </div>
         </div>
     </div>
 
     <div id="copy-modal" class="modal-overlay">
         <div class="glass-panel p-8 rounded-3xl border border-green-500 w-full max-w-xs text-center">
-            <p class="text-white font-bold mb-6 text-lg">تم تسجيل المتسابق!</p>
+            <p class="text-white font-bold mb-6 text-lg">تم التسجيل بنجاح!</p>
             <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3">نسخ البيانات</button>
             <button onclick="document.getElementById('copy-modal').style.display='none'" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold">إغلاق</button>
         </div>
@@ -132,51 +129,55 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        var db = null;
-        var globalGroups = [];
-        var globalUsers = [];
+        // --- 1. الأساسيات ---
+        let db = null;
+        let globalGroups = [];
+        let globalUsers = [];
 
-        // --- تهيئة Firebase ---
         const firebaseConfig = { 
             apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", 
             projectId: "ramadan-87817", 
             appId: "1:343525703258:web:6776b4857425df8bcca263" 
         };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        db = firebase.firestore();
 
+        // --- 2. تهيئة عند التحميل ---
         window.onload = function() {
+            if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+            db = firebase.firestore();
             document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
             
-            // تعبئة أيام الكويزات
-            let daysHtml = "";
-            for(let d=1; d<=30; d++) daysHtml += `<option value="${d}">اليوم ${d}</option>`;
-            document.getElementById('q-day').innerHTML = daysHtml;
-            document.getElementById('pub-day').innerHTML = daysHtml;
-
-            // إنشاء مربعات الـ 15 سؤال
-            let qArea = document.getElementById('q-area');
-            let qHtml = "";
-            for(let i=1; i<=15; i++) {
-                qHtml += `<div class="q-block">
-                    <p class="text-yellow-500 text-[10px] font-bold mb-1">سؤال ${i}</p>
-                    <textarea class="qt w-full p-2 text-sm rounded-lg mb-2 h-12" placeholder="اكتب السؤال..."></textarea>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input class="o1 p-2 text-xs rounded" placeholder="الخيار 1"><input class="o2 p-2 text-xs rounded" placeholder="الخيار 2">
-                        <input class="o3 p-2 text-xs rounded" placeholder="الخيار 3"><input class="o4 p-2 text-xs rounded" placeholder="الخيار 4">
-                    </div>
-                    <select class="ca w-full p-1 mt-2 text-xs text-green-400 bg-black border-gray-700 rounded">
-                        <option value="0">الإجابة الصحيحة هي 1</option><option value="1">الإجابة الصحيحة هي 2</option>
-                        <option value="2">الإجابة الصحيحة هي 3</option><option value="3">الإجابة الصحيحة هي 4</option>
-                    </select>
-                </div>`;
-            }
-            qArea.innerHTML = qHtml;
-
+            setupDays();
+            setupQuestions();
             startListening();
         };
 
-        // --- التبديل بين التبويبات ---
+        function setupDays() {
+            let html = "";
+            for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
+            document.getElementById('q-day').innerHTML = html;
+            document.getElementById('pub-day').innerHTML = html;
+        }
+
+        function setupQuestions() {
+            let html = "";
+            for(let i=1; i<=15; i++) {
+                html += `<div class="q-block">
+                    <p class="text-yellow-500 text-[10px] font-bold mb-1">سؤال ${i}</p>
+                    <textarea class="qt w-full p-2 text-sm rounded-lg mb-2 h-12" placeholder="السؤال..."></textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input class="o1 p-2 text-xs rounded" placeholder="خيار 1"><input class="o2 p-2 text-xs rounded" placeholder="خيار 2">
+                        <input class="o3 p-2 text-xs rounded" placeholder="خيار 3"><input class="o4 p-2 text-xs rounded" placeholder="خيار 4">
+                    </div>
+                    <select class="ca w-full p-1 mt-2 text-xs text-green-400 bg-black rounded">
+                        <option value="0">الصح 1</option><option value="1">الصح 2</option>
+                        <option value="2">الصح 3</option><option value="3">الصح 4</option>
+                    </select>
+                </div>`;
+            }
+            document.getElementById('q-area').innerHTML = html;
+        }
+
+        // --- 3. الدوال الأساسية ---
         function showTab(t, btn) {
             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -189,7 +190,6 @@
             document.getElementById('teams-input-area').style.display = (type === 'teams') ? 'grid' : 'none';
         }
 
-        // --- الاستماع للبيانات (Realtime) ---
         function startListening() {
             db.collection("config").doc("groups_data").onSnapshot(s => {
                 if(s.exists) { globalGroups = s.data().list || []; renderGroups(); }
@@ -203,7 +203,27 @@
             });
         }
 
-        // --- المجموعات ---
+        // --- 4. إدارة المجموعات والفرق ---
+        function saveGrp() {
+            const name = document.getElementById('g-name').value.trim();
+            const type = document.getElementById('g-type').value;
+            if(!name) return alert("اكتب اسم المجموعة");
+            
+            let newG = { group: name, type: type, teams: [] };
+            if(type === 'teams') {
+                const t1 = document.getElementById('t1').value.trim();
+                const t2 = document.getElementById('t2').value.trim();
+                if(!t1 || !t2) return alert("اكتب أسماء التيمات");
+                newG.teams = [t1, t2];
+            }
+
+            globalGroups.push(newG);
+            db.collection("config").doc("groups_data").set({ list: globalGroups }).then(() => {
+                document.getElementById('g-name').value = "";
+                alert("تم الحفظ بنجاح");
+            });
+        }
+
         function renderGroups() {
             let list = document.getElementById('grp-list');
             let select = document.getElementById('u-group');
@@ -212,7 +232,7 @@
             globalGroups.forEach((g, i) => {
                 select.innerHTML += `<option value="${i}">${g.group}</option>`;
                 list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">
-                    <div><b class="text-yellow-500">${g.group}</b><small class="block text-gray-400">${g.type === 'single' ? 'نوع: فردي' : g.teams.join(' vs ')}</small></div>
+                    <div><b class="text-yellow-500">${g.group}</b><small class="block text-gray-400">${g.type==='single'?'فردي':g.teams.join(' vs ')}</small></div>
                     <button onclick="delGrp(${i})" class="text-red-500 text-xs font-bold">حذف</button>
                 </div>`;
             });
@@ -229,18 +249,6 @@
             }
         }
 
-        function saveGrp() {
-            let name = document.getElementById('g-name').value;
-            let type = document.getElementById('g-type').value;
-            let t1 = document.getElementById('t1').value;
-            let t2 = document.getElementById('t2').value;
-            if(!name) return alert("اسم المجموعة مطلوب");
-            let newG = { group: name, type: type, teams: (type === 'teams' ? [t1, t2] : []) };
-            globalGroups.push(newG);
-            db.collection("config").doc("groups_data").set({ list: globalGroups });
-            document.getElementById('g-name').value = "";
-        }
-
         function delGrp(i) {
             if(confirm("حذف المجموعة؟")) {
                 globalGroups.splice(i, 1);
@@ -248,12 +256,13 @@
             }
         }
 
-        // --- المتسابقين ---
+        // --- 5. إدارة المتسابقين ---
         function addUsr() {
-            let n = document.getElementById('u-name').value;
+            let n = document.getElementById('u-name').value.trim();
             let gIdx = document.getElementById('u-group').value;
             let t = document.getElementById('u-team').value;
             if(!n || gIdx === "") return alert("اكمل البيانات");
+
             let pass = Math.floor(100000 + Math.random() * 900000).toString();
             db.collection("users").add({
                 name: n, password: pass, group: globalGroups[gIdx].group, team: t, score: 0, isBanned: false
@@ -283,13 +292,13 @@
             });
         }
 
-        // --- الترتيب العام ---
+        // --- 6. الترتيب والتحكم ---
         function calculateGlobalRanking() {
             let container = document.getElementById('global-tables-container');
             container.innerHTML = "";
             let groups = {};
             globalUsers.forEach(u => {
-                let g = u.group || "غير محدد";
+                let g = u.group || "بدون مجموعة";
                 if(!groups[g]) groups[g] = {};
                 let key = (u.team === "فردي") ? u.name : u.team;
                 groups[g][key] = (groups[g][key] || 0) + (u.score || 0);
@@ -312,7 +321,6 @@
             }
         }
 
-        // --- الكويزات والخزنة ---
         function saveQ() {
             let d = document.getElementById('q-day').value;
             let v = document.getElementById('q-var').value;
@@ -324,29 +332,28 @@
                     correctIndex: parseInt(b.querySelector('.ca').value)
                 });
             });
-            // حفظ في المسار الجديد quizzes_pool ليتناسب مع صفحة المستخدم
             db.collection("quizzes_pool").doc("day_"+d).set({
                 variations: { [v]: { questions: questions } }
-            }, {merge: true}).then(() => alert("تم حفظ الكويز بنجاح!"));
+            }, {merge: true}).then(() => alert("تم الحفظ بنجاح"));
         }
 
         function setStatus(s) {
             let d = document.getElementById('pub-day').value;
-            db.collection("settings").doc("global_status").set({
-                currentDay: parseInt(d), status: s
-            }).then(() => alert("تم تحديث حالة الموقع"));
+            db.collection("settings").doc("global_status").set({ currentDay: parseInt(d), status: s }).then(() => alert("تم التحديث"));
         }
 
-        function saveMessage(docId) {
-            let msg = (docId === 'champData') ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
-            db.collection("settings").doc(docId).set({ message: msg }).then(() => alert("تم النشر"));
+        function saveMessage(doc) {
+            let val = (doc === 'champData') ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
+            db.collection("settings").doc(doc).set({ message: val }).then(() => alert("تم النشر"));
         }
 
-        // --- دوال التحكم ---
         function edSc(id, old) {
-            let n = prompt("أدخل عدد النقاط (إضافة أو طرح):", "0");
+            let n = prompt("تعديل النقاط (أدخل القيمة لإضافتها):", "0");
             if(n) db.collection("users").doc(id).update({ score: old + parseInt(n) });
         }
         function banUsr(id, s) { db.collection("users").doc(id).update({ isBanned: !s }); }
         function delUsr(id) { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); }
-        function logOut() { localStorage.removeItem('admin_a
+        function logOut() { localStorage.removeItem('admin_access'); window.location.reload(); }
+    </script>
+</body>
+    </html>
