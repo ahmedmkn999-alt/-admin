@@ -8,60 +8,92 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #030712; color: white; }
-        #admin-gate { position: fixed; inset: 0; background: #030712; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        body { font-family: 'Cairo', sans-serif; background-color: #030712; color: white; margin: 0; padding: 0;}
+        /* تم تغيير الـ IDs لكسر الكاش */
+        #login-screen-v2 { position: fixed; inset: 0; background: #030712; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .nav-btn { padding: 10px 15px; border-radius: 10px; font-weight: bold; background: #1e293b; color: #94a3b8; transition: 0.3s; border: none; cursor: pointer; }
         .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; box-shadow: 0 0 10px #b8860b; }
         .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .q-block { background: #111827; border: 1px solid #374151; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="admin-gate" class="p-4 w-full max-w-sm mx-auto">
-        <div class="bg-gray-900 p-8 rounded-3xl border border-yellow-600 text-center shadow-2xl">
-            <div class="bg-yellow-600 w-16 h-16 rounded-full flex items-center justify-center text-black text-3xl mx-auto mb-4"><i class="fas fa-user-shield"></i></div>
-            <h2 class="text-xl font-black text-yellow-500 mb-6">دخول الإدارة</h2>
-            
-            <input type="password" id="gate-pass" onkeypress="if(event.key === 'Enter') { event.preventDefault(); checkAdminGate(); }" placeholder="كلمة السر هنا..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
-            
-            <button type="button" id="login-btn" onclick="checkAdminGate()" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl shadow-lg text-lg">دخول اللوحة 🔓</button>
-            <p id="gate-error" class="text-red-500 text-sm mt-3 font-bold hidden">❌ كلمة السر غير صحيحة!</p>
+    <div id="login-screen-v2" class="p-4">
+        <div class="bg-gray-900 p-8 rounded-3xl border border-yellow-600 text-center shadow-2xl w-full max-w-sm mx-auto">
+            <div class="bg-yellow-600 w-20 h-20 rounded-full flex items-center justify-center text-black text-4xl mx-auto mb-6 shadow-[0_0_15px_#d4af37]"><i class="fas fa-user-shield"></i></div>
+            <h2 class="text-2xl font-black text-yellow-500 mb-6">دخول الإدارة</h2>
+            <input type="password" id="admin-password" onkeypress="if(event.key === 'Enter') unlockAdmin()" placeholder="كلمة السر..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
+            <button type="button" onclick="unlockAdmin()" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:scale-105 transition">فتح الكنترول 🔓</button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 bg-black/90 z-[4000] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-yellow-500 rounded-3xl w-full max-w-sm text-center overflow-hidden relative shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+            <div class="bg-gradient-to-r from-yellow-600 to-yellow-800 p-6 pb-12">
+                <h3 id="prof-rank" class="text-white font-black text-xl drop-shadow-md">👑 المركز الأول</h3>
+            </div>
+            <div class="-mt-10 mb-4 flex justify-center relative z-10">
+                <div class="bg-gray-800 w-24 h-24 rounded-full border-4 border-gray-900 flex items-center justify-center text-4xl text-yellow-500 shadow-xl">
+                    <i class="fas fa-user-ninja"></i>
+                </div>
+            </div>
+            <div class="px-6 pb-6">
+                <h2 id="prof-name" class="text-2xl font-black text-white mb-1">...</h2>
+                <p id="prof-group" class="text-gray-400 text-sm mb-6 font-bold">...</p>
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-gray-500 text-[10px] mb-1 font-bold">إجمالي النقاط</p>
+                        <p id="prof-score" class="text-3xl font-black text-yellow-500">0</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-gray-500 text-[10px] mb-1 font-bold">كود الدخول</p>
+                        <p id="prof-pass" class="text-lg font-mono font-bold text-white tracking-widest">---</p>
+                    </div>
+                </div>
+                <button onclick="closeProfile()" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl hover:bg-gray-600">إغلاق الملف</button>
+            </div>
         </div>
     </div>
 
     <div id="pass-modal" class="fixed inset-0 bg-black/90 z-[3000] hidden flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-yellow-500 rounded-3xl p-6 w-full max-w-sm text-center">
+        <div class="bg-gray-900 border border-green-500 rounded-3xl p-6 w-full max-w-sm text-center">
             <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
-            <h3 class="text-white font-black text-xl mb-2">تم تسجيل المتسابق!</h3>
-            <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 mb-6 mt-4">
-                <p class="text-gray-400 text-xs mb-1">الاسم:</p>
-                <p class="text-yellow-400 font-black text-2xl mb-4" id="modal-user-name"></p>
-                <p class="text-gray-400 text-xs mb-1">كود الدخول:</p>
-                <div class="bg-black/50 p-3 rounded-xl border border-gray-600">
-                    <span class="text-white font-black text-3xl tracking-widest" id="modal-user-pass"></span>
-                </div>
-            </div>
+            <h3 class="text-white font-black text-xl mb-6">تم تسجيل المتسابق بنجاح!</h3>
             <div class="flex gap-3">
-                <button type="button" onclick="copyData()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl"><i class="fas fa-copy mr-2"></i> نسخ للإرسال</button>
-                <button type="button" onclick="document.getElementById('pass-modal').classList.add('hidden')" class="bg-gray-700 text-white font-bold px-6 py-3 rounded-xl">إغلاق</button>
+                <button onclick="copyData()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl"><i class="fas fa-copy mr-2"></i> نسخ البيانات</button>
+                <button onclick="document.getElementById('pass-modal').classList.add('hidden')" class="bg-gray-700 text-white font-bold px-6 py-3 rounded-xl">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <div id="main-admin" class="p-4 max-w-6xl mx-auto" style="display:none;">
+    <div id="admin-dashboard-v2" class="p-4 max-w-6xl mx-auto" style="display:none;">
         <div class="flex justify-end mb-4">
-            <button type="button" onclick="adminLogout()" class="bg-red-900/40 text-red-400 border border-red-800 px-4 py-2 rounded-xl text-xs font-bold"><i class="fas fa-lock ml-1"></i> قفل اللوحة</button>
+            <button type="button" onclick="adminLogout()" class="bg-red-900/40 text-red-400 border border-red-800 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700 hover:text-white transition"><i class="fas fa-lock ml-1"></i> خروج وقفل اللوحة</button>
         </div>
 
         <header class="flex justify-center gap-2 mb-8 border-b border-gray-800 pb-4 flex-wrap">
+            <button type="button" onclick="switchTab('global')" id="btn-global" class="nav-btn">الترتيب العام 🌍</button>
             <button type="button" onclick="switchTab('room')" id="btn-room" class="nav-btn active">المجموعات 🏰</button>
             <button type="button" onclick="switchTab('users')" id="btn-users" class="nav-btn">المتسابقين 👥</button>
             <button type="button" onclick="switchTab('quizzes')" id="btn-quizzes" class="nav-btn">الكويز 📝</button>
             <button type="button" onclick="switchTab('vault')" id="btn-vault" class="nav-btn">الخزنة 🚀</button>
             <button type="button" onclick="switchTab('settings')" id="btn-settings" class="nav-btn">الإعدادات ⚙️</button>
         </header>
+
+        <div id="tab-global" class="tab-content">
+            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600 shadow-xl mb-6 text-center">
+                <h3 class="text-yellow-500 font-black text-2xl mb-2"><i class="fas fa-globe mr-2"></i> الترتيب العام للمنصة</h3>
+                <p class="text-gray-400 text-sm">اضغط على أي متسابق لفتح ملفه الشخصي</p>
+            </div>
+            <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800 shadow-xl">
+                <table class="w-full text-right text-sm">
+                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">المركز</th><th class="p-4">اسم اللاعب</th><th class="p-4">المجموعة (التيم)</th><th class="p-4 text-center">النقاط</th></tr></thead>
+                    <tbody id="global-ranking-body"></tbody>
+                </table>
+            </div>
+        </div>
 
         <div id="tab-room" class="tab-content active">
             <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600/50 mb-6">
@@ -88,7 +120,7 @@
             </div>
             <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">الاسم</th><th class="p-4 text-yellow-500">الباسورد</th><th class="p-4">المجموعة (التيم)</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">تحكم</th></tr></thead>
+                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">الاسم</th><th class="p-4 text-yellow-500">الباسورد</th><th class="p-4">المجموعة</th><th class="p-4 text-center">تحكم</th></tr></thead>
                     <tbody id="users-body"></tbody>
                 </table>
             </div>
@@ -125,7 +157,7 @@
                 <input type="text" id="champ-msg" placeholder="مثال: مبروك لتيم الصقور صدارة اليوم 👑" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 text-white mb-4 outline-none">
                 <div class="flex gap-2">
                     <button type="button" onclick="saveChampMsg()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-3 rounded-xl">نشر الرسالة 🚀</button>
-                    <button type="button" onclick="clearChampMsg()" class="bg-red-900/50 text-red-400 font-bold px-6 py-3 rounded-xl border border-red-800">إلغاء وتفريغ</button>
+                    <button type="button" onclick="clearChampMsg()" class="bg-red-900/50 text-red-400 font-bold px-6 py-3 rounded-xl border border-red-800">تفريغ</button>
                 </div>
             </div>
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
@@ -143,101 +175,83 @@
         const ADMIN_PASS = "1234";
         let db = null;
         let allGroups = [];
+        let allUsersData = []; // عشان نخزن كل اللعيبة للترتيب العام
         let tempText = "";
 
-        // دالة الدخول الفورية المحمية بـ Try/Catch 
-        function checkAdminGate() {
-            try {
-                let pass = document.getElementById('gate-pass').value;
-                let btn = document.getElementById('login-btn');
-                let err = document.getElementById('gate-error');
-                
-                if(pass === ADMIN_PASS) {
-                    err.classList.add('hidden');
-                    btn.innerText = "نجاح... جاري الفتح";
-                    localStorage.setItem('adminKey', 'true');
-                    openDash(); // الدخول فوري بدون تأخير
-                } else {
-                    err.innerText = "❌ كلمة السر غير صحيحة!";
-                    err.classList.remove('hidden');
-                    document.getElementById('gate-pass').value = '';
-                }
-            } catch(e) { alert("حدث خطأ في المتصفح: " + e.message); }
+        // 🟢 الدخول الفوري والجباري لإلغاء أي تهنيج 🟢
+        function unlockAdmin() {
+            let pass = document.getElementById('admin-password').value;
+            if(pass === ADMIN_PASS) {
+                // إخفاء الشاشة فوراً بدون أي تأخير زمني 
+                document.getElementById('login-screen-v2').style.display = 'none';
+                document.getElementById('admin-dashboard-v2').style.display = 'block';
+                localStorage.setItem('adminKey', 'true');
+                startSystem();
+            } else {
+                alert("❌ كلمة السر غلط يا مدير!");
+                document.getElementById('admin-password').value = '';
+            }
         }
 
         window.onload = function() {
-            try {
-                if(localStorage.getItem('adminKey') === 'true') {
-                    openDash();
-                }
-            } catch(e) { console.error(e); }
+            if(localStorage.getItem('adminKey') === 'true') {
+                document.getElementById('login-screen-v2').style.display = 'none';
+                document.getElementById('admin-dashboard-v2').style.display = 'block';
+                startSystem();
+            }
         }
 
-        // دالة فتح اللوحة
-        function openDash() {
-            try {
-                let gate = document.getElementById('admin-gate');
-                let main = document.getElementById('main-admin');
-                
-                if(gate) gate.style.display = 'none';
-                if(main) main.style.display = 'block';
-
-                if (typeof firebase === 'undefined') {
-                    alert("⚠️ مكتبة قاعدة البيانات لم تحمل. تأكد من إيقاف أي مانع إعلانات (AdBlocker) أو تحديث الصفحة.");
-                    return;
-                }
-                
-                const firebaseConfig = { apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" };
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-
-                buildUI();
-            } catch(e) { alert("خطأ في تشغيل اللوحة: " + e.message); }
+        function adminLogout() { 
+            localStorage.removeItem('adminKey'); 
+            location.reload(); 
         }
 
-        function adminLogout() { localStorage.removeItem('adminKey'); location.reload(); }
+        // تشغيل الفايربيز واللوحة
+        function startSystem() {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
+            }
+            db = firebase.firestore();
+
+            // تجهيز القوائم
+            ['build-day', 'control-day', 'vault-day'].forEach(id => {
+                let el = document.getElementById(id); 
+                if(el) { el.innerHTML = ''; for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`; }
+            });
+
+            // تجهيز بناء الكويز
+            let qa = document.getElementById('q-area');
+            if(qa && qa.innerHTML === '') {
+                for(let i=1; i<=15; i++) {
+                    qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2 font-bold">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-3 rounded-xl mb-2 text-white border border-gray-700 outline-none" placeholder="السؤال..."></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 1"><input class="o2 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 2"><input class="o3 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 3"><input class="o4 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 4"></div><select class="cor w-full bg-gray-800 p-2 text-sm font-bold text-green-400 mt-2 border border-gray-700 rounded-lg outline-none"><option value="0">الإجابة: خيار 1</option><option value="1">الإجابة: خيار 2</option><option value="2">الإجابة: خيار 3</option><option value="3">الإجابة: خيار 4</option></select></div>`;
+                }
+            }
+            
+            loadGroups(); 
+            loadUsers();
+            
+            db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('daily-msg').value = s.data().message || ""; });
+            db.collection("settings").doc("champData").get().then(s => { if(s.exists) document.getElementById('champ-msg').value = s.data().message || ""; });
+        }
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+t).classList.add('active');
             document.getElementById('btn-'+t).classList.add('active');
+            if(t === 'global') loadUsers(); // تحديث الترتيب العام لما يفتحه
         }
 
-        function buildUI() {
-            try {
-                ['build-day', 'control-day', 'vault-day'].forEach(id => {
-                    let el = document.getElementById(id); 
-                    if(el) { el.innerHTML = ''; for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`; }
-                });
-
-                let qa = document.getElementById('q-area');
-                if(qa && qa.innerHTML === '') {
-                    for(let i=1; i<=15; i++) {
-                        qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2 font-bold">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-3 rounded-xl mb-2 text-white border border-gray-700 outline-none focus:border-yellow-500" placeholder="السؤال..."></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 1"><input class="o2 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 2"><input class="o3 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 3"><input class="o4 bg-gray-800 p-3 text-sm rounded-lg text-white border border-gray-700 outline-none" placeholder="خيار 4"></div><select class="cor w-full bg-gray-800 p-2 text-sm font-bold text-green-400 mt-2 border border-gray-700 rounded-lg outline-none"><option value="0">الإجابة: خيار 1</option><option value="1">الإجابة: خيار 2</option><option value="2">الإجابة: خيار 3</option><option value="3">الإجابة: خيار 4</option></select></div>`;
-                    }
-                }
-                loadGroups(); loadUsers();
-                
-                if(db) {
-                    db.collection("settings").doc("dailyData").get().then(s => { if(s.exists && document.getElementById('daily-msg')) document.getElementById('daily-msg').value = s.data().message || ""; }).catch(()=>{});
-                    db.collection("settings").doc("champData").get().then(s => { if(s.exists && document.getElementById('champ-msg')) document.getElementById('champ-msg').value = s.data().message || ""; }).catch(()=>{});
-                }
-            } catch(e) { console.log(e); }
-        }
-
+        // المجموعات
         function createGroup() {
-            if(!db) return alert("انتظر التحميل!");
             let g = document.getElementById('grp-name').value, t1 = document.getElementById('team1-name').value, t2 = document.getElementById('team2-name').value;
             if(!g||!t1||!t2) return alert("اكمل البيانات");
             db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] }) }, { merge: true }).then(() => { alert("تم إنشاء المجموعة!"); document.getElementById('grp-name').value=""; loadGroups(); });
         }
 
         function loadGroups() {
-            if(!db) return;
             db.collection("config").doc("groups_data").get().then(s => {
                 let v = document.getElementById('groups-viewer'), sel = document.getElementById('sel-group');
-                if(!v || !sel) return;
                 v.innerHTML = ""; sel.innerHTML = '<option value="">المجموعة...</option>';
                 if(s.exists && s.data().list) {
                     allGroups = s.data().list;
@@ -255,29 +269,9 @@
             if(idx !== "") { sel.innerHTML += `<option value="${allGroups[idx].teams[0]}">${allGroups[idx].teams[0]}</option><option value="${allGroups[idx].teams[1]}">${allGroups[idx].teams[1]}</option>`; }
         }
 
+        // المتسابقين
         function addUser() {
-            if(!db) return alert("انتظر التحميل!");
             let n = document.getElementById('add-name').value, gIdx = document.getElementById('sel-group').value, t = document.getElementById('sel-team').value;
             if(!n || gIdx==="" || !t) return alert("اكمل البيانات!");
             let gName = allGroups[gIdx].group, pass = Math.floor(100000 + Math.random() * 900000).toString();
-            db.collection("users").add({ name: n, group: gName, team: t, password: pass, score: 0, isBanned: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
-                document.getElementById('modal-user-name').innerText = n;
-                document.getElementById('modal-user-pass').innerText = pass;
-                document.getElementById('pass-modal').classList.remove('hidden');
-                tempText = `👋 أهلاً بك يا بطل!\n👤 الاسم: ${n}\n🛡️ الكيان: ${gName} (${t})\n\n🔑 كود الدخول الخاص بك:\n${pass}\n\n🔗 رابط المنصة: https://adani-quiz.vercel.app/`;
-                document.getElementById('add-name').value=""; loadUsers();
-            });
-        }
-
-        function copyData() { navigator.clipboard.writeText(tempText).then(() => alert("✅ تم النسخ!")); }
-
-        function loadUsers() {
-            if(!db) return;
-            db.collection("users").get().then(s => {
-                let b = document.getElementById('users-body'); 
-                if(!b) return;
-                b.innerHTML = ""; 
-                let arr = []; s.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
-                arr.sort((x,y)=>(y.score||0)-(x.score||0)).forEach(u => {
-                    let col = u.isBanned ? "text-red-500 line-through" : "text-white font-bold";
-                    b.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50"><td class="p-3 ${col}">${u.name}</td><td class="p-3 text-yellow-500 font-mono text-lg font-black">${u.password}</td
+            db.collection("users").add({ name: n, group: gName, team: t, password: pass, score: 0, isBanned: false, created
