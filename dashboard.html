@@ -9,19 +9,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background: #050505; color: #fff; margin: 0; padding: 0; min-height: 100vh; }
-        
         .glass-panel { background: rgba(20, 24, 39, 0.7); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
         .gold-btn { background: linear-gradient(135deg, #d4af37, #aa8000); color: #000; font-weight: 900; cursor: pointer; border: none; }
-        
         .nav-btn { background: rgba(30, 41, 59, 0.8); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; transition: all 0.3s; white-space: nowrap; cursor: pointer; }
         .nav-btn.active { background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.15); }
-        
-        .tab-content { display: none; } 
-        .tab-content.active { display: block; }
-        
+        .tab-content { display: none; } .tab-content.active { display: block; }
         input, select, textarea { background: rgba(15, 23, 42, 0.9) !important; border: 1px solid rgba(71, 85, 105, 0.8) !important; color: white !important; outline: none !important; }
         input:focus, select:focus, textarea:focus { border: 1px solid #d4af37 !important; }
-        
         .q-block { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 12px; }
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; } .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
     </style>
@@ -35,7 +29,6 @@
     </script>
 
     <div class="p-4 max-w-5xl mx-auto">
-        
         <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
             <div class="flex items-center gap-2">
                 <div id="conn-dot" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
@@ -45,12 +38,12 @@
         </div>
 
         <nav class="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scroll">
-            <button class="nav-btn active" onclick="showTab('room', this)"><i class="fas fa-chess-rook ml-1"></i> المجموعات</button>
-            <button class="nav-btn" onclick="showTab('users', this)"><i class="fas fa-users ml-1"></i> المتسابقين</button>
-            <button class="nav-btn" onclick="showTab('global', this)"><i class="fas fa-trophy ml-1"></i> الترتيب</button>
-            <button class="nav-btn" onclick="showTab('quizzes', this)"><i class="fas fa-bolt ml-1"></i> الكويز</button>
-            <button class="nav-btn" onclick="showTab('vault', this)"><i class="fas fa-box-open ml-1"></i> الخزنة</button>
-            <button class="nav-btn" onclick="showTab('settings', this)"><i class="fas fa-cog ml-1"></i> الإعدادات</button>
+            <button class="nav-btn active" onclick="showTab('room', this)">المجموعات</button>
+            <button class="nav-btn" onclick="showTab('users', this)">المتسابقين</button>
+            <button class="nav-btn" onclick="showTab('global', this)">الترتيب 🌍</button>
+            <button class="nav-btn" onclick="showTab('quizzes', this)">الكويز</button>
+            <button class="nav-btn" onclick="showTab('vault', this)">الخزنة</button>
+            <button class="nav-btn" onclick="showTab('settings', this)">الإعدادات</button>
         </nav>
 
         <div id="tab-room" class="tab-content active">
@@ -68,7 +61,7 @@
 
         <div id="tab-users" class="tab-content">
             <div class="glass-panel p-5 rounded-2xl mb-6 border-t-2 border-yellow-600">
-                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إضافة متسابق (توزيع آلي للنسخ)</h3>
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إضافة متسابق</h3>
                 <input type="text" id="u-name" placeholder="الاسم" class="w-full p-3 rounded-xl mb-3">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <select id="u-group" onchange="loadTeams()" class="p-3 rounded-xl text-xs"><option value="">اختر المجموعة</option></select>
@@ -78,7 +71,7 @@
             </div>
             <div class="glass-panel rounded-2xl overflow-x-auto">
                 <table class="w-full text-right text-xs">
-                    <thead class="bg-black/50 text-gray-400 border-b border-gray-800"><tr><th class="p-4">الاسم والكود</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإدارة والتحكم</th></tr></thead>
+                    <thead class="bg-black/50 text-gray-400 border-b border-gray-800"><tr><th class="p-4">الاسم والكود</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإدارة</th></tr></thead>
                     <tbody id="usr-list"></tbody>
                 </table>
             </div>
@@ -98,8 +91,8 @@
                     <div class="w-1/3">
                         <label class="text-[10px] text-gray-400 mb-1 block">رقم النسخة</label>
                         <select id="q-var" class="w-full p-3 rounded-xl font-bold border border-blue-500/50 text-blue-400">
-                            <option value="0">النسخة 1</option><option value="1">النسخة 2</option><option value="2">النسخة 3</option>
-                            <option value="3">النسخة 4</option><option value="4">النسخة 5</option><option value="5">النسخة 6</option>
+                            <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option>
+                            <option value="3">نسخة 4</option><option value="4">نسخة 5</option><option value="5">نسخة 6</option>
                         </select>
                     </div>
                 </div>
@@ -113,9 +106,9 @@
                 <h3 class="mb-4 font-bold text-yellow-500">نشر الماتشات على الموقع</h3>
                 <select id="pub-day" class="w-full p-3 rounded-xl mb-4 font-bold"></select>
                 <div class="flex gap-2">
-                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900/50 text-blue-400 p-3 rounded-xl font-bold border border-blue-600">قريباً ⏳</button>
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900/50 text-blue-400 p-3 rounded-xl font-bold border border-blue-600">قريباً</button>
                     <button onclick="setStatus('active')" class="flex-1 bg-green-500 text-black p-3 rounded-xl font-black">تفعيل ▶️</button>
-                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900/50 text-red-400 p-3 rounded-xl font-bold border border-red-600">إغلاق 🔒</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900/50 text-red-400 p-3 rounded-xl font-bold border border-red-600">إغلاق</button>
                 </div>
             </div>
             <div class="glass-panel p-5 rounded-2xl">
@@ -142,13 +135,12 @@
     <div id="prof-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center p-4">
         <div class="glass-panel rounded-3xl w-full max-w-sm overflow-hidden border border-yellow-600">
             <div class="bg-gradient-to-br from-yellow-600 to-yellow-800 p-6 text-center">
-                <div class="w-20 h-20 bg-black rounded-full mx-auto border-4 border-yellow-400 flex items-center justify-center text-4xl mb-3"><i class="fas fa-trophy text-yellow-500"></i></div>
-                <h2 id="pf-name" class="text-2xl font-black text-white mb-1">...</h2>
+                <h2 id="pf-name" class="text-2xl font-black text-black mb-1">...</h2>
                 <p id="pf-rank" class="text-white font-bold text-xs bg-black/30 inline-block px-3 py-1 rounded-full">...</p>
             </div>
             <div class="p-6">
                 <div class="bg-black/50 p-4 rounded-2xl mb-4 text-center border border-gray-700">
-                    <p class="text-gray-400 text-xs mb-1">النقاط الإجمالية للكيان</p>
+                    <p class="text-gray-400 text-xs mb-1">النقاط الإجمالية</p>
                     <p id="pf-score" class="text-3xl font-black text-yellow-500">0</p>
                 </div>
                 <div id="pf-players" class="max-h-32 overflow-y-auto space-y-2 pr-1 custom-scroll text-sm"></div>
@@ -161,8 +153,8 @@
         <div class="glass-panel p-8 rounded-3xl border border-green-500 w-full max-w-xs text-center">
             <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
             <p class="text-white font-bold mb-6 text-lg">تم تسجيل البطل!</p>
-            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3 w-full"><i class="fas fa-copy mr-2"></i> نسخ البيانات</button>
-            <button onclick="closeModal('copy-modal')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold border border-gray-700">تخطي</button>
+            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3 w-full">نسخ البيانات</button>
+            <button onclick="closeModal('copy-modal')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold border border-gray-700">إغلاق</button>
         </div>
     </div>
 
@@ -170,10 +162,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        var db = null;
-        var globalGroups = [];
-        var globalUsers = [];
-        var tempClipData = "";
+        // تعريف المتغيرات في البداية لضمان عمل الزراير
+        window.db = null;
+        window.globalGroups = [];
+        window.globalUsers = [];
+        window.tempClipData = "";
 
         // دالة الخروج
         window.logOut = function() {
@@ -181,14 +174,17 @@
             window.location.href = 'index.html';
         };
 
-        // دالة قفل النوافذ
+        // دالة إغلاق النوافذ
         window.closeModal = function(id) {
-            document.getElementById(id).style.display = 'none';
-            document.getElementById(id).classList.remove('flex');
-            document.getElementById(id).classList.add('hidden');
+            var el = document.getElementById(id);
+            if(el) {
+                el.style.display = 'none';
+                el.classList.remove('flex');
+                el.classList.add('hidden');
+            }
         };
 
-        // دالة تغيير التبويبات
+        // دالة التنقل بين التبويبات
         window.showTab = function(t, btn) {
             var contents = document.querySelectorAll('.tab-content');
             for(var i=0; i<contents.length; i++) { contents[i].classList.remove('active'); }
@@ -196,31 +192,42 @@
             var btns = document.querySelectorAll('.nav-btn');
             for(var j=0; j<btns.length; j++) { btns[j].classList.remove('active'); }
             
-            document.getElementById('tab-'+t).classList.add('active');
-            btn.classList.add('active');
+            var targetTab = document.getElementById('tab-'+t);
+            if(targetTab) targetTab.classList.add('active');
+            if(btn) btn.classList.add('active');
         };
 
-        // التهيئة وبناء الصفحة
-        function initApp() {
+        // تشغيل التطبيق بعد تحميل الصفحة بالكامل لمنع الأخطاء
+        window.addEventListener('DOMContentLoaded', function() {
             try {
+                // بيانات الفايربيز المكتملة لضمان الاتصال
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8",
+                    authDomain: "ramadan-87817.firebaseapp.com",
+                    projectId: "ramadan-87817",
+                    storageBucket: "ramadan-87817.appspot.com",
+                    messagingSenderId: "343525703258",
+                    appId: "1:343525703258:web:6776b4857425df8bcca263"
+                };
+
                 if (!firebase.apps.length) {
-                    firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
+                    firebase.initializeApp(firebaseConfig);
                 }
-                db = firebase.firestore();
+                window.db = firebase.firestore();
                 
-                // تحديث حالة الاتصال بأسلوب آمن
+                // تحديث حالة الاتصال
                 document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
                 document.getElementById('conn-status').className = "text-green-400 text-xs font-bold";
                 document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-green-500 animate-pulse";
 
-                // بناء القوائم
+                // تجهيز القوائم
                 var optionsHTML = "";
                 for(var d=1; d<=30; d++) { optionsHTML += "<option value='"+d+"'>اليوم "+d+"</option>"; }
                 document.getElementById('q-day').innerHTML = optionsHTML;
                 document.getElementById('pub-day').innerHTML = optionsHTML;
                 document.getElementById('v-day').innerHTML = optionsHTML;
 
-                // بناء الكويز
+                // تجهيز مربعات الكويز
                 var qa = document.getElementById('q-area');
                 var qHTML = "";
                 for(var i=1; i<=15; i++) {
@@ -233,218 +240,80 @@
                 }
                 qa.innerHTML = qHTML;
 
-                // بدء سحب البيانات
-                startListening();
+                // بدء جلب البيانات
+                startDataSync();
 
             } catch(e) {
-                document.getElementById('conn-status').innerText = "خطأ في الاتصال!";
+                console.error("خطأ في بدء التشغيل:", e);
+                alert("حدث خطأ أثناء الاتصال: " + e.message);
+                document.getElementById('conn-status').innerText = "خطأ في الاتصال ❌";
                 document.getElementById('conn-status').className = "text-red-500 text-xs font-bold";
+                document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-red-500";
             }
-        }
+        });
 
-        // سحب البيانات من فايربيز
-        function startListening() {
-            // استدعاء المجموعات
-            db.collection("config").doc("groups_data").onSnapshot(function(s) {
-                var list = document.getElementById('grp-list');
-                var uG = document.getElementById('u-group');
-                list.innerHTML = ""; 
-                uG.innerHTML = '<option value="">المجموعة</option>';
-                
-                if(s.exists && s.data().list) {
-                    globalGroups = s.data().list;
-                    for(var i=0; i<globalGroups.length; i++) {
-                        var g = globalGroups[i];
-                        uG.innerHTML += '<option value="'+i+'">'+g.group+'</option>';
-                        list.innerHTML += '<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">' +
-                            '<div><span class="text-yellow-500 font-bold block text-sm">'+g.group+'</span><span class="text-[10px] text-gray-400">('+g.teams.join(' vs ')+')</span></div>' +
-                            '<button onclick="delGrp('+i+')" class="bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg text-xs border border-red-500/50">حذف</button>' +
-                        '</div>';
-                    }
-                }
-            });
-
-            // استدعاء اللعيبة
-            db.collection("users").onSnapshot(function(s) {
-                var uL = document.getElementById('usr-list');
-                var container = document.getElementById('global-tables-container');
-                uL.innerHTML = ""; container.innerHTML = "";
-                
-                var rawUsers = [];
-                s.forEach(function(d) { 
-                    var u = d.data(); u.id = d.id; rawUsers.push(u); 
-                });
-                globalUsers = rawUsers;
-
-                // الترتيب المجمع
-                var combined = {};
-                for(var i=0; i<rawUsers.length; i++) {
-                    var u = rawUsers[i];
-                    var key = (u.team === "فردي" || !u.team) ? u.name : u.team;
-                    if(!combined[key]) combined[key] = { score: 0, group: u.group };
-                    combined[key].score += (u.score || 0);
-                }
-
-                var byGroup = {};
-                for (var key in combined) {
-                    var g = combined[key].group || "غير محدد";
-                    if(!byGroup[g]) byGroup[g] = [];
-                    byGroup[g].push({ name: key, score: combined[key].score });
-                }
-
-                // رسم الجداول
-                for (var gName in byGroup) {
-                    var sorted = byGroup[gName].sort(function(a,b){ return b.score - a.score; });
-                    var html = '<div class="glass-panel rounded-xl overflow-hidden mb-4">' +
-                        '<div class="bg-black/60 p-3 text-yellow-500 font-black text-center border-b border-yellow-600/30">🏆 '+gName+'</div>' +
-                        '<table class="w-full text-right text-xs">' +
-                            '<thead class="bg-black/40 text-gray-400 border-b border-gray-800"><tr><th class="p-3">#</th><th class="p-3">الكيان</th><th class="p-3 text-center">النقاط</th></tr></thead>' +
-                            '<tbody>';
+        // دالة جلب البيانات
+        function startDataSync() {
+            try {
+                // المجموعات
+                window.db.collection("config").doc("groups_data").onSnapshot(function(s) {
+                    var list = document.getElementById('grp-list');
+                    var uG = document.getElementById('u-group');
+                    list.innerHTML = ""; 
+                    uG.innerHTML = '<option value="">المجموعة</option>';
                     
-                    for(var j=0; j<sorted.length; j++) {
-                        var item = sorted[j];
-                        var rankIcon = j === 0 ? '🥇' : (j+1);
-                        html += '<tr onclick="openPfByName(\''+item.name+'\', '+(j+1)+', '+item.score+')" class="border-b border-gray-800/50 hover:bg-white/5 cursor-pointer">' +
-                            '<td class="p-3 font-bold text-yellow-500">'+rankIcon+'</td>' +
-                            '<td class="p-3 font-bold text-white">'+item.name+'</td>' +
-                            '<td class="p-3 text-center text-yellow-500 font-black">'+item.score+'</td>' +
-                        '</tr>';
+                    if(s.exists && s.data().list) {
+                        window.globalGroups = s.data().list;
+                        for(var i=0; i<window.globalGroups.length; i++) {
+                            var g = window.globalGroups[i];
+                            uG.innerHTML += '<option value="'+i+'">'+g.group+'</option>';
+                            list.innerHTML += '<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">' +
+                                '<div><span class="text-yellow-500 font-bold block text-sm">'+g.group+'</span><span class="text-[10px] text-gray-400">('+g.teams.join(' vs ')+')</span></div>' +
+                                '<button onclick="delGrp('+i+')" class="bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg text-xs border border-red-500/50">حذف</button>' +
+                            '</div>';
+                        }
                     }
-                    html += '</tbody></table></div>';
-                    container.innerHTML += html;
-                }
-
-                // قائمة الإدارة
-                rawUsers.sort(function(a,b){ return (b.score||0)-(a.score||0); });
-                for(var x=0; x<rawUsers.length; x++) {
-                    var user = rawUsers[x];
-                    var st = user.isBanned ? "text-red-500 line-through" : "text-white";
-                    uL.innerHTML += '<tr class="border-b border-gray-800/50 hover:bg-white/5">' +
-                        '<td class="p-2"><p class="'+st+' font-bold text-[11px]">'+user.name+'</p><p class="text-[9px] text-yellow-500 font-mono mt-1">'+user.password+' <span class="text-gray-500">('+user.team+')</span></p></td>' +
-                        '<td class="p-2 text-center font-bold text-yellow-500">'+(user.score||0)+'</td>' +
-                        '<td class="p-2">' +
-                            '<div class="flex flex-wrap gap-1 justify-center">' +
-                                '<button onclick="edSc(\''+user.id+'\','+(user.score||0)+')" class="bg-blue-600/20 text-blue-400 p-1.5 rounded-lg text-[9px] border border-blue-600/50">نقط</button>' +
-                                '<button onclick="moveUsr(\''+user.id+'\')" class="bg-purple-600/20 text-purple-400 p-1.5 rounded-lg text-[9px] border border-purple-600/50">نقل</button>' +
-                                '<button onclick="banUsr(\''+user.id+'\','+user.isBanned+')" class="bg-orange-600/20 text-orange-400 p-1.5 rounded-lg text-[9px] border border-orange-600/50">'+(user.isBanned?'فك':'حظر')+'</button>' +
-                                '<button onclick="delUsr(\''+user.id+'\')" class="bg-red-600/20 text-red-500 p-1.5 rounded-lg text-[9px] border border-red-600/50">حذف</button>' +
-                            '</div>' +
-                        '</td>' +
-                    '</tr>';
-                }
-            });
-
-            db.collection("settings").doc("champData").get().then(function(s) { if(s.exists) document.getElementById('msg-c').value = s.data().message || ""; });
-            db.collection("settings").doc("dailyData").get().then(function(s) { if(s.exists) document.getElementById('msg-d').value = s.data().message || ""; });
-        }
-
-        // --- وظائف الأزرار ---
-        window.loadTeams = function() {
-            var idx = document.getElementById('u-group').value;
-            var uT = document.getElementById('u-team');
-            uT.innerHTML = '<option value="فردي">فردي (بدون تيم)</option>';
-            if(idx !== "" && globalGroups[idx]) {
-                var t = globalGroups[idx].teams;
-                for(var i=0; i<t.length; i++) { uT.innerHTML += '<option value="'+t[i]+'">'+t[i]+'</option>'; }
-            }
-        };
-
-        window.saveGrp = function() {
-            var n = document.getElementById('g-name').value, t1 = document.getElementById('t1').value, t2 = document.getElementById('t2').value;
-            if(!n || !t1 || !t2) return alert('البيانات ناقصة');
-            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: n, teams: [t1, t2] }) }, { merge: true }).then(function() { alert('تم الحفظ'); document.getElementById('g-name').value=''; });
-        };
-
-        window.delGrp = function(index) {
-            if(confirm("مسح المجموعة؟ (لن يمسح المتسابقين)")) {
-                globalGroups.splice(index, 1);
-                db.collection("config").doc("groups_data").set({ list: globalGroups }).then(function() { alert('تم الحذف'); });
-            }
-        };
-
-        window.addUsr = function() {
-            var n = document.getElementById('u-name').value, gIdx = document.getElementById('u-group').value, t = document.getElementById('u-team').value;
-            if(!n || gIdx==="" || !t) return alert('أكمل بيانات اللاعب');
-            var p = Math.floor(100000 + Math.random() * 900000).toString();
-            var vIdx = Math.floor(Math.random() * 6); // عشوائي 6 نسخ
-            db.collection("users").add({ name: n, group: globalGroups[gIdx].group, team: t, password: p, score: 0, isBanned: false, quizVar: vIdx }).then(function() {
-                tempClipData = "الاسم: " + n + "\nالكود: " + p + "\nالكيان: " + (t === 'فردي' ? 'فردي' : globalGroups[gIdx].group + ' (' + t + ')') + "\nالرابط: https://ramadani-quiz.vercel.app/";
-                var modal = document.getElementById('copy-modal');
-                modal.classList.remove('hidden'); modal.classList.add('flex'); modal.style.display = 'flex';
-                document.getElementById('u-name').value = "";
-            });
-        };
-        document.getElementById('cp-btn').onclick = function() { navigator.clipboard.writeText(tempClipData); alert('تم النسخ'); };
-
-        window.edSc = function(id, cur) { var n = prompt("النقاط:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
-        window.banUsr = function(id, st) { db.collection("users").doc(id).update({isBanned: !st}); };
-        window.delUsr = function(id) { if(confirm("حذف اللاعب نهائي؟")) db.collection("users").doc(id).delete(); };
-        
-        window.moveUsr = function(id) {
-            var ng = prompt("المجموعة الجديدة للاعب:"); if(!ng) return;
-            var nt = prompt("التيم الجديد (أو اكتب فردي):"); if(!nt) return;
-            db.collection("users").doc(id).update({ group: ng, team: nt }).then(function() { alert("تم نقل اللاعب"); });
-        };
-
-        window.openPfByName = function(name, rank, score) {
-            document.getElementById('pf-name').innerText = name;
-            document.getElementById('pf-rank').innerText = rank === 1 ? "المتصدر 👑" : "المركز: " + rank;
-            document.getElementById('pf-score').innerText = score;
-            
-            var list = document.getElementById('pf-players'); list.innerHTML = "";
-            for(var i=0; i<globalUsers.length; i++) {
-                var p = globalUsers[i];
-                var k = (p.team === "فردي" || !p.team) ? p.name : p.team;
-                if(k === name) {
-                    list.innerHTML += '<div class="bg-black/40 p-3 rounded-lg flex justify-between items-center border border-gray-700/50 mb-2"><span class="text-white text-xs font-bold">'+p.name+'</span><span class="text-yellow-500 font-black">'+(p.score||0)+' ن</span></div>';
-                }
-            }
-            var modal = document.getElementById('prof-modal');
-            modal.classList.remove('hidden'); modal.classList.add('flex'); modal.style.display = 'flex';
-        };
-
-        window.saveQ = function() {
-            var d = document.getElementById('q-day').value, v = parseInt(document.getElementById('q-var').value);
-            var blocks = document.querySelectorAll('.q-block');
-            var qs = [];
-            for(var i=0; i<blocks.length; i++) {
-                qs.push({
-                    q: blocks[i].querySelector('.qt').value, 
-                    options: [blocks[i].querySelector('.o1').value, blocks[i].querySelector('.o2').value, blocks[i].querySelector('.o3').value, blocks[i].querySelector('.o4').value], 
-                    correctIndex: parseInt(blocks[i].querySelector('.ca').value)
                 });
-            }
-            db.collection("quizzes_pool").doc("day_"+d).get().then(function(doc) {
-                var variations = doc.exists && doc.data().variations ? doc.data().variations : [];
-                variations[v] = { questions: qs };
-                db.collection("quizzes_pool").doc("day_"+d).set({ variations: variations }, { merge: true }).then(function() { alert('تم حفظ النسخة ' + (v+1)); });
-            });
-        };
 
-        window.checkV = function() {
-            var d = document.getElementById('v-day').value, res = document.getElementById('v-res');
-            db.collection("quizzes_pool").doc("day_"+d).get().then(function(s) {
-                if(s.exists && s.data().variations) { 
-                    var valid = s.data().variations.filter(function(x){ return x; }).length;
-                    res.innerHTML = '<div class="flex justify-between items-center text-green-400 font-bold"><span>✅ '+valid+' نسخ متوفرة</span> <div class="flex gap-2"><button onclick="pullQ(\''+d+'\')" class="bg-blue-600 px-3 py-1.5 rounded-lg text-white text-xs">تعديل</button><button onclick="delQuiz(\''+d+'\')" class="bg-red-500/20 text-red-500 border border-red-500/50 px-3 py-1.5 rounded-lg text-xs">مسح الكل 🗑️</button></div></div>'; 
-                } else { res.innerHTML = '<span class="text-red-400 font-bold">❌ الخزنة فارغة</span>'; }
-            });
-        };
+                // المستخدمين
+                window.db.collection("users").onSnapshot(function(s) {
+                    var uL = document.getElementById('usr-list');
+                    var container = document.getElementById('global-tables-container');
+                    uL.innerHTML = ""; container.innerHTML = "";
+                    
+                    var rawUsers = [];
+                    s.forEach(function(d) { 
+                        var u = d.data(); u.id = d.id; rawUsers.push(u); 
+                    });
+                    window.globalUsers = rawUsers;
 
-        window.pullQ = function(d) {
-            var v = parseInt(document.getElementById('q-var').value) || 0;
-            db.collection("quizzes_pool").doc("day_"+d).get().then(function(s) {
-                var qs = s.data().variations[v] ? s.data().variations[v].questions : null;
-                if(!qs) return alert("هذه النسخة فارغة!");
-                document.getElementById('q-day').value = d;
-                var blocks = document.querySelectorAll('.q-block');
-                for(var i=0; i<qs.length; i++) {
-                    if(blocks[i]) {
-                        blocks[i].querySelector('.qt').value = qs[i].q; 
-                        blocks[i].querySelector('.o1').value = qs[i].options[0]; blocks[i].querySelector('.o2').value = qs[i].options[1]; 
-                        blocks[i].querySelector('.o3').value = qs[i].options[2]; blocks[i].querySelector('.o4').value = qs[i].options[3]; 
-                        blocks[i].querySelector('.ca').value = qs[i].correctIndex;
+                    var combined = {};
+                    for(var i=0; i<rawUsers.length; i++) {
+                        var u = rawUsers[i];
+                        var key = (u.team === "فردي" || !u.team) ? u.name : u.team;
+                        if(!combined[key]) combined[key] = { score: 0, group: u.group };
+                        combined[key].score += (u.score || 0);
                     }
-                }
-                showTab('quizzes', document.querySelector('button[onclick*="quizzes"]'));
-                alert("تم الس
+
+                    var byGroup = {};
+                    for (var key in combined) {
+                        var g = combined[key].group || "غير محدد";
+                        if(!byGroup[g]) byGroup[g] = [];
+                        byGroup[g].push({ name: key, score: combined[key].score });
+                    }
+
+                    for (var gName in byGroup) {
+                        var sorted = byGroup[gName].sort(function(a,b){ return b.score - a.score; });
+                        var html = '<div class="glass-panel rounded-xl overflow-hidden mb-4">' +
+                            '<div class="bg-black/60 p-3 text-yellow-500 font-black text-center border-b border-yellow-600/30">🏆 '+gName+'</div>' +
+                            '<table class="w-full text-right text-xs">' +
+                                '<thead class="bg-black/40 text-gray-400 border-b border-gray-800"><tr><th class="p-3">#</th><th class="p-3">الكيان</th><th class="p-3 text-center">النقاط</th></tr></thead>' +
+                                '<tbody>';
+                        
+                        for(var j=0; j<sorted.length; j++) {
+                            var item = sorted[j];
+                            var rankIcon = j === 0 ? '🥇' : (j+1);
+                            html += '<tr onclick="openPfByName(\''+item.name+'\', '+(j+1)+', '+item.score+')" class="border-b border-gray-800/50 hover:bg-white/5 cursor-pointer">' +
+                                '<td class="p-3 font-bold text-yellow-500">'+rankIcon+'</td>' +
+                                '<td class="p-3 font-bold text-white">'+item.name+'</td>' +
+                                '<td class="p-3 text-center text-yellow-500 font-blac
