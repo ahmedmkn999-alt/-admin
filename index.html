@@ -3,49 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الكنترول المركزي | الإدارة</title>
+    <title>الإدارة الشاملة | الكنترول</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #030712; color: white; margin: 0; padding: 0;}
-        .nav-btn { font-weight: bold; background: #1e293b; color: #94a3b8; transition: 0.3s; border: none; cursor: pointer; border-radius: 8px;}
-        .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; box-shadow: 0 0 10px #b8860b; }
-        .tab-content { display: none; } 
-        .tab-content.active { display: block; }
+        .nav-btn { font-weight: bold; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; border-radius: 8px;}
+        .nav-btn.active { background: linear-gradient(90deg, #b8860b, #d4af37); color: #000; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
         .q-block { background: #111827; border: 1px solid #374151; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        /* شاشة الأخطاء المباشرة */
+        #debug-console { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.9); color: #10b981; font-family: monospace; font-size: 10px; padding: 10px; z-index: 99999; max-height: 100px; overflow-y: auto; border-top: 2px solid #374151; }
+        .error-text { color: #ef4444; font-weight: bold; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="login-screen-final" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#030712; z-index:9999; display:flex; align-items:center; justify-content:center;">
-        <div style="background:#111827; padding:40px 20px; border-radius:20px; border:2px solid #ca8a04; width:90%; max-width:400px; text-align:center;">
-            <h2 style="color:#eab308; font-size:24px; font-weight:bold; margin-bottom:20px;">دخول الإدارة</h2>
+    <div id="debug-console">🟢 النظام يعمل... في انتظار أمر الدخول.</div>
+
+    <div id="login-screen" class="fixed inset-0 bg-[#030712] z-[9000] flex items-center justify-center p-4">
+        <div class="bg-gray-900 p-8 rounded-3xl border border-yellow-600 text-center shadow-2xl w-full max-w-sm">
+            <h2 class="text-2xl font-black text-yellow-500 mb-6">دخول الإدارة</h2>
             
-            <input type="password" id="admin-pass-input" placeholder="كلمة السر 1234" style="width:100%; padding:15px; border-radius:10px; background:#1f2937; color:white; border:1px solid #374151; margin-bottom:20px; text-align:center; font-size:20px;" autocomplete="off">
+            <input type="password" id="admin-pass" placeholder="كلمة السر هنا..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
             
-            <button id="btn-login-now" style="width:100%; background:#ca8a04; color:black; font-weight:bold; padding:15px; border-radius:10px; font-size:18px; border:none; cursor:pointer;">دخول اللوحة</button>
+            <button id="login-btn" class="w-full bg-yellow-600 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:bg-yellow-500">دخول فوري 🚀</button>
         </div>
     </div>
 
     <div id="profile-modal" class="fixed inset-0 bg-black/90 z-[4000] hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border border-yellow-500 rounded-3xl w-full max-w-sm text-center overflow-hidden relative">
-            <div class="bg-gradient-to-r from-yellow-600 to-yellow-800 p-6 pb-12"><h3 id="prof-rank" class="text-white font-black text-xl drop-shadow-md">المركز</h3></div>
-            <div class="-mt-10 mb-4 flex justify-center relative z-10"><div class="bg-gray-800 w-24 h-24 rounded-full border-4 border-gray-900 flex items-center justify-center text-4xl text-yellow-500 shadow-xl"><i class="fas fa-user-ninja"></i></div></div>
-            <div class="px-6 pb-6">
-                <h2 id="prof-name" class="text-2xl font-black text-white mb-1">...</h2>
+        <div class="bg-gray-900 border border-yellow-500 rounded-3xl w-full max-w-sm text-center overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-600 to-yellow-800 p-6 pb-12"><h3 id="prof-rank" class="text-white font-black text-xl">👑 المركز</h3></div>
+            <div class="px-6 pb-6 mt-[-30px]">
+                <h2 id="prof-name" class="text-2xl font-black text-white mb-1 mt-6">...</h2>
                 <p id="prof-group" class="text-gray-400 text-sm mb-6 font-bold">...</p>
                 <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700"><p class="text-gray-500 text-[10px] mb-1 font-bold">النقاط</p><p id="prof-score" class="text-3xl font-black text-yellow-500">0</p></div>
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700"><p class="text-gray-500 text-[10px] mb-1 font-bold">الكود</p><p id="prof-pass" class="text-lg font-mono font-bold text-white">---</p></div>
+                    <div class="bg-gray-800 p-4 rounded-2xl"><p class="text-gray-500 text-xs mb-1">النقاط</p><p id="prof-score" class="text-2xl font-black text-yellow-500">0</p></div>
+                    <div class="bg-gray-800 p-4 rounded-2xl"><p class="text-gray-500 text-xs mb-1">الكود</p><p id="prof-pass" class="text-lg font-mono font-bold text-white">---</p></div>
                 </div>
-                <button id="btn-close-prof" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl">إغلاق</button>
+                <button id="close-prof-btn" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <div id="dashboard-final" class="p-4 max-w-6xl mx-auto" style="display:none;">
-        <div class="flex justify-end mb-4"><button id="btn-logout" class="bg-red-900/40 text-red-400 border border-red-800 px-4 py-2 rounded-xl text-xs font-bold">خروج وقفل</button></div>
+    <div id="dashboard-screen" class="p-4 max-w-6xl mx-auto" style="display:none;">
+        
+        <div id="sys-status" class="text-yellow-500 font-bold text-sm text-center mb-4 bg-gray-900 py-2 rounded-xl border border-gray-700">⏳ جاري الاتصال بفايربيز...</div>
 
         <header class="flex justify-center gap-1.5 mb-6 border-b border-gray-800 pb-4 flex-wrap">
             <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-global">الترتيب 🌍</button>
@@ -57,224 +61,260 @@
         </header>
 
         <div id="tab-global" class="tab-content">
-            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600 mb-6 text-center"><h3 class="text-yellow-500 font-black text-2xl mb-2">الترتيب العام</h3></div>
             <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
-                <table class="w-full text-right text-sm"><thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">المركز</th><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4">النقاط</th></tr></thead><tbody id="global-ranking-body"></tbody></table>
+                <table class="w-full text-right text-sm"><thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">#</th><th class="p-4">الاسم</th><th class="p-4">المجموعة</th><th class="p-4 text-center">النقاط</th></tr></thead><tbody id="global-body"></tbody></table>
             </div>
         </div>
 
         <div id="tab-room" class="tab-content active">
-            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600/50 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input type="text" id="grp-name" placeholder="المجموعة" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <input type="text" id="team1-name" placeholder="تيم 1" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <input type="text" id="team2-name" placeholder="تيم 2" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <button id="btn-create-grp" class="bg-blue-600 font-bold rounded-xl text-white py-3">إنشاء</button>
+            <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 mb-6">
+                <div class="grid grid-cols-1 gap-3">
+                    <input type="text" id="grp-name" placeholder="اسم المجموعة" class="bg-gray-800 p-3 rounded-xl text-white">
+                    <input type="text" id="team1-name" placeholder="اسم تيم 1" class="bg-gray-800 p-3 rounded-xl text-white">
+                    <input type="text" id="team2-name" placeholder="اسم تيم 2" class="bg-gray-800 p-3 rounded-xl text-white">
+                    <button id="create-grp-btn" class="bg-blue-600 font-bold rounded-xl text-white py-3">إنشاء</button>
                 </div>
             </div>
-            <div id="groups-viewer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <div id="groups-viewer" class="grid grid-cols-1 gap-4"></div>
         </div>
 
         <div id="tab-users" class="tab-content">
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input type="text" id="add-name" placeholder="الاسم" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white">
-                    <select id="sel-group" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white"><option value="">المجموعة</option></select>
-                    <select id="sel-team" class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-white"><option value="">التيم</option></select>
-                    <button id="btn-add-user" class="bg-yellow-600 text-black font-bold rounded-xl py-3">إضافة 🔐</button>
+                <div class="grid grid-cols-1 gap-3">
+                    <input type="text" id="add-name" placeholder="الاسم" class="bg-gray-800 p-3 rounded-xl text-white">
+                    <select id="sel-group" class="bg-gray-800 p-3 rounded-xl text-white"><option value="">اختر المجموعة</option></select>
+                    <select id="sel-team" class="bg-gray-800 p-3 rounded-xl text-white"><option value="">اختر التيم</option></select>
+                    <button id="add-user-btn" class="bg-yellow-600 text-black font-bold rounded-xl py-3">إضافة متسابق</button>
                 </div>
             </div>
             <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
-                <table class="w-full text-right text-sm"><thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">الاسم</th><th class="p-4 text-yellow-500">الباسورد</th><th class="p-4">تحكم</th></tr></thead><tbody id="users-body"></tbody></table>
+                <table class="w-full text-right text-sm"><thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3">الكود</th><th class="p-3">تحكم</th></tr></thead><tbody id="users-body"></tbody></table>
             </div>
         </div>
 
         <div id="tab-quizzes" class="tab-content">
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                <div class="flex justify-between mb-4"><h3 class="text-blue-400 font-bold">بناء كويز (15 سؤال)</h3><select id="build-day" class="bg-gray-800 p-2 rounded-lg text-white font-bold"></select></div>
+                <select id="build-day" class="bg-gray-800 p-2 rounded-lg text-white font-bold mb-4 w-full"></select>
                 <div id="q-area"></div>
-                <button id="btn-save-quiz" class="w-full bg-gray-700 text-white font-black py-4 mt-4 rounded-xl border border-gray-600">حفظ الكويز</button>
+                <button id="save-quiz-btn" class="w-full bg-green-600 text-black font-black py-4 mt-4 rounded-xl">حفظ الكويز</button>
             </div>
         </div>
 
-        <div id="tab-vault" class="tab-content space-y-6">
-            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-600 text-center">
-                <div class="flex gap-2 mb-4"><select id="control-day" class="bg-gray-800 p-3 rounded-xl flex-grow text-white font-bold"></select></div>
+        <div id="tab-vault" class="tab-content space-y-4">
+            <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
+                <select id="control-day" class="bg-gray-800 p-3 rounded-xl w-full text-white mb-4"></select>
                 <div class="flex gap-2">
-                    <button id="btn-status-soon" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold">قريباً</button>
-                    <button id="btn-status-active" class="flex-1 bg-green-600 py-3 rounded-xl font-bold text-black">تفعيل</button>
-                    <button id="btn-status-closed" class="flex-1 bg-red-600 py-3 rounded-xl font-bold">إغلاق</button>
+                    <button onclick="setGlobalStatus('active')" class="flex-1 bg-green-600 py-3 rounded-xl font-bold text-black">تفعيل</button>
+                    <button onclick="setGlobalStatus('closed')" class="flex-1 bg-red-600 py-3 rounded-xl font-bold text-white">إغلاق</button>
                 </div>
             </div>
-            <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                <div class="flex gap-2 mb-4"><select id="vault-day" class="bg-gray-800 p-3 rounded-xl flex-grow text-white"></select><button id="btn-check-vault" class="bg-gray-700 px-6 rounded-xl font-bold">فحص</button></div>
-                <div id="vault-res" class="p-4 bg-gray-800 rounded-xl text-sm text-gray-400">اختر يوماً...</div>
-            </div>
         </div>
 
-        <div id="tab-settings" class="tab-content space-y-6">
-            <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-500">
-                <h2 class="text-yellow-500 font-black mb-2">رسالة البطل الطائرة</h2>
-                <input type="text" id="champ-msg" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 text-white mb-4">
-                <div class="flex gap-2"><button id="btn-save-champ" class="flex-grow bg-yellow-600 text-black font-black py-3 rounded-xl">نشر</button><button id="btn-clear-champ" class="bg-red-900 text-red-400 px-6 py-3 rounded-xl">تفريغ</button></div>
+        <div id="tab-settings" class="tab-content space-y-4">
+            <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
+                <input type="text" id="champ-msg" placeholder="رسالة البطل الطائرة..." class="w-full p-4 bg-gray-800 rounded-xl text-white mb-4">
+                <button id="save-champ-btn" class="w-full bg-yellow-600 text-black font-bold py-3 rounded-xl">نشر الرسالة</button>
             </div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
+
     <script>
-        // --- 1. أكواد تشغيل الشاشة والزرار (مستقلة تماماً) ---
+        // --- نظام كشف الأخطاء (الرادار) ---
+        function logDebug(msg, isError = false) {
+            const consoleDiv = document.getElementById('debug-console');
+            const time = new Date().toLocaleTimeString();
+            consoleDiv.innerHTML += `<br><span class="${isError ? 'error-text' : ''}">[${time}] ${msg}</span>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        window.onerror = function(message, source, lineno) {
+            logDebug(`عطل برمجي: ${message} (سطر ${lineno})`, true);
+        };
+
+        // --- المتغيرات الأساسية ---
         const ADMIN_PASS = "1234";
-        const loginBtn = document.getElementById('btn-login-now');
-        const passInput = document.getElementById('admin-pass-input');
-
-        loginBtn.addEventListener('click', function() {
-            if(passInput.value === ADMIN_PASS) {
-                document.getElementById('login-screen-final').style.display = 'none';
-                document.getElementById('dashboard-final').style.display = 'block';
-                initSystem(); // بنشغل الداتا بيز بعد ما الشاشة تفتح
-            } else {
-                alert("كلمة السر خطأ");
-                passInput.value = '';
-            }
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', function() {
-            location.reload();
-        });
-
-        // زراير التنقل
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                
-                document.getElementById(this.dataset.target).classList.add('active');
-                this.classList.add('active');
-                
-                if(this.dataset.target === 'tab-global') loadUsersData();
-            });
-        });
-
-        // --- 2. أكواد قاعدة البيانات (تشتغل فقط بعد الدخول) ---
-        let db;
+        let db = null;
         let allGroupsData = [];
         let allUsersData = [];
 
-        function initSystem() {
-            if (!firebase.apps.length) {
-                firebase.initializeApp({ 
-                    apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", 
-                    projectId: "ramadan-87817", 
-                    appId: "1:343525703258:web:6776b4857425df8bcca263" 
-                });
-            }
-            db = firebase.firestore();
+        // --- 1. تشغيل زرار الدخول ---
+        document.addEventListener('DOMContentLoaded', function() {
+            logDebug("تم تحميل الصفحة بنجاح. جاهز للدخول.");
 
-            // تجهيز القوائم
-            ['build-day', 'control-day', 'vault-day'].forEach(id => {
-                let el = document.getElementById(id); 
-                el.innerHTML = ''; 
-                for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
+            const loginBtn = document.getElementById('login-btn');
+            const passInput = document.getElementById('admin-pass');
+
+            loginBtn.addEventListener('click', function() {
+                logDebug("تم الضغط على زر الدخول...");
+                if (passInput.value === ADMIN_PASS) {
+                    logDebug("كلمة السر صحيحة. جاري فتح اللوحة...");
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard-screen').style.display = 'block';
+                    initFirebase(); // تشغيل فايربيز بعد فتح اللوحة
+                } else {
+                    logDebug("تم إدخال كلمة سر خاطئة.", true);
+                    alert("كلمة السر خاطئة!");
+                }
             });
 
-            // بناء خانات الكويز
+            // دعم زر الانتر
+            passInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+
+            // زراير التنقل
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.getElementById(this.dataset.target).classList.add('active');
+                    this.classList.add('active');
+                });
+            });
+
+            // بناء خانات الكويز (15 سؤال)
             let qa = document.getElementById('q-area');
             for(let i=1; i<=15; i++) {
-                qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2 font-bold">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-2 rounded mb-2 text-white border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-2 text-sm rounded text-white border border-gray-700"><input class="o2 bg-gray-800 p-2 text-sm rounded text-white border border-gray-700"><input class="o3 bg-gray-800 p-2 text-sm rounded text-white border border-gray-700"><input class="o4 bg-gray-800 p-2 text-sm rounded text-white border border-gray-700"></div><select class="cor w-full bg-gray-800 p-2 mt-2 text-green-400 rounded"><option value="0">الصح: الأول</option><option value="1">الصح: الثاني</option><option value="2">الصح: الثالث</option><option value="3">الصح: الرابع</option></select></div>`;
+                qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-2 rounded mb-2 text-white outline-none"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-2 text-sm rounded text-white outline-none"><input class="o2 bg-gray-800 p-2 text-sm rounded text-white outline-none"><input class="o3 bg-gray-800 p-2 text-sm rounded text-white outline-none"><input class="o4 bg-gray-800 p-2 text-sm rounded text-white outline-none"></div><select class="cor w-full bg-gray-800 p-2 mt-2 text-green-400 rounded outline-none"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
             }
 
-            loadGroupsData();
-            loadUsersData();
-            
-            db.collection("settings").doc("champData").get().then(s => { 
-                if(s.exists) document.getElementById('champ-msg').value = s.data().message || ""; 
-            });
-        }
-
-        // --- المجموعات ---
-        document.getElementById('btn-create-grp').addEventListener('click', function() {
-            let g = document.getElementById('grp-name').value, t1 = document.getElementById('team1-name').value, t2 = document.getElementById('team2-name').value;
-            if(!g||!t1||!t2) return alert("اكمل البيانات");
-            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] }) }, { merge: true }).then(() => { 
-                alert("تم!"); document.getElementById('grp-name').value=""; loadGroupsData(); 
+            // بناء القوائم
+            ['build-day', 'control-day'].forEach(id => {
+                let el = document.getElementById(id); 
+                for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
         });
 
-        function loadGroupsData() {
-            db.collection("config").doc("groups_data").get().then(s => {
+        // --- 2. تشغيل فايربيز (المكان اللي كان بيعمل المشكلة) ---
+        function initFirebase() {
+            logDebug("جاري الاتصال بفايربيز...");
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp({
+                        apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8",
+                        projectId: "ramadan-87817",
+                        appId: "1:343525703258:web:6776b4857425df8bcca263"
+                    });
+                }
+                db = firebase.firestore();
+                
+                // اختبار الاتصال
+                db.collection("settings").doc("test").get().then(() => {
+                    logDebug("تم الاتصال بقاعدة البيانات بنجاح!");
+                    document.getElementById('sys-status').innerHTML = "✅ متصل بقاعدة البيانات";
+                    document.getElementById('sys-status').className = "text-green-400 font-bold text-sm text-center mb-4 bg-gray-900 py-2 rounded-xl border border-green-800";
+                    fetchData();
+                }).catch(err => {
+                    logDebug("مشكلة في صلاحيات فايربيز: " + err.message, true);
+                    document.getElementById('sys-status').innerHTML = "❌ خطأ في فايربيز (راجع الصلاحيات Rules)";
+                });
+
+            } catch (error) {
+                logDebug("انهيار في فايربيز: " + error.message, true);
+                document.getElementById('sys-status').innerHTML = "❌ خطأ: " + error.message;
+            }
+        }
+
+        // --- 3. جلب وعرض البيانات ---
+        function fetchData() {
+            logDebug("جاري تحميل البيانات...");
+            
+            // جلب المجموعات
+            db.collection("config").doc("groups_data").onSnapshot(s => {
                 let v = document.getElementById('groups-viewer'), sel = document.getElementById('sel-group');
                 v.innerHTML = ""; sel.innerHTML = '<option value="">المجموعة...</option>';
                 if(s.exists && s.data().list) {
                     allGroupsData = s.data().list;
                     allGroupsData.forEach((g, i) => {
                         sel.innerHTML += `<option value="${i}">${g.group}</option>`;
-                        v.innerHTML += `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><h3 class="text-yellow-500 font-bold mb-2">${g.group}</h3><p class="text-sm">🛡️ ${g.teams[0]}</p><p class="text-sm">🛡️ ${g.teams[1]}</p></div>`;
+                        v.innerHTML += `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><h3 class="text-yellow-500 font-bold">${g.group}</h3></div>`;
                     });
                 }
             });
+
+            // جلب المستخدمين
+            db.collection("users").onSnapshot(s => {
+                let bAdmin = document.getElementById('users-body'), bGlobal = document.getElementById('global-body'); 
+                bAdmin.innerHTML = ""; bGlobal.innerHTML = "";
+                let arr = []; s.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
+                arr.sort((a,b) => (b.score||0) - (a.score||0));
+                allUsersData = arr;
+
+                arr.forEach((u, i) => {
+                    bAdmin.innerHTML += `<tr class="border-b border-gray-800"><td class="p-3 text-white">${u.name}</td><td class="p-3 text-yellow-500">${u.password}</td><td class="p-3"><button onclick="deleteUser('${u.id}')" class="text-red-500 bg-gray-800 p-2 rounded">حذف</button></td></tr>`;
+                    bGlobal.innerHTML += `<tr onclick="showProf('${u.id}', ${i+1})" class="border-b border-gray-800 cursor-pointer hover:bg-gray-800"><td class="p-4">${i+1}</td><td class="p-4 text-white font-bold">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-yellow-500 font-bold text-center">${u.score||0}</td></tr>`;
+                });
+                logDebug("اكتمل تحميل المستخدمين.");
+            });
         }
 
+        // تحديث دروب داون التيم
         document.getElementById('sel-group').addEventListener('change', function() {
             let idx = this.value, sel = document.getElementById('sel-team');
             sel.innerHTML = '<option value="">التيم...</option>';
             if(idx !== "") { sel.innerHTML += `<option value="${allGroupsData[idx].teams[0]}">${allGroupsData[idx].teams[0]}</option><option value="${allGroupsData[idx].teams[1]}">${allGroupsData[idx].teams[1]}</option>`; }
         });
 
-        // --- المستخدمين ---
-        document.getElementById('btn-add-user').addEventListener('click', function() {
+        // إنشاء مجموعة
+        document.getElementById('create-grp-btn').addEventListener('click', () => {
+            let g = document.getElementById('grp-name').value, t1 = document.getElementById('team1-name').value, t2 = document.getElementById('team2-name').value;
+            if(g && t1 && t2) {
+                db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] }) }, { merge: true });
+                document.getElementById('grp-name').value = ""; document.getElementById('team1-name').value = ""; document.getElementById('team2-name').value = "";
+            }
+        });
+
+        // إضافة متسابق
+        document.getElementById('add-user-btn').addEventListener('click', () => {
             let n = document.getElementById('add-name').value, gIdx = document.getElementById('sel-group').value, t = document.getElementById('sel-team').value;
-            if(!n || gIdx==="" || !t) return alert("اكمل البيانات");
-            let gName = allGroupsData[gIdx].group, pass = Math.floor(100000 + Math.random() * 900000).toString();
-            db.collection("users").add({ name: n, group: gName, team: t, password: pass, score: 0, isBanned: false }).then(() => {
-                alert(`تم الإضافة بنجاح!\nالاسم: ${n}\nكلمة السر: ${pass}`);
-                document.getElementById('add-name').value=""; loadUsersData();
-            });
-        });
-
-        function loadUsersData() {
-            db.collection("users").get().then(s => {
-                let bAdmin = document.getElementById('users-body'), bGlobal = document.getElementById('global-ranking-body'); 
-                bAdmin.innerHTML = ""; bGlobal.innerHTML = "";
-                let arr = []; s.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
-                arr.sort((x,y)=>(y.score||0)-(x.score||0));
-                allUsersData = arr;
-
-                arr.forEach((u, i) => {
-                    let rank = i + 1;
-                    bAdmin.innerHTML += `<tr class="border-b border-gray-800"><td class="p-3 text-white">${u.name}</td><td class="p-3 text-yellow-500">${u.password}</td><td class="p-3 flex gap-2"><button onclick="editU('${u.id}',${u.score||0})" class="text-blue-400">تعديل</button><button onclick="delU('${u.id}')" class="text-red-500">حذف</button></td></tr>`;
-                    bGlobal.innerHTML += `<tr onclick="openProf('${u.id}', ${rank})" class="border-b border-gray-800 cursor-pointer"><td class="p-4">${rank}</td><td class="p-4 text-white">${u.name}</td><td class="p-4">${u.group}</td><td class="p-4 text-yellow-500 font-bold">${u.score||0}</td></tr>`;
+            if(n && gIdx !== "" && t) {
+                let pass = Math.floor(100000 + Math.random() * 900000).toString();
+                db.collection("users").add({ name: n, group: allGroupsData[gIdx].group, team: t, password: pass, score: 0, isBanned: false }).then(() => {
+                    alert(`تم! كود الدخول: ${pass}`);
+                    document.getElementById('add-name').value = "";
                 });
-            });
-        }
-
-        window.editU = function(id, cur) { let nw = prompt("النقاط:", cur); if(nw) db.collection("users").doc(id).update({score: parseInt(nw)}).then(loadUsersData); };
-        window.delU = function(id) { if(confirm("حذف؟")) db.collection("users").doc(id).delete().then(loadUsersData); };
-
-        // --- الملف الشخصي ---
-        window.openProf = function(id, rank) {
-            let u = allUsersData.find(x => x.id === id);
-            document.getElementById('prof-name').innerText = u.name;
-            document.getElementById('prof-rank').innerText = rank === 1 ? '👑 المركز الأول' : `المركز ${rank}`;
-            document.getElementById('prof-group').innerText = u.group + " | " + u.team;
-            document.getElementById('prof-score').innerText = u.score || 0;
-            document.getElementById('prof-pass').innerText = u.password;
-            document.getElementById('profile-modal').classList.remove('hidden'); document.getElementById('profile-modal').classList.add('flex');
-        };
-        document.getElementById('btn-close-prof').addEventListener('click', function() {
-            document.getElementById('profile-modal').classList.add('hidden'); document.getElementById('profile-modal').classList.remove('flex');
+            }
         });
 
-        // --- الكويز والحالة ---
-        document.getElementById('btn-save-quiz').addEventListener('click', function() {
+        // حذف متسابق
+        window.deleteUser = function(id) { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); };
+
+        // حفظ الكويز
+        document.getElementById('save-quiz-btn').addEventListener('click', () => {
             let d = document.getElementById('build-day').value;
             let qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({ q: b.querySelector('.q-txt').value, options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value], correctIndex: parseInt(b.querySelector('.cor').value) }));
             db.collection("quizzes_pool").doc("day_"+d).set({ variations: [{ questions: qs }] }).then(() => alert("تم الحفظ!"));
         });
 
-        document.getElementById('btn-check-vault').addEventListener('click', function() {
-            let d = document.getElementById('vault-day').value, res = document.getElementById('vault-res'); res.innerHTML = "فحص...";
-            db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
-                if(s.exists && s.data().variations) res.innerHTML = `<span class="text-green-400">الكويز موجود</span> <button onclick="delQ('${d}')" class="text-red-500 ml-3">
+        // حالة الموقع
+        window.setGlobalStatus = function(st) {
+            db.collection("settings").doc("global_status").set({ status: st, currentDay: parseInt(document.getElementById('control-day').value) }).then(() => alert("تم التحديث"));
+        };
+
+        // رسالة البطل
+        document.getElementById('save-champ-btn').addEventListener('click', () => {
+            db.collection("settings").doc("champData").set({ message: document.getElementById('champ-msg').value }).then(() => alert("تم النشر"));
+        });
+
+        // الملف الشخصي
+        window.showProf = function(id, rank) {
+            let u = allUsersData.find(x => x.id === id);
+            document.getElementById('prof-name').innerText = u.name;
+            document.getElementById('prof-rank').innerText = "المركز " + rank;
+            document.getElementById('prof-group').innerText = u.group;
+            document.getElementById('prof-score').innerText = u.score || 0;
+            document.getElementById('prof-pass').innerText = u.password;
+            document.getElementById('profile-modal').classList.remove('hidden');
+            document.getElementById('profile-modal').classList.add('flex');
+        };
+        document.getElementById('close-prof-btn').addEventListener('click', () => {
+            document.getElementById('profile-modal').classList.add('hidden');
+            document.getElementById('profile-modal').classList.remove('flex');
+        });
+
+    </script>
+</body>
+</html>
