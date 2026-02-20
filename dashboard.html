@@ -9,14 +9,14 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background: #050505; color: #fff; margin: 0; padding: 0; min-height: 100vh; }
-        .glass-panel { background: rgba(20, 24, 39, 0.7); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
+        .glass-panel { background: rgba(20, 24, 39, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7); }
         .gold-btn { background: linear-gradient(135deg, #d4af37, #aa8000); color: #000; font-weight: 900; cursor: pointer; border: none; }
-        .nav-btn { background: rgba(30, 41, 59, 0.8); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; transition: all 0.3s; white-space: nowrap; cursor: pointer; }
-        .nav-btn.active { background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.15); }
-        .tab-content { display: none; } .tab-content.active { display: block; }
+        .nav-btn { background: rgba(30, 41, 59, 0.9); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; white-space: nowrap; cursor: pointer; }
+        .nav-btn.active { background: rgba(212, 175, 55, 0.15); color: #d4af37; border: 1px solid #d4af37; }
+        .tab-content { display: none; } 
+        .tab-content.active { display: block; }
         input, select, textarea { background: rgba(15, 23, 42, 0.9) !important; border: 1px solid rgba(71, 85, 105, 0.8) !important; color: white !important; outline: none !important; }
-        input:focus, select:focus, textarea:focus { border: 1px solid #d4af37 !important; }
-        .q-block { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 12px; }
+        .q-block { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); padding: 15px; border-radius: 15px; margin-bottom: 12px; }
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; } .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
     </style>
 </head>
@@ -28,41 +28,42 @@
         }
     </script>
 
-    <div class="p-4 max-w-5xl mx-auto">
+    <div class="p-4 max-w-5xl mx-auto relative z-10">
+        
         <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
             <div class="flex items-center gap-2">
                 <div id="conn-dot" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-                <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال بالخوادم...</span>
+                <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال بقاعدة البيانات...</span>
             </div>
-            <button onclick="logOut()" class="bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-xl text-xs font-bold">خروج وقفل 🔒</button>
+            <button onclick="logOut()" class="bg-red-900/40 text-red-400 border border-red-800 px-4 py-2 rounded-xl text-xs font-bold">خروج وقفل 🔒</button>
         </div>
 
         <nav class="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scroll">
-            <button class="nav-btn active" onclick="showTab('room', this)">المجموعات</button>
-            <button class="nav-btn" onclick="showTab('users', this)">المتسابقين</button>
-            <button class="nav-btn" onclick="showTab('global', this)">الترتيب 🌍</button>
-            <button class="nav-btn" onclick="showTab('quizzes', this)">الكويز</button>
-            <button class="nav-btn" onclick="showTab('vault', this)">الخزنة</button>
-            <button class="nav-btn" onclick="showTab('settings', this)">الإعدادات</button>
+            <button class="nav-btn active" onclick="showTab('room', this)"><i class="fas fa-chess-rook ml-1"></i> المجموعات</button>
+            <button class="nav-btn" onclick="showTab('users', this)"><i class="fas fa-users ml-1"></i> المتسابقين</button>
+            <button class="nav-btn" onclick="showTab('global', this)"><i class="fas fa-trophy ml-1"></i> الترتيب</button>
+            <button class="nav-btn" onclick="showTab('quizzes', this)"><i class="fas fa-bolt ml-1"></i> الكويز</button>
+            <button class="nav-btn" onclick="showTab('vault', this)"><i class="fas fa-box-open ml-1"></i> الخزنة</button>
+            <button class="nav-btn" onclick="showTab('settings', this)"><i class="fas fa-cog ml-1"></i> الرسائل</button>
         </nav>
 
         <div id="tab-room" class="tab-content active">
-            <div class="glass-panel p-5 rounded-2xl mb-6 border-t-2 border-yellow-600">
-                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إنشاء مجموعة جديدة (الأدوار)</h3>
-                <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: دور الـ 8)" class="w-full p-3 rounded-xl mb-3">
+            <div class="glass-panel p-5 rounded-2xl mb-6">
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إنشاء مجموعة (الأدوار)</h3>
+                <input type="text" id="g-name" placeholder="اسم المجموعة (مثال: نصف النهائي)" class="w-full p-3 rounded-xl mb-3">
                 <div class="grid grid-cols-2 gap-3 mb-3">
-                    <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-xl">
-                    <input type="text" id="t2" placeholder="تيم 2" class="p-3 rounded-xl">
+                    <input type="text" id="t1" placeholder="اسم التيم الأول" class="p-3 rounded-xl">
+                    <input type="text" id="t2" placeholder="اسم التيم الثاني" class="p-3 rounded-xl">
                 </div>
-                <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl text-lg">إنشاء الكيان</button>
+                <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl text-lg">إنشاء وحفظ</button>
             </div>
             <div id="grp-list" class="space-y-3"></div>
         </div>
 
         <div id="tab-users" class="tab-content">
-            <div class="glass-panel p-5 rounded-2xl mb-6 border-t-2 border-yellow-600">
-                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إضافة متسابق</h3>
-                <input type="text" id="u-name" placeholder="الاسم" class="w-full p-3 rounded-xl mb-3">
+            <div class="glass-panel p-5 rounded-2xl mb-6">
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">تسجيل لاعب (توزيع على 6 نسخ)</h3>
+                <input type="text" id="u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-xl mb-3">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <select id="u-group" onchange="loadTeams()" class="p-3 rounded-xl text-xs"><option value="">اختر المجموعة</option></select>
                     <select id="u-team" class="p-3 rounded-xl text-xs"><option value="">اختر التيم</option></select>
@@ -71,7 +72,7 @@
             </div>
             <div class="glass-panel rounded-2xl overflow-x-auto">
                 <table class="w-full text-right text-xs">
-                    <thead class="bg-black/50 text-gray-400 border-b border-gray-800"><tr><th class="p-4">الاسم والكود</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإدارة</th></tr></thead>
+                    <thead class="bg-black/80 text-gray-400 border-b border-gray-700"><tr><th class="p-4">الاسم والكود</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">تحكم كامل</th></tr></thead>
                     <tbody id="usr-list"></tbody>
                 </table>
             </div>
@@ -82,79 +83,80 @@
         </div>
 
         <div id="tab-quizzes" class="tab-content">
-            <div class="glass-panel p-5 rounded-2xl mb-4 border-t-2 border-yellow-600">
+            <div class="glass-panel p-5 rounded-2xl mb-4">
                 <div class="flex gap-3">
                     <div class="flex-1">
                         <label class="text-[10px] text-gray-400 mb-1 block">رقم اليوم</label>
-                        <select id="q-day" class="w-full p-3 rounded-xl font-bold border border-yellow-600/50 text-yellow-500"></select>
+                        <select id="q-day" class="w-full p-3 rounded-xl font-bold border border-yellow-600 text-yellow-500"></select>
                     </div>
                     <div class="w-1/3">
-                        <label class="text-[10px] text-gray-400 mb-1 block">رقم النسخة</label>
-                        <select id="q-var" class="w-full p-3 rounded-xl font-bold border border-blue-500/50 text-blue-400">
-                            <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option>
-                            <option value="3">نسخة 4</option><option value="4">نسخة 5</option><option value="5">نسخة 6</option>
+                        <label class="text-[10px] text-gray-400 mb-1 block">النسخة</label>
+                        <select id="q-var" class="w-full p-3 rounded-xl font-bold border border-blue-600 text-blue-400">
+                            <option value="0">النسخة 1</option><option value="1">النسخة 2</option><option value="2">النسخة 3</option>
+                            <option value="3">النسخة 4</option><option value="4">النسخة 5</option><option value="5">النسخة 6</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div id="q-area" class="space-y-3"></div>
-            <button onclick="saveQ()" class="gold-btn w-full p-4 rounded-xl mt-4 text-lg">حفظ النسخة في الخزنة 💾</button>
+            <button onclick="saveQ()" class="gold-btn w-full p-4 rounded-xl mt-4 text-lg">💾 حفظ النسخة في الخزنة</button>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-4">
-            <div class="glass-panel p-6 rounded-2xl text-center border-t-2 border-yellow-600">
-                <h3 class="mb-4 font-bold text-yellow-500">نشر الماتشات على الموقع</h3>
+            <div class="glass-panel p-6 rounded-2xl text-center">
+                <h3 class="mb-4 font-bold text-yellow-500">لوحة النشر المباشر</h3>
                 <select id="pub-day" class="w-full p-3 rounded-xl mb-4 font-bold"></select>
                 <div class="flex gap-2">
-                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900/50 text-blue-400 p-3 rounded-xl font-bold border border-blue-600">قريباً</button>
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900/80 text-blue-300 p-3 rounded-xl font-bold border border-blue-500">قريباً</button>
                     <button onclick="setStatus('active')" class="flex-1 bg-green-500 text-black p-3 rounded-xl font-black">تفعيل ▶️</button>
-                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900/50 text-red-400 p-3 rounded-xl font-bold border border-red-600">إغلاق</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900/80 text-red-300 p-3 rounded-xl font-bold border border-red-500">إغلاق 🔒</button>
                 </div>
             </div>
             <div class="glass-panel p-5 rounded-2xl">
-                <h3 class="text-gray-400 text-xs mb-3 font-bold">فحص الكويزات المحفوظة</h3>
+                <h3 class="text-gray-400 text-xs mb-3 font-bold">فحص الكويزات وتعديلها</h3>
                 <div class="flex gap-3 mb-4"><select id="v-day" class="flex-grow p-3 rounded-xl font-bold"></select><button onclick="checkV()" class="bg-gray-700 text-white px-6 rounded-xl font-bold">فحص</button></div>
-                <div id="v-res" class="p-4 bg-black/60 rounded-xl text-sm border border-gray-800">أدخل اليوم للفحص...</div>
+                <div id="v-res" class="p-4 bg-black/80 rounded-xl text-sm border border-gray-700">اختر يوماً للفحص...</div>
             </div>
         </div>
 
         <div id="tab-settings" class="tab-content space-y-4">
             <div class="glass-panel p-5 rounded-2xl border-r-4 border-yellow-500">
-                <p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل الطائرة:</p>
-                <input type="text" id="msg-c" placeholder="مبروك لتيم..." class="w-full p-3 rounded-xl mb-3">
+                <p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل (المنبثقة):</p>
+                <input type="text" id="msg-c" placeholder="اكتب الرسالة هنا..." class="w-full p-3 rounded-xl mb-3">
                 <button onclick="saveM('c')" class="gold-btn w-full p-3 rounded-xl">نشر الرسالة</button>
             </div>
             <div class="glass-panel p-5 rounded-2xl border-r-4 border-blue-500">
-                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري:</p>
+                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري (أعلى الموقع):</p>
                 <textarea id="msg-d" placeholder="تنبيهات وأخبار..." class="w-full p-3 rounded-xl mb-3 h-24 custom-scroll"></textarea>
                 <button onclick="saveM('d')" class="bg-blue-600 text-white font-bold w-full p-3 rounded-xl">تحديث الشريط</button>
             </div>
         </div>
     </div>
 
-    <div id="prof-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center p-4">
+    <div id="prof-modal" style="display: none;" class="fixed inset-0 bg-black/95 z-[99999] flex-col items-center justify-center p-4">
         <div class="glass-panel rounded-3xl w-full max-w-sm overflow-hidden border border-yellow-600">
             <div class="bg-gradient-to-br from-yellow-600 to-yellow-800 p-6 text-center">
-                <h2 id="pf-name" class="text-2xl font-black text-black mb-1">...</h2>
-                <p id="pf-rank" class="text-white font-bold text-xs bg-black/30 inline-block px-3 py-1 rounded-full">...</p>
+                <div class="w-20 h-20 bg-black rounded-full mx-auto border-4 border-yellow-400 flex items-center justify-center text-4xl mb-3"><i class="fas fa-trophy text-yellow-500"></i></div>
+                <h2 id="pf-name" class="text-2xl font-black text-white mb-1">...</h2>
+                <p id="pf-rank" class="text-white font-bold text-xs bg-black/50 inline-block px-3 py-1 rounded-full">...</p>
             </div>
             <div class="p-6">
-                <div class="bg-black/50 p-4 rounded-2xl mb-4 text-center border border-gray-700">
-                    <p class="text-gray-400 text-xs mb-1">النقاط الإجمالية</p>
+                <div class="bg-black/80 p-4 rounded-2xl mb-4 text-center border border-gray-700">
+                    <p class="text-gray-400 text-xs mb-1">إجمالي نقاط الكيان</p>
                     <p id="pf-score" class="text-3xl font-black text-yellow-500">0</p>
                 </div>
                 <div id="pf-players" class="max-h-32 overflow-y-auto space-y-2 pr-1 custom-scroll text-sm"></div>
-                <button onclick="closeModal('prof-modal')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold mt-4 border border-gray-700">إغلاق</button>
+                <button onclick="closeModal('prof-modal')" class="w-full bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-xl font-bold mt-4">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <div id="copy-modal" class="fixed inset-0 bg-black/90 z-[10000] hidden items-center justify-center p-6">
+    <div id="copy-modal" style="display: none;" class="fixed inset-0 bg-black/95 z-[99999] flex-col items-center justify-center p-6">
         <div class="glass-panel p-8 rounded-3xl border border-green-500 w-full max-w-xs text-center">
             <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
-            <p class="text-white font-bold mb-6 text-lg">تم تسجيل البطل!</p>
-            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3 w-full">نسخ البيانات</button>
-            <button onclick="closeModal('copy-modal')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold border border-gray-700">إغلاق</button>
+            <p class="text-white font-bold mb-6 text-lg">تم تسجيل المتسابق!</p>
+            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3">نسخ البيانات <i class="fas fa-copy ml-1"></i></button>
+            <button onclick="closeModal('copy-modal')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold">إغلاق</button>
         </div>
     </div>
 
@@ -162,158 +164,148 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // تعريف المتغيرات في البداية لضمان عمل الزراير
-        window.db = null;
-        window.globalGroups = [];
-        window.globalUsers = [];
-        window.tempClipData = "";
+        var db = null;
+        var globalGroups = [];
+        var globalUsers = [];
+        var tempClipData = "";
 
-        // دالة الخروج
-        window.logOut = function() {
+        // الخروج
+        function logOut() {
             localStorage.removeItem('admin_access');
             window.location.href = 'index.html';
-        };
+        }
 
-        // دالة إغلاق النوافذ
-        window.closeModal = function(id) {
-            var el = document.getElementById(id);
-            if(el) {
-                el.style.display = 'none';
-                el.classList.remove('flex');
-                el.classList.add('hidden');
-            }
-        };
+        // إغلاق النوافذ المنبثقة بشكل قاطع
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
 
-        // دالة التنقل بين التبويبات
-        window.showTab = function(t, btn) {
+        // التبويبات
+        function showTab(t, btn) {
             var contents = document.querySelectorAll('.tab-content');
-            for(var i=0; i<contents.length; i++) { contents[i].classList.remove('active'); }
+            for(var i=0; i<contents.length; i++) { contents[i].style.display = 'none'; }
             
             var btns = document.querySelectorAll('.nav-btn');
             for(var j=0; j<btns.length; j++) { btns[j].classList.remove('active'); }
             
-            var targetTab = document.getElementById('tab-'+t);
-            if(targetTab) targetTab.classList.add('active');
-            if(btn) btn.classList.add('active');
-        };
+            document.getElementById('tab-'+t).style.display = 'block';
+            btn.classList.add('active');
+        }
 
-        // تشغيل التطبيق بعد تحميل الصفحة بالكامل لمنع الأخطاء
-        window.addEventListener('DOMContentLoaded', function() {
-            try {
-                // بيانات الفايربيز المكتملة لضمان الاتصال
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8",
-                    authDomain: "ramadan-87817.firebaseapp.com",
-                    projectId: "ramadan-87817",
-                    storageBucket: "ramadan-87817.appspot.com",
-                    messagingSenderId: "343525703258",
-                    appId: "1:343525703258:web:6776b4857425df8bcca263"
-                };
-
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                window.db = firebase.firestore();
-                
-                // تحديث حالة الاتصال
-                document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
-                document.getElementById('conn-status').className = "text-green-400 text-xs font-bold";
-                document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-green-500 animate-pulse";
-
-                // تجهيز القوائم
-                var optionsHTML = "";
-                for(var d=1; d<=30; d++) { optionsHTML += "<option value='"+d+"'>اليوم "+d+"</option>"; }
-                document.getElementById('q-day').innerHTML = optionsHTML;
-                document.getElementById('pub-day').innerHTML = optionsHTML;
-                document.getElementById('v-day').innerHTML = optionsHTML;
-
-                // تجهيز مربعات الكويز
-                var qa = document.getElementById('q-area');
-                var qHTML = "";
-                for(var i=1; i<=15; i++) {
-                    qHTML += '<div class="q-block">' +
-                        '<p class="text-yellow-500 text-[10px] font-bold mb-2">سؤال '+i+'</p>' +
-                        '<textarea class="qt w-full p-3 text-sm rounded-xl mb-2 h-16 outline-none border border-gray-700"></textarea>' +
-                        '<div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded-lg border border-gray-700" placeholder="1"><input class="o2 p-2 text-xs rounded-lg border border-gray-700" placeholder="2"><input class="o3 p-2 text-xs rounded-lg border border-gray-700" placeholder="3"><input class="o4 p-2 text-xs rounded-lg border border-gray-700" placeholder="4"></div>' +
-                        '<select class="ca w-full p-2 mt-2 text-xs text-green-400 font-bold bg-black border border-gray-700 rounded-lg"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select>' +
-                    '</div>';
-                }
-                qa.innerHTML = qHTML;
-
-                // بدء جلب البيانات
-                startDataSync();
-
-            } catch(e) {
-                console.error("خطأ في بدء التشغيل:", e);
-                alert("حدث خطأ أثناء الاتصال: " + e.message);
-                document.getElementById('conn-status').innerText = "خطأ في الاتصال ❌";
-                document.getElementById('conn-status').className = "text-red-500 text-xs font-bold";
-                document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-red-500";
-            }
-        });
-
-        // دالة جلب البيانات
-        function startDataSync() {
-            try {
-                // المجموعات
-                window.db.collection("config").doc("groups_data").onSnapshot(function(s) {
-                    var list = document.getElementById('grp-list');
-                    var uG = document.getElementById('u-group');
-                    list.innerHTML = ""; 
-                    uG.innerHTML = '<option value="">المجموعة</option>';
-                    
-                    if(s.exists && s.data().list) {
-                        window.globalGroups = s.data().list;
-                        for(var i=0; i<window.globalGroups.length; i++) {
-                            var g = window.globalGroups[i];
-                            uG.innerHTML += '<option value="'+i+'">'+g.group+'</option>';
-                            list.innerHTML += '<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">' +
-                                '<div><span class="text-yellow-500 font-bold block text-sm">'+g.group+'</span><span class="text-[10px] text-gray-400">('+g.teams.join(' vs ')+')</span></div>' +
-                                '<button onclick="delGrp('+i+')" class="bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg text-xs border border-red-500/50">حذف</button>' +
-                            '</div>';
-                        }
-                    }
+        // تشغيل مباشر بمجرد قراءة الكود
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ 
+                    apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", 
+                    projectId: "ramadan-87817", 
+                    appId: "1:343525703258:web:6776b4857425df8bcca263" 
                 });
+            }
+            db = firebase.firestore();
+            
+            document.getElementById('conn-status').innerText = "متصل بقاعدة البيانات ✅";
+            document.getElementById('conn-status').className = "text-green-400 text-xs font-bold";
+            document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-green-500 animate-pulse";
 
-                // المستخدمين
-                window.db.collection("users").onSnapshot(function(s) {
-                    var uL = document.getElementById('usr-list');
-                    var container = document.getElementById('global-tables-container');
-                    uL.innerHTML = ""; container.innerHTML = "";
-                    
-                    var rawUsers = [];
-                    s.forEach(function(d) { 
-                        var u = d.data(); u.id = d.id; rawUsers.push(u); 
-                    });
-                    window.globalUsers = rawUsers;
+            // تعبئة القوائم (30 يوم)
+            var optionsHTML = "";
+            for(var d=1; d<=30; d++) { optionsHTML += "<option value='"+d+"'>اليوم "+d+"</option>"; }
+            document.getElementById('q-day').innerHTML = optionsHTML;
+            document.getElementById('pub-day').innerHTML = optionsHTML;
+            document.getElementById('v-day').innerHTML = optionsHTML;
 
-                    var combined = {};
-                    for(var i=0; i<rawUsers.length; i++) {
-                        var u = rawUsers[i];
-                        var key = (u.team === "فردي" || !u.team) ? u.name : u.team;
-                        if(!combined[key]) combined[key] = { score: 0, group: u.group };
-                        combined[key].score += (u.score || 0);
+            // بناء خانات الكويز (15 سؤال)
+            var qa = document.getElementById('q-area');
+            var qHTML = "";
+            for(var i=1; i<=15; i++) {
+                qHTML += '<div class="q-block">' +
+                    '<p class="text-yellow-500 text-[10px] font-bold mb-2">سؤال '+i+'</p>' +
+                    '<textarea class="qt w-full p-3 text-sm rounded-xl mb-2 h-16 border border-gray-700"></textarea>' +
+                    '<div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded-lg border border-gray-700" placeholder="1"><input class="o2 p-2 text-xs rounded-lg border border-gray-700" placeholder="2"><input class="o3 p-2 text-xs rounded-lg border border-gray-700" placeholder="3"><input class="o4 p-2 text-xs rounded-lg border border-gray-700" placeholder="4"></div>' +
+                    '<select class="ca w-full p-2 mt-2 text-xs text-green-400 font-bold bg-black border border-gray-700 rounded-lg"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select>' +
+                '</div>';
+            }
+            qa.innerHTML = qHTML;
+
+            // بدء جلب البيانات فوراً
+            fetchDataFromFirebase();
+
+        } catch(e) {
+            document.getElementById('conn-status').innerText = "خطأ: " + e.message;
+            document.getElementById('conn-status').className = "text-red-500 text-xs font-bold";
+            document.getElementById('conn-dot').className = "w-3 h-3 rounded-full bg-red-600";
+            alert("حدث خطأ في الاتصال بالانترنت أو السيرفر!");
+        }
+
+        function fetchDataFromFirebase() {
+            // جلب المجموعات
+            db.collection("config").doc("groups_data").onSnapshot(function(s) {
+                var list = document.getElementById('grp-list'), uG = document.getElementById('u-group');
+                list.innerHTML = ""; uG.innerHTML = '<option value="">المجموعة</option>';
+                if(s.exists && s.data().list) {
+                    globalGroups = s.data().list;
+                    for(var i=0; i<globalGroups.length; i++) {
+                        var g = globalGroups[i];
+                        uG.innerHTML += '<option value="'+i+'">'+g.group+'</option>';
+                        list.innerHTML += '<div class="glass-panel p-3 rounded-xl border border-gray-800 flex justify-between items-center mb-2">' +
+                            '<div><span class="text-yellow-500 font-bold block text-sm">'+g.group+'</span><span class="text-[10px] text-gray-400">('+g.teams.join(' vs ')+')</span></div>' +
+                            '<button onclick="delGrp('+i+')" class="bg-red-900/50 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-800">حذف</button>' +
+                        '</div>';
                     }
+                }
+            });
 
-                    var byGroup = {};
-                    for (var key in combined) {
-                        var g = combined[key].group || "غير محدد";
-                        if(!byGroup[g]) byGroup[g] = [];
-                        byGroup[g].push({ name: key, score: combined[key].score });
+            // جلب اللعيبة
+            db.collection("users").onSnapshot(function(s) {
+                var uL = document.getElementById('usr-list'), gB = document.getElementById('global-tables-container');
+                uL.innerHTML = ""; gB.innerHTML = "";
+                var rawUsers = []; 
+                s.forEach(function(d) { var u = d.data(); u.id = d.id; rawUsers.push(u); });
+                globalUsers = rawUsers;
+
+                // الترتيب المجمع
+                var combined = {};
+                for(var i=0; i<rawUsers.length; i++) {
+                    var u = rawUsers[i];
+                    var key = (u.team === "فردي" || !u.team) ? u.name : u.team;
+                    if(!combined[key]) combined[key] = { score: 0, group: u.group };
+                    combined[key].score += (u.score || 0);
+                }
+
+                var byGroup = {};
+                for (var key in combined) {
+                    var g = combined[key].group || "غير محدد";
+                    if(!byGroup[g]) byGroup[g] = [];
+                    byGroup[g].push({ name: key, score: combined[key].score });
+                }
+
+                for (var gName in byGroup) {
+                    var sorted = byGroup[gName].sort(function(a,b){ return b.score - a.score; });
+                    var html = '<div class="glass-panel rounded-xl overflow-hidden mb-4 border border-yellow-600/30">' +
+                        '<div class="bg-black/80 p-3 text-yellow-500 font-black text-center border-b border-yellow-600/30">🏆 '+gName+'</div>' +
+                        '<table class="w-full text-right text-xs">' +
+                            '<thead class="bg-black/50 text-gray-400 border-b border-gray-700"><tr><th class="p-3">#</th><th class="p-3">الكيان</th><th class="p-3 text-center">النقاط</th></tr></thead>' +
+                            '<tbody>';
+                    for(var j=0; j<sorted.length; j++) {
+                        var item = sorted[j];
+                        var rankIcon = j === 0 ? '🥇' : (j+1);
+                        html += '<tr onclick="openPfByName(\''+item.name+'\', '+(j+1)+', '+item.score+')" class="border-b border-gray-800/50 hover:bg-white/10 cursor-pointer">' +
+                            '<td class="p-3 font-bold text-yellow-500">'+rankIcon+'</td>' +
+                            '<td class="p-3 font-bold text-white">'+item.name+'</td>' +
+                            '<td class="p-3 text-center text-yellow-500 font-black">'+item.score+'</td>' +
+                        '</tr>';
                     }
+                    html += '</tbody></table></div>';
+                    gB.innerHTML += html;
+                }
 
-                    for (var gName in byGroup) {
-                        var sorted = byGroup[gName].sort(function(a,b){ return b.score - a.score; });
-                        var html = '<div class="glass-panel rounded-xl overflow-hidden mb-4">' +
-                            '<div class="bg-black/60 p-3 text-yellow-500 font-black text-center border-b border-yellow-600/30">🏆 '+gName+'</div>' +
-                            '<table class="w-full text-right text-xs">' +
-                                '<thead class="bg-black/40 text-gray-400 border-b border-gray-800"><tr><th class="p-3">#</th><th class="p-3">الكيان</th><th class="p-3 text-center">النقاط</th></tr></thead>' +
-                                '<tbody>';
-                        
-                        for(var j=0; j<sorted.length; j++) {
-                            var item = sorted[j];
-                            var rankIcon = j === 0 ? '🥇' : (j+1);
-                            html += '<tr onclick="openPfByName(\''+item.name+'\', '+(j+1)+', '+item.score+')" class="border-b border-gray-800/50 hover:bg-white/5 cursor-pointer">' +
-                                '<td class="p-3 font-bold text-yellow-500">'+rankIcon+'</td>' +
-                                '<td class="p-3 font-bold text-white">'+item.name+'</td>' +
-                                '<td class="p-3 text-center text-yellow-500 font-blac
+                // قائمة الإدارة للمتسابقين
+                rawUsers.sort(function(a,b){ return (b.score||0)-(a.score||0); });
+                for(var x=0; x<rawUsers.length; x++) {
+                    var user = rawUsers[x];
+                    var st = user.isBanned ? "text-red-500 line-through" : "text-white";
+                    uL.innerHTML += '<tr class="border-b border-gray-800/50 hover:bg-white/5">' +
+                        '<td class="p-2"><p class="'+st+' font-bold text-[11px]">'+user.name+'</p><p class="text-[9px] text-yellow-500 font-mono mt-1">'+user.password+' <span class="text-gray-500">('+user.team+')</span></p></td>' +
+                        '<td class="p-2 text-center font-bold text-yellow-500">'+(user.score||0)+'</td>' +
+                        '<td class="p-2">' +
+                            '<div class="f
