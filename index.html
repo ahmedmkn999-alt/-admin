@@ -74,16 +74,23 @@
         <div id="tab-global" class="tab-content">
             <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">المركز</th><th class="p-4">اسم التيم</th><th class="p-4 text-center">النقاط مجمعة</th></tr></thead>
+                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">المركز</th><th class="p-4">الاسم (تيم/فردي)</th><th class="p-4">النقاط</th></tr></thead>
                     <tbody id="global-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-quizzes" class="tab-content">
-            <select id="q-day" class="w-full p-3 rounded-xl mb-4 font-black"></select>
+            <div class="flex gap-2 mb-4">
+                <select id="q-day" class="flex-grow p-3 rounded-xl font-black border border-yellow-600"></select>
+                <select id="q-var" class="w-32 p-3 rounded-xl font-black border border-blue-600">
+                    <option value="0">نسخة 1</option>
+                    <option value="1">نسخة 2</option>
+                    <option value="2">نسخة 3</option>
+                </select>
+            </div>
             <div id="q-area"></div>
-            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl">حفظ في الخزنة</button>
+            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl">حفظ النسخة في الخزنة</button>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-4">
@@ -123,7 +130,7 @@
             <h2 id="pf-name" class="text-2xl font-black text-white mb-1">...</h2>
             <p id="pf-rank" class="text-yellow-500 font-bold text-sm mb-4">المركز: -</p>
             <div class="bg-gray-800 p-4 rounded-2xl mb-6">
-                <p class="text-gray-500 text-[10px] mb-1">إجمالي النقاط مجمعة</p>
+                <p class="text-gray-500 text-[10px] mb-1">النقاط</p>
                 <p id="pf-score" class="text-3xl font-black text-white">0</p>
             </div>
             <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-700 p-3 rounded-xl font-bold">إغلاق</button>
@@ -166,10 +173,8 @@
             });
 
             const qa = document.getElementById('q-area');
-            if(qa.innerHTML === '') {
-                for(let i=1; i<=15; i++) {
-                    qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold">سؤال ${i}</p><textarea class="qt w-full p-2 text-sm rounded mb-2 h-12"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded" placeholder="1"><input class="o2 p-2 text-xs rounded" placeholder="2"><input class="o3 p-2 text-xs rounded" placeholder="3"><input class="o4 p-2 text-xs rounded" placeholder="4"></div><select class="ca w-full p-1 mt-1 text-xs text-green-400"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
-                }
+            for(let i=1; i<=15; i++) {
+                qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold">سؤال ${i}</p><textarea class="qt w-full p-2 text-sm rounded mb-2 h-12"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded" placeholder="1"><input class="o2 p-2 text-xs rounded" placeholder="2"><input class="o3 p-2 text-xs rounded" placeholder="3"><input class="o4 p-2 text-xs rounded" placeholder="4"></div><select class="ca w-full p-1 mt-1 text-xs text-green-400"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
             }
 
             listenData();
@@ -201,23 +206,24 @@
                 let rawUsers = []; s.forEach(d => { let u=d.data(); u.id=d.id; rawUsers.push(u); });
                 users = rawUsers;
 
-                // الترتيب مجمع حسب اسم التيم
+                // الترتيب مجمع حسب اسم التيم (أو فردي)
                 let combinedScores = {};
                 rawUsers.forEach(u => {
-                    let teamName = u.team || "بدون تيم";
-                    if(!combinedScores[teamName]) combinedScores[teamName] = 0;
-                    combinedScores[teamName] += (u.score || 0);
+                    let key = (u.team === "فردي") ? u.name : (u.team || "غير محدد");
+                    if(!combinedScores[key]) combinedScores[key] = { score: 0, isTeam: u.team !== "فردي" };
+                    combinedScores[key].score += (u.score || 0);
                 });
 
-                let sortedTeams = Object.keys(combinedScores).map(k => ({ team: k, score: combinedScores[k] })).sort((a,b) => b.score - a.score);
+                let sorted = Object.keys(combinedScores).map(k => ({ name: k, score: combinedScores[k].score }))
+                             .sort((a,b) => b.score - a.score);
 
-                rawUsers.forEach((u, i) => {
+                rawUsers.forEach((u) => {
                     let st = u.isBanned ? "text-red-500 line-through" : "text-white";
                     uL.innerHTML += `<tr class="border-b border-gray-800"><td class="p-2"><p class="${st} font-bold">${u.name}</p></td><td class="p-2 text-yellow-500 font-mono text-center font-bold">${u.score||0}</td><td class="p-2 flex gap-1"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900 p-1 rounded text-[10px]">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900 p-1 rounded text-[10px]">حظر</button><button onclick="delUsr('${u.id}')" class="bg-red-900 p-1 rounded text-[10px]">حذف</button></td></tr>`;
                 });
 
-                sortedTeams.forEach((t, i) => {
-                    gB.innerHTML += `<tr onclick="openPfByName('${t.team}',${i+1},${t.score})" class="border-b border-gray-800 cursor-pointer"><td class="p-4">${i+1}</td><td class="p-4 font-bold text-white">${t.team}</td><td class="p-4 text-yellow-500 font-black text-center">${t.score}</td></tr>`;
+                sorted.forEach((t, i) => {
+                    gB.innerHTML += `<tr class="border-b border-gray-800"><td class="p-4">${i+1}</td><td class="p-4 font-bold text-white">${t.name}</td><td class="p-4 text-yellow-500 font-black text-center">${t.score}</td></tr>`;
                 });
             });
 
@@ -227,7 +233,7 @@
 
         window.loadTeams = () => {
             const idx = document.getElementById('u-group').value, uT = document.getElementById('u-team');
-            uT.innerHTML = '<option value="">التيم</option>';
+            uT.innerHTML = '<option value="فردي">فردي (بدون تيم)</option>';
             if(idx!=="") groups[idx].teams.forEach(t => uT.innerHTML += `<option value="${t}">${t}</option>`);
         };
 
@@ -241,58 +247,48 @@
             const n = document.getElementById('u-name').value, gIdx = document.getElementById('u-group').value, t = document.getElementById('u-team').value;
             if(!n || gIdx==="" || !t) return alert('ناقص');
             const p = Math.floor(100000 + Math.random() * 900000).toString();
-            db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false }).then(() => {
-                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالرابط: https://ramadani-quiz.vercel.app/`;
+            // توزيع عشوائي على نسخة الكويز (افترضنا وجود 3 نسخ) لضمان عدم التشابه
+            const varIdx = Math.floor(Math.random() * 3);
+            db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false, quizVariation: varIdx }).then(() => {
+                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالكيان: ${groups[gIdx].group} (${t})\nالرابط: https://ramadani-quiz.vercel.app/`;
                 document.getElementById('copy-modal').classList.remove('hidden'); document.getElementById('copy-modal').classList.add('flex');
                 document.getElementById('u-name').value = "";
             });
         };
-        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ بالرابط الجديد'); };
+        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ'); };
 
         window.edSc = (id, cur) => { let n = prompt("النقاط:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
         window.banUsr = (id, st) => { db.collection("users").doc(id).update({isBanned: !st}); };
         window.delUsr = (id) => { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); };
 
-        window.openPfByName = (teamName, rank, totalScore) => {
-            document.getElementById('pf-name').innerText = teamName;
-            document.getElementById('pf-rank').innerText = rank===1 ? 'البطل 👑' : 'المركز: ' + rank;
-            document.getElementById('pf-score').innerText = totalScore;
-            document.getElementById('prof-modal').classList.remove('hidden'); document.getElementById('prof-modal').classList.add('flex');
-        };
-
         window.saveQ = () => {
             const d = document.getElementById('q-day').value;
+            const v = parseInt(document.getElementById('q-var').value);
             const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
                 q: b.querySelector('.qt').value,
                 options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
                 correctIndex: parseInt(b.querySelector('.ca').value)
             }));
-            db.collection("quizzes_pool").doc("day_"+d).set({ variations: [{ questions: qs }] }).then(() => alert('تم الحفظ'));
+            
+            db.collection("quizzes_pool").doc("day_"+d).get().then(doc => {
+                let variations = doc.exists ? (doc.data().variations || []) : [];
+                variations[v] = { questions: qs };
+                db.collection("quizzes_pool").doc("day_"+d).set({ variations: variations }, { merge: true }).then(() => alert('✅ تم حفظ النسخة ' + (v+1)));
+            });
         };
 
         window.checkV = () => {
             const d = document.getElementById('v-day').value, res = document.getElementById('v-res');
             db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
-                if(s.exists) { res.innerHTML = `<div class="flex justify-between items-center text-green-400"><span>✅ كويز موجود</span> <div class="flex gap-2"><button onclick="pullQ('${d}')" class="bg-blue-600 px-2 py-1 rounded text-white">تعديل</button> <button onclick="delQuiz('${d}')" class="bg-red-600 px-2 py-1 rounded text-white font-bold">حذف 🗑️</button></div></div>`; }
+                if(s.exists && s.data().variations) { 
+                    let count = s.data().variations.length;
+                    res.innerHTML = `<div class="flex justify-between items-center text-green-400"><span>✅ يوجد ${count} نسخ</span> <button onclick="delQuiz('${d}')" class="bg-red-600 px-2 py-1 rounded text-white font-bold">حذف اليوم 🗑️</button></div>`; 
+                }
                 else { res.innerHTML = "❌ فارغ"; }
             });
         };
 
-        window.pullQ = (d) => {
-            db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
-                let qs = s.data().variations[0].questions; document.getElementById('q-day').value = d;
-                let blocks = document.querySelectorAll('.q-block');
-                qs.forEach((q, i) => {
-                    blocks[i].querySelector('.qt').value = q.q;
-                    blocks[i].querySelector('.o1').value = q.options[0]; blocks[i].querySelector('.o2').value = q.options[1];
-                    blocks[i].querySelector('.o3').value = q.options[2]; blocks[i].querySelector('.o4').value = q.options[3];
-                    blocks[i].querySelector('.ca').value = q.correctIndex;
-                });
-                alert("تم سحب الأسئلة لتبويب الكويز");
-            });
-        };
-
-        window.delQuiz = (d) => { if(confirm("مسح نهائي؟")) db.collection("quizzes_pool").doc("day_"+d).delete().then(()=> checkV()); };
+        window.delQuiz = (d) => { if(confirm("حذف كويزات هذا اليوم بالكامل؟")) db.collection("quizzes_pool").doc("day_"+d).delete().then(()=> checkV()); };
 
         window.setStatus = (st) => {
             db.collection("settings").doc("global_status").set({ status: st, currentDay: parseInt(document.getElementById('pub-day').value) }).then(() => alert('تم'));
@@ -304,5 +300,5 @@
         };
     </script>
 </body>
-                                                                                                   </html>
+                    </html>
                 
