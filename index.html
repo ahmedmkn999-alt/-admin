@@ -14,26 +14,24 @@
         .tab-content { display: none; } .tab-content.active { display: block; }
         input, select, textarea { background: #111827 !important; border: 1px solid #374151 !important; color: white !important; outline: none; }
         .q-block { background: #111827; border: 1px solid #374151; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .crown-tag { background: linear-gradient(45deg, #ffd700, #b8860b); color: black; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 900; }
-        .team-card { background: #1f2937; border-right: 4px solid #ca8a04; transition: 0.3s; }
-        .team-card:hover { transform: scale(1.02); }
+        .crown-badge { background: linear-gradient(45deg, #ffd700, #b8860b); color: black; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 900; }
     </style>
 </head>
 <body class="pb-20">
 
     <div id="login-screen" class="fixed inset-0 bg-[#030712] z-[9999] flex items-center justify-center p-4">
-        <div class="bg-gray-900 p-8 rounded-3xl border-2 border-yellow-600 text-center w-full max-w-sm">
+        <div class="bg-gray-900 p-8 rounded-3xl border-2 border-yellow-600 text-center w-full max-w-sm shadow-2xl">
             <i class="fas fa-user-shield text-5xl text-yellow-500 mb-4"></i>
-            <h2 class="text-xl font-black mb-6">دخول الإدارة</h2>
+            <h2 class="text-xl font-black mb-6 text-yellow-500">دخول الإدارة</h2>
             <input type="password" id="gate-pass" placeholder="كلمة السر" class="w-full p-4 rounded-xl text-center text-xl mb-4">
-            <button onclick="startManager()" class="w-full bg-yellow-600 text-black font-black py-4 rounded-xl">فتح اللوحة</button>
+            <button onclick="startManager()" class="w-full bg-yellow-600 text-black font-black py-4 rounded-xl shadow-lg">فتح اللوحة</button>
         </div>
     </div>
 
     <div id="manager-ui" style="display:none;" class="p-4 max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-6">
-            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال...</span>
-            <button onclick="location.reload()" class="bg-red-900/40 text-red-400 px-3 py-1 rounded-lg text-xs">خروج</button>
+            <span id="conn-status" class="text-yellow-500 text-xs font-bold bg-gray-900 px-3 py-1 rounded-full border border-gray-700">⏳ جاري الاتصال...</span>
+            <button onclick="location.reload()" class="bg-red-900/40 text-red-400 px-3 py-1 rounded-lg text-xs border border-red-800 font-bold">خروج وقفل</button>
         </div>
 
         <nav class="flex gap-1.5 mb-6 overflow-x-auto pb-2 no-scrollbar">
@@ -46,11 +44,10 @@
         </nav>
 
         <div id="tab-room" class="tab-content active">
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3">
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3 shadow-lg">
                 <input type="text" id="g-name" placeholder="اسم المجموعة" class="w-full p-3 rounded-lg">
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-lg">
-                    <input type="text" id="t2" placeholder="تيم 2" class="p-3 rounded-lg">
+                    <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-lg"><input type="text" id="t2" placeholder="تيم 2" class="p-3 rounded-lg">
                 </div>
                 <button onclick="saveGrp()" class="w-full bg-blue-600 p-3 rounded-lg font-bold">إنشاء المجموعة</button>
             </div>
@@ -58,24 +55,19 @@
         </div>
 
         <div id="tab-users" class="tab-content">
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3 shadow-lg">
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3">
                 <input type="text" id="u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-lg">
                 <div class="grid grid-cols-2 gap-2">
                     <select id="u-group" onchange="loadTeams()" class="p-3 rounded-lg text-xs"><option value="">المجموعة</option></select>
                     <select id="u-team" class="p-3 rounded-lg text-xs"><option value="">التيم</option></select>
                 </div>
-                <button onclick="addUsr()" class="w-full bg-yellow-600 text-black p-3 rounded-lg font-black">إضافة</button>
+                <button onclick="addUsr()" class="w-full bg-yellow-600 text-black p-3 rounded-lg font-black">إضافة متسابق</button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right text-xs bg-gray-900 rounded-xl">
-                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3">الكود</th><th class="p-3 text-center">تحكم</th></tr></thead>
-                    <tbody id="usr-list"></tbody>
-                </table>
-            </div>
+            <div class="overflow-x-auto shadow-xl"><table class="w-full text-right text-xs bg-gray-900 rounded-xl"><thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3 text-center">النقاط</th><th class="p-3 text-center">تحكم</th></tr></thead><tbody id="usr-list"></tbody></table></div>
         </div>
 
         <div id="tab-global" class="tab-content">
-            <div id="global-tables-container" class="space-y-8">
+            <div id="group-tables-container" class="space-y-6">
                 </div>
         </div>
 
@@ -83,70 +75,49 @@
             <div class="flex gap-2 mb-4">
                 <select id="q-day" class="flex-grow p-3 rounded-xl font-black border border-yellow-600"></select>
                 <select id="q-var" class="w-32 p-3 rounded-xl font-black border border-blue-600">
-                    <option value="0">نسخة 1</option><option value="1">نسخة 2</option>
-                    <option value="2">نسخة 3</option><option value="3">نسخة 4</option>
-                    <option value="4">نسخة 5</option><option value="5">نسخة 6</option>
+                    <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option>
+                    <option value="3">نسخة 4</option><option value="4">نسخة 5</option><option value="5">نسخة 6</option>
                 </select>
             </div>
             <div id="q-area"></div>
-            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl">حفظ النسخة في الخزنة</button>
+            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl shadow-lg">حفظ النسخة في الخزنة</button>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-4">
             <div class="bg-gray-900 p-6 rounded-xl border-2 border-yellow-600 text-center shadow-xl">
-                <h3 class="mb-4 font-bold">نشر اليوم على الموقع</h3>
-                <select id="pub-day" class="w-full p-3 rounded-lg mb-4"></select>
-                <div class="flex gap-2">
-                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-600 p-3 rounded-lg font-bold">قريباً</button>
-                    <button onclick="setStatus('active')" class="flex-1 bg-green-600 p-3 rounded-lg font-bold text-black">تفعيل</button>
-                    <button onclick="setStatus('closed')" class="flex-1 bg-red-600 p-3 rounded-lg font-bold">إغلاق</button>
-                </div>
+                <h3 class="mb-4 font-bold text-yellow-500">نشر اليوم على الموقع</h3>
+                <select id="pub-day" class="w-full p-3 rounded-lg mb-4 font-bold"></select>
+                <div class="flex gap-2"><button onclick="setStatus('soon')" class="flex-1 bg-blue-600 p-3 rounded-lg font-bold">قريباً</button><button onclick="setStatus('active')" class="flex-1 bg-green-600 p-3 rounded-lg font-bold text-black">تفعيل</button><button onclick="setStatus('closed')" class="flex-1 bg-red-600 p-3 rounded-lg font-bold">إغلاق</button></div>
             </div>
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                <h3 class="text-gray-400 text-xs mb-3">فحص وتعديل الكويزات</h3>
-                <div class="flex gap-2 mb-4"><select id="v-day" class="flex-grow p-3 rounded-lg"></select><button onclick="checkV()" class="bg-gray-700 px-6 rounded-lg font-bold">فحص</button></div>
-                <div id="v-res" class="p-4 bg-black/50 rounded-xl text-xs"></div>
-            </div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-xl"><h3 class="text-gray-400 text-xs mb-3 font-bold">فحص الخزنة</h3><div class="flex gap-2 mb-4"><select id="v-day" class="flex-grow p-3 rounded-lg font-bold"></select><button onclick="checkV()" class="bg-gray-700 px-6 rounded-lg font-bold border border-gray-600">فحص</button></div><div id="v-res" class="p-4 bg-black/50 rounded-xl"></div></div>
         </div>
 
         <div id="tab-settings" class="tab-content space-y-4">
-            <div class="bg-gray-900 p-4 rounded-xl border border-yellow-600 shadow-xl">
-                <p class="text-yellow-500 text-xs mb-2">رسالة البطل الطائرة:</p>
-                <input type="text" id="msg-c" class="w-full p-3 rounded-lg mb-2">
-                <button onclick="saveM('c')" class="w-full bg-yellow-600 text-black font-bold p-2 rounded-lg">نشر الرسالة</button>
-            </div>
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                <p class="text-blue-400 text-xs mb-2">الشريط الإخباري:</p>
-                <textarea id="msg-d" class="w-full p-3 rounded-lg mb-2 h-20"></textarea>
-                <button onclick="saveM('d')" class="w-full bg-blue-600 text-white font-bold p-2 rounded-lg">تحديث الشريط</button>
-            </div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-yellow-600"><p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل الطائرة:</p><input type="text" id="msg-c" class="w-full p-3 rounded-lg mb-2"><button onclick="saveM('c')" class="w-full bg-yellow-600 text-black font-bold p-3 rounded-lg">نشر الرسالة</button></div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800"><p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري:</p><textarea id="msg-d" class="w-full p-3 rounded-lg mb-2 h-24"></textarea><button onclick="saveM('d')" class="w-full bg-blue-600 text-white font-bold p-3 rounded-lg">تحديث الشريط</button></div>
         </div>
     </div>
 
     <div id="prof-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center p-4">
         <div class="bg-gray-900 border-2 border-yellow-500 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
             <div class="bg-yellow-600 p-6 text-center text-black relative">
-                <div id="pf-crown" class="absolute top-2 right-2 text-3xl hidden animate-bounce">👑</div>
                 <h2 id="pf-name" class="text-2xl font-black mb-1">...</h2>
-                <p id="pf-rank" class="font-bold text-sm">المركز: -</p>
+                <p id="pf-rank" class="font-bold text-sm">التيم / اللاعب</p>
             </div>
             <div class="p-6">
-                <div class="bg-gray-800 p-4 rounded-2xl mb-4 text-center border border-gray-700">
-                    <p class="text-gray-500 text-xs mb-1 font-bold">إجمالي النقاط</p>
-                    <p id="pf-score" class="text-3xl font-black text-yellow-500">0</p>
-                </div>
-                <div id="pf-players-list" class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scroll">
-                    </div>
-                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-700 p-3 rounded-xl font-bold mt-6">إغلاق</button>
+                <div class="bg-gray-800 p-4 rounded-2xl mb-4 text-center border border-gray-700"><p class="text-gray-500 text-[10px] mb-1 font-bold">إجمالي النقاط المجمعة</p><p id="pf-score" class="text-3xl font-black text-yellow-500">0</p></div>
+                <div id="pf-players-list" class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scroll"></div>
+                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-700 p-3 rounded-xl font-bold mt-6 shadow-lg">إغلاق</button>
             </div>
         </div>
     </div>
 
     <div id="copy-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center p-6 z-[9999]">
         <div class="bg-gray-900 p-6 rounded-2xl border-2 border-green-500 w-full max-w-xs text-center shadow-2xl">
-            <p class="text-green-500 font-bold mb-4 text-lg">تم الإضافة!</p>
+            <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
+            <p class="text-white font-bold mb-6">تم تسجيل المتسابق بنجاح!</p>
             <button id="cp-btn" class="w-full bg-blue-600 p-3 rounded-lg font-bold mb-3 shadow-lg">نسخ بيانات اللاعب</button>
-            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 p-3 rounded-lg">إغلاق</button>
+            <button onclick="document.getElementById('copy-modal').classList.add('hidden')" class="w-full bg-gray-800 p-3 rounded-lg font-bold">إغلاق</button>
         </div>
     </div>
 
@@ -170,17 +141,17 @@
                 firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
             }
             db = firebase.firestore();
-            document.getElementById('conn-status').innerText = "✅ متصل بفايربيز";
+            document.getElementById('conn-status').innerText = "✅ متصل بالسيرفر";
             
             ['q-day', 'pub-day', 'v-day'].forEach(id => {
-                const el = document.getElementById(id);
+                const el = document.getElementById(id); el.innerHTML = '';
                 for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
 
             const qa = document.getElementById('q-area');
             if(qa.innerHTML === '') {
                 for(let i=1; i<=15; i++) {
-                    qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold">سؤال ${i}</p><textarea class="qt w-full p-2 text-sm rounded mb-2 h-12"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded" placeholder="1"><input class="o2 p-2 text-xs rounded" placeholder="2"><input class="o3 p-2 text-xs rounded" placeholder="3"><input class="o4 p-2 text-xs rounded" placeholder="4"></div><select class="ca w-full p-1 mt-1 text-xs text-green-400 font-bold"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
+                    qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold mb-2">سؤال ${i}</p><textarea class="qt w-full p-3 text-sm rounded mb-2 h-16 outline-none border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded border border-gray-700" placeholder="1"><input class="o2 p-2 text-xs rounded border border-gray-700" placeholder="2"><input class="o3 p-2 text-xs rounded border border-gray-700" placeholder="3"><input class="o4 p-2 text-xs rounded border border-gray-700"></div><select class="ca w-full p-2 mt-2 text-xs text-green-400 font-bold"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
                 }
             }
             listenData();
@@ -201,30 +172,29 @@
                     groups = s.data().list;
                     groups.forEach((g, i) => {
                         uG.innerHTML += `<option value="${i}">${g.group}</option>`;
-                        list.innerHTML += `<div class="bg-gray-800 p-3 rounded-lg text-sm border-r-4 border-yellow-600">${g.group} <span class="text-[10px] text-gray-500">(${g.teams.join(' vs ')})</span></div>`;
+                        list.innerHTML += `<div class="bg-gray-900 p-3 rounded-lg text-sm border-r-4 border-yellow-600">${g.group} <span class="text-[10px] text-gray-500 font-bold">(${g.teams.join(' vs ')})</span></div>`;
                     });
                 }
             });
 
             db.collection("users").onSnapshot(s => {
-                const uL = document.getElementById('usr-list'), container = document.getElementById('global-tables-container');
+                const uL = document.getElementById('usr-list'), container = document.getElementById('group-tables-container');
                 uL.innerHTML = ""; container.innerHTML = "";
                 let rawUsers = []; s.forEach(d => { let u=d.data(); u.id=d.id; rawUsers.push(u); });
                 users = rawUsers;
 
-                // الترتيب مجمع للتيمات وفردي
+                // الترتيب المجمع والتاج
                 let combined = {};
                 rawUsers.forEach(u => {
-                    let key = u.team === "فردي" ? u.name : (u.team || "غير محدد");
-                    if(!combined[key]) combined[key] = { score: 0, group: u.group, isIndividual: u.team === "فردي", players: [] };
+                    let key = (u.team === "فردي" || !u.team) ? u.name : u.team;
+                    if(!combined[key]) combined[key] = { score: 0, group: u.group, players: [] };
                     combined[key].score += (u.score || 0);
                     combined[key].players.push({ name: u.name, score: u.score || 0 });
                 });
 
-                // ترتيب الكل للحصول على البطل الأول على الموقع
-                let topRanker = Object.keys(combined).sort((a,b) => combined[b].score - combined[a].score)[0];
+                let sortedTotal = Object.keys(combined).sort((a,b) => combined[b].score - combined[a].score);
+                let topName = sortedTotal[0];
 
-                // فصل البيانات حسب المجموعات لعرضها في جداول
                 let byGroup = {};
                 Object.keys(combined).forEach(k => {
                     let g = combined[k].group || "غير محدد";
@@ -232,31 +202,19 @@
                     byGroup[g].push({ name: k, ...combined[k] });
                 });
 
-                // إنشاء الجداول لكل مجموعة
                 Object.keys(byGroup).sort().forEach(gName => {
-                    let sortedGroup = byGroup[gName].sort((a,b) => b.score - a.score);
-                    let tableHTML = `<div class="bg-gray-900 rounded-xl overflow-hidden shadow-lg border border-gray-800">
-                        <div class="bg-gray-800 p-3 text-yellow-500 font-black text-center border-b border-yellow-600">المجموعة: ${gName}</div>
-                        <table class="w-full text-right text-xs">
-                            <thead class="bg-gray-800/50 text-gray-400 font-bold"><tr><th class="p-3">#</th><th class="p-3">الاسم</th><th class="p-3 text-center">النقاط</th></tr></thead>
-                            <tbody>`;
-                    
-                    sortedGroup.forEach((item, i) => {
-                        let isTop = item.name === topRanker;
-                        tableHTML += `<tr onclick="openPfByName('${item.name}', ${item.score}, ${isTop})" class="border-b border-gray-800 hover:bg-gray-800 cursor-pointer">
-                            <td class="p-3 font-bold">${i+1}</td>
-                            <td class="p-3 font-bold text-white flex items-center gap-2">${item.name} ${isTop ? '<span class="crown-tag">البطل الأول 👑</span>' : ''}</td>
-                            <td class="p-3 text-center text-yellow-500 font-black">${item.score}</td>
-                        </tr>`;
+                    let sorted = byGroup[gName].sort((a,b) => b.score - a.score);
+                    let html = `<div class="bg-gray-900 rounded-xl overflow-hidden shadow-lg border border-gray-800"><div class="bg-gray-800 p-3 text-yellow-500 font-black text-center border-b border-yellow-600">🏆 مجموعة: ${gName}</div><table class="w-full text-right text-xs"><thead class="bg-gray-800/50 text-gray-400 font-bold"><tr><th class="p-3">#</th><th class="p-3">الاسم</th><th class="p-3 text-center">النقاط</th></tr></thead><tbody>`;
+                    sorted.forEach((item, i) => {
+                        let isTopSite = item.name === topName;
+                        html += `<tr onclick="openPfByName('${item.name}', ${item.score}, ${isTopSite})" class="border-b border-gray-800 hover:bg-gray-800 cursor-pointer"><td class="p-3 font-bold">${i+1}</td><td class="p-3 font-bold text-white flex items-center gap-2">${item.name} ${isTopSite ? '<span class="crown-badge">بطل المنصة 👑</span>' : ''}</td><td class="p-3 text-center text-yellow-500 font-black">${item.score}</td></tr>`;
                     });
-                    tableHTML += `</tbody></table></div>`;
-                    container.innerHTML += tableHTML;
+                    container.innerHTML += html + `</tbody></table></div>`;
                 });
 
-                // عرض المتسابقين فرادى (للإدارة)
                 rawUsers.forEach((u) => {
                     let st = u.isBanned ? "text-red-500 line-through" : "text-white";
-                    uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/20"><td class="p-2"><p class="${st} font-bold text-[10px]">${u.name}</p><p class="text-[8px] text-yellow-500 font-mono">${u.password}</p></td><td class="p-2 text-center text-yellow-500 font-bold">${u.score||0}</td><td class="p-2 flex gap-1 justify-center"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900/50 p-1 rounded text-[9px] border border-blue-800">نقط</button><button onclick="delUsr('${u.id}')" class="bg-red-900/50 p-1 rounded text-[9px] border border-red-800">حذف</button></td></tr>`;
+                    uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/30"><td class="p-2"><p class="${st} font-bold text-xs">${u.name}</p><p class="text-[10px] text-yellow-600 font-mono">${u.password}</p></td><td class="p-2 text-center font-bold text-yellow-500">${u.score||0}</td><td class="p-2 flex gap-1 justify-center"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900/50 text-blue-400 p-1 rounded text-[10px] border border-blue-800">نقط</button><button onclick="delUsr('${u.id}')" class="bg-red-900/50 text-red-500 p-1 rounded text-[10px] border border-red-800">حذف</button></td></tr>`;
                 });
             });
 
@@ -272,30 +230,37 @@
 
         window.saveGrp = () => {
             const n = document.getElementById('g-name').value, t1 = document.getElementById('t1').value, t2 = document.getElementById('t2').value;
-            if(!n || !t1 || !t2) return alert('بيانات ناقصة');
-            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: n, teams: [t1, t2] }) }, { merge: true }).then(() => { alert('تم!'); document.getElementById('g-name').value=""; });
+            if(!n || !t1 || !t2) return alert('البيانات ناقصة');
+            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: n, teams: [t1, t2] }) }, { merge: true }).then(() => alert('تم'));
         };
 
         window.addUsr = () => {
             const n = document.getElementById('u-name').value, gIdx = document.getElementById('u-group').value, t = document.getElementById('u-team').value;
             if(!n || gIdx==="" || !t) return alert('ناقص');
             const p = Math.floor(100000 + Math.random() * 900000).toString();
-            // توزيع عشوائي على 6 نسخ لمنع الغش
-            const vIdx = Math.floor(Math.random() * 6);
-            db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false, quizVar: vIdx }).then(() => {
-                tempMsg = `👤 الاسم: ${n}\n🔑 الكود: ${p}\n🛡️ الكيان: ${groups[gIdx].group} (${t})\n🔗 الرابط: https://ramadani-quiz.vercel.app/`;
+            db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, quizVar: Math.floor(Math.random() * 6) }).then(() => {
+                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالكيان: ${groups[gIdx].group} (${t})\nالرابط: https://ramadani-quiz.vercel.app/`;
                 document.getElementById('copy-modal').classList.remove('hidden'); document.getElementById('copy-modal').classList.add('flex');
                 document.getElementById('u-name').value = "";
             });
         };
         document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('✅ تم النسخ بالرابط الجديد'); };
 
-        window.edSc = (id, cur) => { let n = prompt("النقاط:", cur); if(n !== null) db.collection("users").doc(id).update({score: parseInt(n)}); };
+        window.edSc = (id, cur) => { let n = prompt("النقاط الجديدة:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
         window.delUsr = (id) => { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); };
 
-        window.openPfByName = (name, total, isTop) => {
+        window.openPfByName = (name, score, isTop) => {
             document.getElementById('pf-name').innerText = name;
-            document.getElementById('pf-score').innerText = total;
-            document.getElementById('pf-rank').innerText = isTop ? 'البطل الأول على الموقع 🥇' : 'ترتيب المجموعة';
-            
-            const crown = document.g
+            document.getElementById('pf-score').innerText = score;
+            const list = document.getElementById('pf-players-list'); list.innerHTML = "";
+            let teamPlayers = users.filter(u => ((u.team === "فردي" || !u.team) ? u.name : u.team) === name);
+            teamPlayers.forEach(p => {
+                list.innerHTML += `<div class="bg-gray-800 p-2 rounded-lg flex justify-between items-center border border-gray-700"><span class="text-xs text-white font-bold">${p.name}</span><span class="text-yellow-500 font-black text-sm">${p.score || 0} ن</span></div>`;
+            });
+            document.getElementById('prof-modal').classList.remove('hidden'); document.getElementById('prof-modal').classList.add('flex');
+        };
+
+        window.saveQ = () => {
+            const d = document.getElementById('q-day').value, v = parseInt(document.getElementById('q-var').value);
+            const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
+                q: b.querySelector('.qt').value, options: [b.querySelector('.o1').value, b.que
