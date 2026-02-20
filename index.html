@@ -18,15 +18,15 @@
 </head>
 <body class="pb-20">
 
-    <div id="login-gate-final" class="fixed inset-0 bg-[#030712] z-[9000] flex items-center justify-center p-4">
+    <div id="login-gate-v6" class="fixed inset-0 bg-[#030712] z-[9000] flex items-center justify-center p-4">
         <div class="bg-gray-900 p-8 rounded-3xl border border-yellow-600 text-center shadow-2xl w-full max-w-sm">
             <div class="bg-yellow-600 w-20 h-20 rounded-full flex items-center justify-center text-black text-4xl mx-auto mb-4 shadow-[0_0_15px_#d4af37]"><i class="fas fa-user-shield"></i></div>
             <h2 class="text-2xl font-black text-yellow-500 mb-2">دخول الإدارة</h2>
             
-            <p class="text-green-400 font-bold text-xs mb-6 bg-green-900/30 py-1 rounded border border-green-800">✅ (الإصدار الأخير V5)</p>
+            <p class="text-blue-400 font-bold text-xs mb-6 bg-blue-900/30 py-1 rounded border border-blue-800">✅ (إصدار الحماية القصوى V6)</p>
 
             <input type="password" id="admin-pass" onkeypress="if(event.key === 'Enter') forceLogin()" placeholder="كلمة السر..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
-            <button type="button" onclick="forceLogin()" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:scale-105 transition">دخول فوري 🚀</button>
+            <button type="button" onclick="forceLogin()" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:scale-105 transition">فتح اللوحة 🚀</button>
         </div>
     </div>
 
@@ -61,12 +61,12 @@
         <div class="flex justify-end mb-4"><button type="button" onclick="adminLogout()" class="bg-red-900/40 text-red-400 border border-red-800 px-4 py-2 rounded-xl text-xs font-bold"><i class="fas fa-lock ml-1"></i> خروج وقفل اللوحة</button></div>
 
         <header class="flex justify-center gap-2 mb-8 border-b border-gray-800 pb-4 flex-wrap">
-            <button type="button" onclick="switchTab('global')" id="btn-global" class="nav-btn">الترتيب العام 🌍</button>
+            <button type="button" onclick="switchTab('global')" id="btn-global" class="nav-btn">الترتيب 🌍</button>
             <button type="button" onclick="switchTab('room')" id="btn-room" class="nav-btn active">المجموعات 🏰</button>
             <button type="button" onclick="switchTab('users')" id="btn-users" class="nav-btn">المتسابقين 👥</button>
             <button type="button" onclick="switchTab('quizzes')" id="btn-quizzes" class="nav-btn">الكويز 📝</button>
             <button type="button" onclick="switchTab('vault')" id="btn-vault" class="nav-btn">الخزنة 🚀</button>
-            <button type="button" onclick="switchTab('settings')" id="btn-settings" class="nav-btn">الإعدادات ⚙️</button>
+            <button type="button" onclick="switchTab('settings')" id="btn-settings" class="nav-btn">رسائل الموقع ⚙️</button>
         </header>
 
         <div id="tab-global" class="tab-content">
@@ -129,38 +129,30 @@
         <div id="tab-settings" class="tab-content space-y-6">
             <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-500">
                 <h2 class="text-yellow-500 font-black mb-2">رسالة البطل الطائرة (Popup)</h2>
-                <input type="text" id="champ-msg" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 text-white mb-4 outline-none">
-                <div class="flex gap-2"><button type="button" onclick="saveChampMsg()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-3 rounded-xl">نشر</button><button type="button" onclick="clearChampMsg()" class="bg-red-900/50 text-red-400 font-bold px-6 py-3 rounded-xl border border-red-800">تفريغ</button></div>
+                <input type="text" id="champ-msg" placeholder="مثال: مبروك لتيم الصقور..." class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 text-white mb-4 outline-none">
+                <div class="flex gap-2"><button type="button" onclick="saveChampMsg()" class="flex-grow bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black py-3 rounded-xl">نشر الرسالة</button><button type="button" onclick="clearChampMsg()" class="bg-red-900/50 text-red-400 font-bold px-6 py-3 rounded-xl border border-red-800">إلغاء</button></div>
             </div>
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                <h2 class="text-blue-400 font-bold mb-2">الشريط الإخباري</h2>
+                <h2 class="text-blue-400 font-bold mb-2">الشريط الإخباري (أعلى الموقع)</h2>
                 <textarea id="daily-msg" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 h-24 text-white mb-4 outline-none"></textarea>
                 <button type="button" onclick="saveMsg()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">حفظ الشريط</button>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script>
         const ADMIN_PASS = "1234";
-        let db = null;
-        let allGroups = [];
-        let allUsersData = [];
-        let tempText = "";
 
-        // 🚀 الكود المباشر للدخول (مفيش أي تأخير ولا تحميل)
         function forceLogin() {
             let pass = document.getElementById('admin-pass').value;
             if(pass === ADMIN_PASS) {
-                // إخفاء الشاشة وإظهار اللوحة في نفس اللحظة!
-                document.getElementById('login-gate-final').style.display = 'none';
+                // إخفاء الشاشة فوراً غصب عن المتصفح
+                document.getElementById('login-gate-v6').style.display = 'none';
                 document.getElementById('admin-dashboard-final').style.display = 'block';
                 localStorage.setItem('adminKey', 'true');
                 
-                // بعد ما اللوحة تفتح، نبدأ نتصل بفايربيز براحتنا
-                connectFirebase();
+                // هنشغل قاعدة البيانات بعد نص ثانية عشان الشاشة متقفش
+                setTimeout(startSystem, 500);
             } else {
                 alert("❌ الباسورد غلط!");
             }
@@ -168,25 +160,44 @@
 
         window.onload = function() {
             if(localStorage.getItem('adminKey') === 'true') {
-                document.getElementById('login-gate-final').style.display = 'none';
+                document.getElementById('login-gate-v6').style.display = 'none';
                 document.getElementById('admin-dashboard-final').style.display = 'block';
-                connectFirebase();
+                startSystem();
             }
         }
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        let db = null;
+        let allGroups = [];
+        let allUsersData = [];
+        let tempText = "";
 
         function adminLogout() { localStorage.removeItem('adminKey'); location.reload(); }
 
-        // الاتصال بقاعدة البيانات
-        function connectFirebase() {
-            if (!firebase.apps.length) {
-                firebase.initializeApp({ 
-                    apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", 
-                    projectId: "ramadan-87817", 
-                    appId: "1:343525703258:web:6776b4857425df8bcca263" 
-                });
+        // الدالة دي بتشتغل بعد ما اللوحة تفتح
+        function startSystem() {
+            try {
+                if (typeof firebase === 'undefined') {
+                    alert("⚠️ المتصفح مانع تحميل قاعدة البيانات (فايربيز). لو فاتح متصفح مخفي جرب تفتحه عادي.");
+                    return;
+                }
+
+                if (!firebase.apps.length) {
+                    firebase.initializeApp({ 
+                        apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", 
+                        projectId: "ramadan-87817", 
+                        appId: "1:343525703258:web:6776b4857425df8bcca263" 
+                    });
+                }
+                db = firebase.firestore();
+                buildUI();
+            } catch(e) {
+                alert("خطأ في الاتصال بالسيرفر: " + e.message);
             }
-            db = firebase.firestore();
-            buildUI();
         }
 
         function switchTab(t) {
@@ -245,17 +256,8 @@
             if(!n || gIdx==="" || !t) return alert("اكمل البيانات!");
             let gName = allGroups[gIdx].group, pass = Math.floor(100000 + Math.random() * 900000).toString();
             db.collection("users").add({ name: n, group: gName, team: t, password: pass, score: 0, isBanned: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
+                document.getElementById('modal-user-name').innerText = n;
+                document.getElementById('modal-user-pass').innerText = pass;
                 document.getElementById('pass-modal').classList.remove('hidden');
                 tempText = `👋 أهلاً بك يا بطل!\n👤 الاسم: ${n}\n🛡️ الكيان: ${gName} (${t})\n\n🔑 كود الدخول الخاص بك:\n${pass}\n\n🔗 رابط المنصة: https://adani-quiz.vercel.app/`;
-                document.getElementById('add-name').value=""; loadUsers();
-            });
-        }
-        function copyData() { navigator.clipboard.writeText(tempText).then(() => alert("✅ تم النسخ!")); }
-
-        function loadUsers() {
-            if(!db) return;
-            db.collection("users").get().then(s => {
-                let bAdmin = document.getElementById('users-body'), bGlobal = document.getElementById('global-ranking-body'); 
-                bAdmin.innerHTML = ""; bGlobal.innerHTML = "";
-                let arr = []; s.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
-      
+                document.getElementById('add-name'
