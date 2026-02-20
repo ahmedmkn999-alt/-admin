@@ -129,21 +129,17 @@
     <div id="user-profile-modal" class="modal-overlay">
         <div class="glass-panel p-6 rounded-3xl border border-purple-500/50 w-full max-w-md max-h-[85vh] overflow-y-auto relative">
             <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 left-4 w-8 h-8 bg-gray-800 rounded-full text-gray-400 hover:text-white flex items-center justify-center font-bold">&times;</button>
-            
             <div class="text-center border-b border-gray-700 pb-4 mb-4 mt-2">
                 <i class="fas fa-user-astronaut text-4xl text-purple-400 mb-2"></i>
                 <h2 id="prof-name" class="text-2xl font-black text-white">...</h2>
                 <p id="prof-team" class="text-xs text-purple-300 font-bold mt-1 bg-purple-900/30 inline-block px-3 py-1 rounded-full">...</p>
             </div>
-            
             <div class="bg-gradient-to-r from-yellow-900/40 to-yellow-600/40 border border-yellow-600/50 rounded-2xl p-4 text-center mb-6">
                 <p class="text-xs text-gray-300 font-bold mb-1">إجمالي النقاط</p>
                 <p id="prof-score" class="text-4xl font-black text-yellow-400">0</p>
             </div>
-
             <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fas fa-history text-purple-400"></i> سجل الاختبارات</h3>
-            <div id="prof-logs" class="space-y-2">
-                </div>
+            <div id="prof-logs" class="space-y-2"></div>
         </div>
     </div>
 
@@ -162,10 +158,16 @@
             appId: "1:343525703258:web:6776b4857425df8bcca263" 
         };
 
-        // --- 2. تهيئة عند التحميل ---
-        window.onload = function() {
+        // --- 2. دالة التشغيل الفوري (بدون انتظار المتصفح) ---
+        function initApp() {
             try {
-                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+                if (typeof firebase === 'undefined') {
+                    document.getElementById('conn-status').innerText = "خطأ: تأكد من اتصال الإنترنت (الفايربيز لم يحمل) 🔴";
+                    return;
+                }
+                if (!firebase.apps.length) { 
+                    firebase.initializeApp(firebaseConfig); 
+                }
                 db = firebase.firestore();
                 document.getElementById('conn-status').innerText = "متصل بنجاح 🟢";
                 
@@ -173,16 +175,17 @@
                 setupQuestions();
                 startListening();
             } catch (error) {
-                console.error("خطأ في التهيئة:", error);
-                document.getElementById('conn-status').innerText = "حدث خطأ في الاتصال 🔴";
+                console.error("خطأ:", error);
+                document.getElementById('conn-status').innerText = "خطأ في الاتصال بالقاعدة 🔴";
             }
-        };
+        }
 
+        // --- إعداد التواريخ والأسئلة (يعمل حتى لو مفيش نت) ---
         function setupDays() {
             let html = "";
             for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
-            document.getElementById('q-day').innerHTML = html;
-            document.getElementById('pub-day').innerHTML = html;
+            if(document.getElementById('q-day')) document.getElementById('q-day').innerHTML = html;
+            if(document.getElementById('pub-day')) document.getElementById('pub-day').innerHTML = html;
         }
 
         function setupQuestions() {
@@ -201,10 +204,10 @@
                     </select>
                 </div>`;
             }
-            document.getElementById('q-area').innerHTML = html;
+            if(document.getElementById('q-area')) document.getElementById('q-area').innerHTML = html;
         }
 
-        // --- 3. الدوال الأساسية ---
+        // --- التنقل بين القوائم ---
         function showTab(t, btn) {
             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -217,8 +220,8 @@
             document.getElementById('teams-input-area').style.display = (type === 'teams') ? 'grid' : 'none';
         }
 
+        // --- الاتصال بقاعدة البيانات ---
         function startListening() {
-            // جلب المجموعات مع تحصين ضد البيانات القديمة
             db.collection("config").doc("groups_data").onSnapshot(s => {
                 if(s.exists) { 
                     globalGroups = s.data().list || []; 
@@ -229,7 +232,6 @@
                 }
             }, err => console.error(err));
 
-            // جلب المتسابقين
             db.collection("users").onSnapshot(s => {
                 globalUsers = [];
                 s.forEach(d => globalUsers.push({id: d.id, ...d.data()}));
@@ -238,7 +240,6 @@
             }, err => console.error(err));
         }
 
-        // --- 4. إدارة المجموعات والفرق ---
         function saveGrp() {
             const name = document.getElementById('g-name').value.trim();
             const type = document.getElementById('g-type').value;
@@ -264,21 +265,18 @@
         function renderGroups() {
             let list = document.getElementById('grp-list');
             let select = document.getElementById('u-group');
+            if(!list || !select) return;
+            
             list.innerHTML = "";
             select.innerHTML = '<option value="">اختر المجموعة</option>';
             
             globalGroups.forEach((g, i) => {
                 select.innerHTML += `<option value="${i}">${g.group || "مجموعة مجهولة"}</option>`;
                 
-                // تحصين لمنع أي كراش بسبب بيانات التيمات القديمة
                 let teamStr = "";
-                if (g.type === 'single') {
-                    teamStr = "فردي";
-                } else if (g.teams && Array.isArray(g.teams)) {
-                    teamStr = g.teams.join(' vs ');
-                } else {
-                    teamStr = "مباراة";
-                }
+                if (g.type === 'single') teamStr = "فردي";
+                else if (g.teams && Array.isArray(g.teams)) teamStr = g.teams.join(' vs ');
+                else teamStr = "مباراة";
 
                 list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">
                     <div>
@@ -296,11 +294,8 @@
             teamSelect.innerHTML = "";
             if(idx !== "" && globalGroups[idx]) {
                 let g = globalGroups[idx];
-                if(g.type === 'single') {
-                    teamSelect.innerHTML = '<option value="فردي">فردي</option>';
-                } else if(g.teams && Array.isArray(g.teams)) {
-                    g.teams.forEach(t => teamSelect.innerHTML += `<option value="${t}">${t}</option>`);
-                }
+                if(g.type === 'single') teamSelect.innerHTML = '<option value="فردي">فردي</option>';
+                else if(g.teams && Array.isArray(g.teams)) g.teams.forEach(t => teamSelect.innerHTML += `<option value="${t}">${t}</option>`);
             }
         }
 
@@ -311,7 +306,6 @@
             }
         }
 
-        // --- 5. إدارة المتسابقين وبروفايل اللاعب ---
         function addUsr() {
             let n = document.getElementById('u-name').value.trim();
             let gIdx = document.getElementById('u-group').value;
@@ -335,9 +329,9 @@
 
         function renderUsers() {
             let uL = document.getElementById('usr-list');
+            if(!uL) return;
             uL.innerHTML = "";
             
-            // تحصين الفرز والترتيب
             let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
             safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
                 uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50 transition">
@@ -350,8 +344,4 @@
                         <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
                         <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
                         <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
-                        <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px] flex-1">حذف</button>
-                    </td>
-                </tr>`;
-            });
-  
+                        <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px
