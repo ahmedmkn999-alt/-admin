@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مدير المنصة | النسخة المستقرة</title>
+    <title>مدير المنصة</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -29,21 +29,21 @@
 
     <div id="manager-ui" style="display:none;" class="p-4 max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-6">
-            <span id="conn-status" class="text-yellow-500 text-xs font-bold bg-gray-900 px-3 py-1 rounded-full border border-gray-700">⏳ جاري الاتصال...</span>
-            <button onclick="location.reload()" class="bg-red-900/40 text-red-400 px-3 py-1 rounded-lg text-xs font-bold border border-red-800">خروج</button>
+            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال...</span>
+            <button onclick="location.reload()" class="bg-red-900/40 text-red-400 px-3 py-1 rounded-lg text-xs">خروج</button>
         </div>
 
-        <nav class="flex gap-1.5 mb-6 overflow-x-auto pb-2 no-scrollbar">
+        <nav class="flex gap-1.5 mb-6 overflow-x-auto pb-2">
             <button class="nav-btn active" onclick="showTab('room', this)">المجموعات</button>
             <button class="nav-btn" onclick="showTab('users', this)">المتسابقين</button>
-            <button class="nav-btn" onclick="showTab('global', this)">الترتيب العام</button>
+            <button class="nav-btn" onclick="showTab('global', this)">الترتيب العام 🌍</button>
             <button class="nav-btn" onclick="showTab('quizzes', this)">الكويز</button>
             <button class="nav-btn" onclick="showTab('vault', this)">الخزنة</button>
             <button class="nav-btn" onclick="showTab('settings', this)">الرسائل</button>
         </nav>
 
         <div id="tab-room" class="tab-content active">
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3 shadow-lg">
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3">
                 <input type="text" id="g-name" placeholder="اسم المجموعة" class="w-full p-3 rounded-lg">
                 <div class="grid grid-cols-2 gap-2">
                     <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-lg">
@@ -55,87 +55,86 @@
         </div>
 
         <div id="tab-users" class="tab-content">
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3 shadow-lg">
-                <input type="text" id="u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-lg outline-none">
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6 space-y-3">
+                <input type="text" id="u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-lg">
                 <div class="grid grid-cols-2 gap-2">
-                    <select id="u-group" onchange="loadTeams()" class="p-3 rounded-lg text-xs outline-none"><option value="">المجموعة</option></select>
-                    <select id="u-team" class="p-3 rounded-lg text-xs outline-none"><option value="">التيم</option></select>
+                    <select id="u-group" onchange="loadTeams()" class="p-3 rounded-lg text-xs"><option value="">المجموعة</option></select>
+                    <select id="u-team" class="p-3 rounded-lg text-xs"><option value="">التيم</option></select>
                 </div>
-                <button onclick="addUsr()" class="w-full bg-yellow-600 text-black p-3 rounded-lg font-black">إضافة لاعب 🔐</button>
+                <button onclick="addUsr()" class="w-full bg-yellow-600 text-black p-3 rounded-lg font-black">إضافة</button>
             </div>
-            <div class="overflow-x-auto shadow-xl">
+            <div class="overflow-x-auto">
                 <table class="w-full text-right text-xs bg-gray-900 rounded-xl">
-                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3 text-center">النقاط</th><th class="p-3 text-center">تحكم</th></tr></thead>
+                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3">الكود</th><th class="p-3 text-center">تحكم</th></tr></thead>
                     <tbody id="usr-list"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-global" class="tab-content">
-            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden shadow-2xl">
+            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">#</th><th class="p-4">الاسم</th><th class="p-4 text-center">النقاط</th></tr></thead>
+                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">المركز</th><th class="p-4">الاسم</th><th class="p-4">النقاط</th></tr></thead>
                     <tbody id="global-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-quizzes" class="tab-content">
-            <select id="q-day" class="w-full p-3 rounded-xl mb-4 font-black border border-yellow-600"></select>
+            <select id="q-day" class="w-full p-3 rounded-xl mb-4 font-black"></select>
             <div id="q-area"></div>
-            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl shadow-lg">حفظ الكويز في الخزنة 💾</button>
+            <button onclick="saveQ()" class="w-full bg-green-600 text-black font-black p-4 rounded-xl">حفظ في الخزنة</button>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-4">
-            <div class="bg-gray-900 p-6 rounded-xl border-2 border-yellow-600 text-center shadow-xl">
-                <h3 class="mb-4 font-bold text-yellow-500">نشر الماتشات على الموقع</h3>
-                <select id="pub-day" class="w-full p-3 rounded-lg mb-4 font-bold"></select>
+            <div class="bg-gray-900 p-6 rounded-xl border-2 border-yellow-600 text-center">
+                <h3 class="mb-4 font-bold">نشر اليوم على الموقع</h3>
+                <select id="pub-day" class="w-full p-3 rounded-lg mb-4"></select>
                 <div class="flex gap-2">
-                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-600 p-3 rounded-lg font-bold">قريباً ⏳</button>
-                    <button onclick="setStatus('active')" class="flex-1 bg-green-600 p-3 rounded-lg font-bold text-black">تفعيل ▶️</button>
-                    <button onclick="setStatus('closed')" class="flex-1 bg-red-600 p-3 rounded-lg font-bold">إغلاق 🔒</button>
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-600 p-3 rounded-lg font-bold">قريباً</button>
+                    <button onclick="setStatus('active')" class="flex-1 bg-green-600 p-3 rounded-lg font-bold text-black">تفعيل</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-600 p-3 rounded-lg font-bold">إغلاق</button>
                 </div>
             </div>
             <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                <h3 class="text-gray-400 text-xs mb-3 font-bold">فحص وتعديل المحتوى</h3>
-                <div class="flex gap-2 mb-4"><select id="v-day" class="flex-grow p-3 rounded-lg font-bold"></select><button onclick="checkV()" class="bg-gray-700 px-6 rounded-lg font-bold border border-gray-600">فحص</button></div>
-                <div id="v-res" class="p-4 bg-black/50 rounded-xl"></div>
+                <h3 class="text-gray-400 text-xs mb-3">فحص وتعديل الكويزات</h3>
+                <div class="flex gap-2 mb-4"><select id="v-day" class="flex-grow p-3 rounded-lg"></select><button onclick="checkV()" class="bg-gray-700 px-6 rounded-lg font-bold">فحص</button></div>
+                <div id="v-res" class="p-4 bg-black/50 rounded-xl text-xs"></div>
             </div>
         </div>
 
         <div id="tab-settings" class="tab-content space-y-4">
-            <div class="bg-gray-900 p-4 rounded-xl border border-yellow-600 shadow-lg">
-                <p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل الطائرة (Popup):</p>
+            <div class="bg-gray-900 p-4 rounded-xl border border-yellow-600">
+                <p class="text-yellow-500 text-xs mb-2">رسالة البطل الطائرة:</p>
                 <input type="text" id="msg-c" class="w-full p-3 rounded-lg mb-2">
-                <button onclick="saveM('c')" class="w-full bg-yellow-600 text-black font-bold p-3 rounded-lg">نشر الرسالة 🚀</button>
+                <button onclick="saveM('c')" class="w-full bg-yellow-600 text-black font-bold p-2 rounded-lg">نشر الرسالة</button>
             </div>
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-lg">
-                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري الثابت:</p>
-                <textarea id="msg-d" class="w-full p-3 rounded-lg mb-2 h-24"></textarea>
-                <button onclick="saveM('d')" class="w-full bg-blue-600 text-white font-bold p-3 rounded-lg">تحديث الشريط 📌</button>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
+                <p class="text-blue-400 text-xs mb-2">الشريط الإخباري:</p>
+                <textarea id="msg-d" class="w-full p-3 rounded-lg mb-2 h-20"></textarea>
+                <button onclick="saveM('d')" class="w-full bg-blue-600 text-white font-bold p-2 rounded-lg">تحديث الشريط</button>
             </div>
         </div>
     </div>
 
     <div id="prof-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border-2 border-yellow-500 rounded-3xl w-full max-w-xs text-center p-6 shadow-2xl">
+        <div class="bg-gray-900 border-2 border-yellow-500 rounded-3xl w-full max-w-xs text-center p-6">
             <div class="bg-yellow-600 w-20 h-20 rounded-full flex items-center justify-center text-black text-3xl mx-auto mb-4"><i class="fas fa-crown"></i></div>
             <h2 id="pf-name" class="text-2xl font-black text-white mb-1">...</h2>
             <p id="pf-rank" class="text-yellow-500 font-bold text-sm mb-4">المركز: -</p>
-            <div class="bg-gray-800 p-4 rounded-2xl mb-6 border border-gray-700">
-                <p class="text-gray-500 text-[10px] mb-1 font-bold">إجمالي النقاط</p>
+            <div class="bg-gray-800 p-4 rounded-2xl mb-6">
+                <p class="text-gray-500 text-[10px] mb-1">إجمالي النقاط</p>
                 <p id="pf-score" class="text-3xl font-black text-white">0</p>
             </div>
-            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-700 p-3 rounded-xl font-bold">إغلاق الملف</button>
+            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-700 p-3 rounded-xl font-bold">إغلاق</button>
         </div>
     </div>
 
     <div id="copy-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center p-6 z-[9999]">
-        <div class="bg-gray-900 p-6 rounded-2xl border-2 border-green-500 w-full max-w-xs text-center shadow-2xl text-white">
-            <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
-            <p class="font-bold mb-6">تم تسجيل المتسابق بنجاح!</p>
-            <button id="cp-btn" class="w-full bg-blue-600 p-3 rounded-lg font-bold mb-2 shadow-lg">نسخ بيانات اللاعب</button>
-            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 p-3 rounded-lg font-bold">إغلاق</button>
+        <div class="bg-gray-900 p-6 rounded-2xl border-2 border-green-500 w-full max-w-xs text-center">
+            <p class="text-green-500 font-bold mb-4">تم الإضافة!</p>
+            <button id="cp-btn" class="w-full bg-blue-600 p-3 rounded-lg font-bold mb-2">نسخ بيانات اللاعب</button>
+            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 p-3 rounded-lg">إغلاق</button>
         </div>
     </div>
 
@@ -161,19 +160,20 @@
                 firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
             }
             db = firebase.firestore();
-            document.getElementById('conn-status').innerText = "✅ متصل بالسيرفر";
+            document.getElementById('conn-status').innerText = "✅ متصل بفايربيز";
             
+            // ملء القوائم
             ['q-day', 'pub-day', 'v-day'].forEach(id => {
-                const el = document.getElementById(id); el.innerHTML = '';
+                const el = document.getElementById(id);
                 for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
 
+            // بناء الأسئلة
             const qa = document.getElementById('q-area');
-            if(qa.innerHTML === '') {
-                for(let i=1; i<=15; i++) {
-                    qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold mb-2">سؤال ${i}</p><textarea class="qt w-full p-3 text-sm rounded mb-2 h-16 outline-none focus:border-yellow-500 border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded border border-gray-700" placeholder="خيار 1"><input class="o2 p-2 text-xs rounded border border-gray-700" placeholder="خيار 2"><input class="o3 p-2 text-xs rounded border border-gray-700" placeholder="خيار 3"><input class="o4 p-2 text-xs rounded border border-gray-700" placeholder="خيار 4"></div><select class="ca w-full p-2 mt-2 text-xs text-green-400 font-bold"><option value="0">الإجابة: 1</option><option value="1">الإجابة: 2</option><option value="2">الإجابة: 3</option><option value="3">الإجابة: 4</option></select></div>`;
-                }
+            for(let i=1; i<=15; i++) {
+                qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold">سؤال ${i}</p><textarea class="qt w-full p-2 text-sm rounded mb-2 h-12"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded" placeholder="1"><input class="o2 p-2 text-xs rounded" placeholder="2"><input class="o3 p-2 text-xs rounded" placeholder="3"><input class="o4 p-2 text-xs rounded" placeholder="4"></div><select class="ca w-full p-1 mt-1 text-xs text-green-400"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
             }
+
             listenData();
         }
 
@@ -208,8 +208,8 @@
 
                 arr.forEach((u, i) => {
                     let st = u.isBanned ? "text-red-500 line-through" : "text-white";
-                    uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/30"><td class="p-2"><p class="${st} font-bold text-xs">${u.name}</p><p class="text-[10px] text-yellow-600 font-mono">${u.password}</p></td><td class="p-2 text-center font-bold text-yellow-500">${u.score||0}</td><td class="p-2 flex gap-1 justify-center"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900/50 text-blue-400 p-1 rounded text-[10px] border border-blue-800">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900/50 text-orange-400 p-1 rounded text-[10px] border border-orange-800">${u.isBanned?'فك':'حظر'}</button><button onclick="delUsr('${u.id}')" class="bg-red-900/50 text-red-500 p-1 rounded text-[10px] border border-red-800">حذف</button></td></tr>`;
-                    gB.innerHTML += `<tr onclick="openPf('${u.id}',${i+1})" class="border-b border-gray-800 hover:bg-gray-800 cursor-pointer"><td class="p-4 text-yellow-500 font-black">${i+1}</td><td class="p-4 font-bold text-white">${u.name}</td><td class="p-4 text-yellow-500 font-black text-center">${u.score||0}</td></tr>`;
+                    uL.innerHTML += `<tr class="border-b border-gray-800"><td class="p-2"><p class="${st} font-bold">${u.name}</p></td><td class="p-2 text-yellow-500 font-mono">${u.password}</td><td class="p-2 flex gap-1"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900 p-1 rounded text-[10px]">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900 p-1 rounded text-[10px]">حظر</button><button onclick="delUsr('${u.id}')" class="bg-red-900 p-1 rounded text-[10px]">حذف</button></td></tr>`;
+                    gB.innerHTML += `<tr onclick="openPf('${u.id}',${i+1})" class="border-b border-gray-800"><td class="p-4">${i+1}</td><td class="p-4 font-bold">${u.name}</td><td class="p-4 text-yellow-500 font-black">${u.score||0}</td></tr>`;
                 });
             });
 
@@ -226,30 +226,30 @@
 
         window.saveGrp = () => {
             const n = document.getElementById('g-name').value, t1 = document.getElementById('t1').value, t2 = document.getElementById('t2').value;
-            if(!n || !t1 || !t2) return alert('البيانات ناقصة');
-            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: n, teams: [t1, t2] }) }, { merge: true }).then(() => { alert('تم الحفظ'); document.getElementById('g-name').value = ""; });
+            if(!n || !t1 || !t2) return alert('ناقص');
+            db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: n, teams: [t1, t2] }) }, { merge: true }).then(() => alert('تم'));
         };
 
         window.addUsr = () => {
             const n = document.getElementById('u-name').value, gIdx = document.getElementById('u-group').value, t = document.getElementById('u-team').value;
-            if(!n || gIdx==="" || !t) return alert('البيانات ناقصة');
+            if(!n || gIdx==="" || !t) return alert('ناقص');
             const p = Math.floor(100000 + Math.random() * 900000).toString();
             db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false }).then(() => {
-                tempMsg = `👋 أهلاً بك يا بطل!\n👤 الاسم: ${n}\n🛡️ الكيان: ${groups[gIdx].group} (${t})\n🔑 الكود: ${p}\n🔗 الرابط الجديد: https://ramadani-quiz.vercel.app/`;
+                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالمجموعة: ${groups[gIdx].group}\nالرابط: https://adani-quiz.vercel.app/`;
                 document.getElementById('copy-modal').classList.remove('hidden'); document.getElementById('copy-modal').classList.add('flex');
                 document.getElementById('u-name').value = "";
             });
         };
-        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('✅ تم نسخ الرابط الجديد!'); };
+        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ'); };
 
-        window.edSc = (id, cur) => { let n = prompt("تعديل النقاط لتصبح:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
+        window.edSc = (id, cur) => { let n = prompt("النقاط:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
         window.banUsr = (id, st) => { db.collection("users").doc(id).update({isBanned: !st}); };
-        window.delUsr = (id) => { if(confirm("حذف اللاعب نهائياً؟")) db.collection("users").doc(id).delete(); };
+        window.delUsr = (id) => { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); };
 
         window.openPf = (id, rank) => {
             let u = users.find(x => x.id === id);
             document.getElementById('pf-name').innerText = u.name;
-            document.getElementById('pf-rank').innerText = rank===1 ? 'البطل التاريخي 👑' : 'المركز: ' + rank;
+            document.getElementById('pf-rank').innerText = rank===1 ? 'البطل 👑' : 'المركز: ' + rank;
             document.getElementById('pf-score').innerText = u.score || 0;
             document.getElementById('prof-modal').classList.remove('hidden'); document.getElementById('prof-modal').classList.add('flex');
         };
@@ -261,17 +261,14 @@
                 options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
                 correctIndex: parseInt(b.querySelector('.ca').value)
             }));
-            if(!qs[0].q) return alert("اكتب سؤال واحد على الأقل");
-            db.collection("quizzes_pool").doc("day_"+d).set({ variations: [{ questions: qs }] }).then(() => alert('✅ تم حفظ الكويز في الخزنة'));
+            db.collection("quizzes_pool").doc("day_"+d).set({ variations: [{ questions: qs }] }).then(() => alert('تم الحفظ'));
         };
 
         window.checkV = () => {
             const d = document.getElementById('v-day').value, res = document.getElementById('v-res');
             db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
-                if(s.exists) { 
-                    res.innerHTML = `<div class="flex justify-between items-center text-green-400 font-bold"><span>✅ كويز موجود</span> <div class="flex gap-1"><button onclick="pullQ('${d}')" class="bg-blue-600 px-3 py-1 rounded text-white text-xs">تعديل ✏️</button> <button onclick="delQ('${d}')" class="bg-red-600 px-3 py-1 rounded text-white text-xs">حذف 🗑️</button></div></div>`; 
-                }
-                else { res.innerHTML = `<span class="text-red-400 font-bold">❌ الخزنة فارغة لهذا اليوم</span>`; }
+                if(s.exists) { res.innerHTML = `<div class="flex justify-between items-center text-green-400"><span>✅ كويز موجود</span> <button onclick="pullQ('${d}')" class="bg-blue-600 px-2 py-1 rounded text-white">سحب وتعديل</button></div>`; }
+                else { res.innerHTML = "❌ فارغ"; }
             });
         };
 
@@ -280,5 +277,23 @@
                 let qs = s.data().variations[0].questions; document.getElementById('q-day').value = d;
                 let blocks = document.querySelectorAll('.q-block');
                 qs.forEach((q, i) => {
-                    if(blocks[i]) {
-                        blocks[i].querySelector(
+                    blocks[i].querySelector('.qt').value = q.q;
+                    blocks[i].querySelector('.o1').value = q.options[0]; blocks[i].querySelector('.o2').value = q.options[1];
+                    blocks[i].querySelector('.o3').value = q.options[2]; blocks[i].querySelector('.o4').value = q.options[3];
+                    blocks[i].querySelector('.ca').value = q.correctIndex;
+                });
+                alert("تم سحب الأسئلة لتبويب الكويز");
+            });
+        };
+
+        window.setStatus = (st) => {
+            db.collection("settings").doc("global_status").set({ status: st, currentDay: parseInt(document.getElementById('pub-day').value) }).then(() => alert('تم'));
+        };
+
+        window.saveM = (t) => {
+            let m = t==='c' ? document.getElementById('msg-c').value : document.getElementById('msg-d').value;
+            db.collection("settings").doc(t==='c'?'champData':'dailyData').set({ message: m }).then(() => alert('تم'));
+        };
+    </script>
+</body>
+</html>
