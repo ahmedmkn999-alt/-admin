@@ -74,7 +74,7 @@
         <div id="tab-global" class="tab-content">
             <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">المركز</th><th class="p-4">اسم التيم / اللاعب</th><th class="p-4">النقاط مجمعة</th></tr></thead>
+                    <thead class="bg-yellow-600 text-black font-black"><tr><th class="p-4">المركز</th><th class="p-4">اسم التيم</th><th class="p-4 text-center">النقاط مجمعة</th></tr></thead>
                     <tbody id="global-body"></tbody>
                 </table>
             </div>
@@ -134,7 +134,7 @@
         <div class="bg-gray-900 p-6 rounded-2xl border-2 border-green-500 w-full max-w-xs text-center">
             <p class="text-green-500 font-bold mb-4">تم الإضافة!</p>
             <button id="cp-btn" class="w-full bg-blue-600 p-3 rounded-lg font-bold mb-2">نسخ بيانات اللاعب</button>
-            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="bg-gray-700 p-3 rounded-lg">إغلاق</button>
+            <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 p-3 rounded-lg">إغلاق</button>
         </div>
     </div>
 
@@ -201,37 +201,28 @@
                 let rawUsers = []; s.forEach(d => { let u=d.data(); u.id=d.id; rawUsers.push(u); });
                 users = rawUsers;
 
-                // الترتيب مجمع حسب اسم التيم (أو الاسم لو مفيش تيم)
+                // الترتيب مجمع حسب اسم التيم
                 let combinedScores = {};
                 rawUsers.forEach(u => {
-                    let teamName = u.team || u.name;
-                    if(!combinedScores[teamName]) {
-                        combinedScores[teamName] = { score: 0, names: [] };
-                    }
-                    combinedScores[teamName].score += (u.score || 0);
-                    combinedScores[teamName].names.push(u.name);
+                    let teamName = u.team || "بدون تيم";
+                    if(!combinedScores[teamName]) combinedScores[teamName] = 0;
+                    combinedScores[teamName] += (u.score || 0);
                 });
 
-                let sortedTeams = Object.keys(combinedScores).map(k => ({
-                    team: k,
-                    score: combinedScores[k].score,
-                    players: combinedScores[k].names
-                })).sort((a,b) => b.score - a.score);
+                let sortedTeams = Object.keys(combinedScores).map(k => ({ team: k, score: combinedScores[k] })).sort((a,b) => b.score - a.score);
 
-                // عرض المتسابقين فرادى (للإدارة)
-                rawUsers.forEach((u) => {
+                rawUsers.forEach((u, i) => {
                     let st = u.isBanned ? "text-red-500 line-through" : "text-white";
                     uL.innerHTML += `<tr class="border-b border-gray-800"><td class="p-2"><p class="${st} font-bold">${u.name}</p></td><td class="p-2 text-yellow-500 font-mono text-center font-bold">${u.score||0}</td><td class="p-2 flex gap-1"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900 p-1 rounded text-[10px]">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900 p-1 rounded text-[10px]">حظر</button><button onclick="delUsr('${u.id}')" class="bg-red-900 p-1 rounded text-[10px]">حذف</button></td></tr>`;
                 });
 
-                // عرض الترتيب المجمع
                 sortedTeams.forEach((t, i) => {
                     gB.innerHTML += `<tr onclick="openPfByName('${t.team}',${i+1},${t.score})" class="border-b border-gray-800 cursor-pointer"><td class="p-4">${i+1}</td><td class="p-4 font-bold text-white">${t.team}</td><td class="p-4 text-yellow-500 font-black text-center">${t.score}</td></tr>`;
                 });
             });
 
-            db.collection("settings").doc("champData").get().then(s => { if(s.exists) document.getElementById('msg-c').value = s.data().message || ""; });
-            db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('msg-d').value = s.data().message || ""; });
+            db.collection("settings").doc("champData").get().then(s => { if(s.exists) document.getElementById('msg-c').value = s.data().message; });
+            db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('msg-d').value = s.data().message; });
         }
 
         window.loadTeams = () => {
@@ -251,7 +242,7 @@
             if(!n || gIdx==="" || !t) return alert('ناقص');
             const p = Math.floor(100000 + Math.random() * 900000).toString();
             db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false }).then(() => {
-                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالمجموعة: ${groups[gIdx].group}\nالرابط: https://ramadani-quiz.vercel.app/`;
+                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالرابط: https://ramadani-quiz.vercel.app/`;
                 document.getElementById('copy-modal').classList.remove('hidden'); document.getElementById('copy-modal').classList.add('flex');
                 document.getElementById('u-name').value = "";
             });
@@ -259,5 +250,59 @@
         document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ بالرابط الجديد'); };
 
         window.edSc = (id, cur) => { let n = prompt("النقاط:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
-        window.banUsr = (id,
-        
+        window.banUsr = (id, st) => { db.collection("users").doc(id).update({isBanned: !st}); };
+        window.delUsr = (id) => { if(confirm("حذف؟")) db.collection("users").doc(id).delete(); };
+
+        window.openPfByName = (teamName, rank, totalScore) => {
+            document.getElementById('pf-name').innerText = teamName;
+            document.getElementById('pf-rank').innerText = rank===1 ? 'البطل 👑' : 'المركز: ' + rank;
+            document.getElementById('pf-score').innerText = totalScore;
+            document.getElementById('prof-modal').classList.remove('hidden'); document.getElementById('prof-modal').classList.add('flex');
+        };
+
+        window.saveQ = () => {
+            const d = document.getElementById('q-day').value;
+            const qs = Array.from(document.querySelectorAll('.q-block')).map(b => ({
+                q: b.querySelector('.qt').value,
+                options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
+                correctIndex: parseInt(b.querySelector('.ca').value)
+            }));
+            db.collection("quizzes_pool").doc("day_"+d).set({ variations: [{ questions: qs }] }).then(() => alert('تم الحفظ'));
+        };
+
+        window.checkV = () => {
+            const d = document.getElementById('v-day').value, res = document.getElementById('v-res');
+            db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
+                if(s.exists) { res.innerHTML = `<div class="flex justify-between items-center text-green-400"><span>✅ كويز موجود</span> <div class="flex gap-2"><button onclick="pullQ('${d}')" class="bg-blue-600 px-2 py-1 rounded text-white">تعديل</button> <button onclick="delQuiz('${d}')" class="bg-red-600 px-2 py-1 rounded text-white font-bold">حذف 🗑️</button></div></div>`; }
+                else { res.innerHTML = "❌ فارغ"; }
+            });
+        };
+
+        window.pullQ = (d) => {
+            db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
+                let qs = s.data().variations[0].questions; document.getElementById('q-day').value = d;
+                let blocks = document.querySelectorAll('.q-block');
+                qs.forEach((q, i) => {
+                    blocks[i].querySelector('.qt').value = q.q;
+                    blocks[i].querySelector('.o1').value = q.options[0]; blocks[i].querySelector('.o2').value = q.options[1];
+                    blocks[i].querySelector('.o3').value = q.options[2]; blocks[i].querySelector('.o4').value = q.options[3];
+                    blocks[i].querySelector('.ca').value = q.correctIndex;
+                });
+                alert("تم سحب الأسئلة لتبويب الكويز");
+            });
+        };
+
+        window.delQuiz = (d) => { if(confirm("مسح نهائي؟")) db.collection("quizzes_pool").doc("day_"+d).delete().then(()=> checkV()); };
+
+        window.setStatus = (st) => {
+            db.collection("settings").doc("global_status").set({ status: st, currentDay: parseInt(document.getElementById('pub-day').value) }).then(() => alert('تم'));
+        };
+
+        window.saveM = (t) => {
+            let m = t==='c' ? document.getElementById('msg-c').value : document.getElementById('msg-d').value;
+            db.collection("settings").doc(t==='c'?'champData':'dailyData').set({ message: m }).then(() => alert('تم'));
+        };
+    </script>
+</body>
+                                                                                                   </html>
+                
