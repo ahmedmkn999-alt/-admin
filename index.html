@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة القيادة | VIP</title>
+    <title>الكنترول المركزي | VIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background: #050505; color: #fff; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* تصميم الفذلكة والفخامة */
+        /* تصميم الـ VIP الفخم */
         .glass-panel { background: rgba(20, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
         .gold-glow { text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
-        .gold-btn { background: linear-gradient(135deg, #d4af37, #aa8000); color: #000; font-weight: 900; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); border: none; }
+        .gold-btn { background: linear-gradient(135deg, #d4af37, #aa8000); color: #000; font-weight: 900; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); border: none; cursor: pointer; }
         .gold-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(212, 175, 55, 0.4); }
         
         /* التبويبات */
-        .nav-btn { background: rgba(30, 41, 59, 0.8); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; transition: all 0.3s; white-space: nowrap; }
+        .nav-btn { background: rgba(30, 41, 59, 0.8); color: #94a3b8; padding: 12px 15px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid transparent; transition: all 0.3s; white-space: nowrap; cursor: pointer; }
         .nav-btn.active { background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1); }
         .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); } 
         .tab-content.active { display: block; }
@@ -41,10 +41,10 @@
                 <i class="fas fa-crown text-4xl text-black"></i>
             </div>
             <h2 class="text-2xl font-black mb-2 text-white gold-glow">الكنترول المركزي</h2>
-            <p class="text-yellow-500/70 text-xs font-bold mb-8">إصدار الإدارة العليا V-MAX</p>
+            <p class="text-yellow-500/70 text-xs font-bold mb-8">إصدار الإدارة العليا VIP</p>
             
             <input type="password" id="gate-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl text-center text-xl tracking-widest font-bold mb-6">
-            <button onclick="startManagerSafe()" class="gold-btn w-full py-4 rounded-xl text-lg">تسجيل الدخول <i class="fas fa-sign-in-alt ml-2"></i></button>
+            <button onclick="startManager()" class="gold-btn w-full py-4 rounded-xl text-lg">تسجيل الدخول <i class="fas fa-sign-in-alt ml-2"></i></button>
         </div>
     </div>
 
@@ -52,7 +52,7 @@
         <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
-                <span id="conn-status" class="text-green-400 text-xs font-bold">متصل بالسيرفر</span>
+                <span id="conn-status" class="text-green-400 text-xs font-bold">جاري الاتصال...</span>
             </div>
             <button onclick="location.reload()" class="bg-red-500/10 text-red-500 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">خروج <i class="fas fa-power-off ml-1"></i></button>
         </div>
@@ -75,7 +75,7 @@
                         <input type="text" id="t1" placeholder="اسم التيم الأول" class="p-3 rounded-xl">
                         <input type="text" id="t2" placeholder="اسم التيم الثاني" class="p-3 rounded-xl">
                     </div>
-                    <button onclick="saveGrpSafe()" class="gold-btn w-full p-3 rounded-xl mt-2">إنشاء وحفظ</button>
+                    <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl mt-2">إنشاء وحفظ</button>
                 </div>
             </div>
             <div id="grp-list" class="space-y-3"></div>
@@ -83,35 +83,26 @@
 
         <div id="tab-users" class="tab-content">
             <div class="glass-panel p-5 rounded-2xl mb-6">
-                <h3 class="text-yellow-500 font-bold mb-4 text-sm"><i class="fas fa-user-plus mr-2"></i> تسجيل متسابق (توزيع آلي للنسخ)</h3>
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm"><i class="fas fa-user-plus mr-2"></i> تسجيل متسابق (توزيع آلي)</h3>
                 <div class="grid gap-3">
                     <input type="text" id="u-name" placeholder="الاسم ثلاثي" class="w-full p-3 rounded-xl">
                     <div class="grid grid-cols-2 gap-3">
-                        <select id="u-group" onchange="loadTeamsSafe()" class="p-3 rounded-xl text-xs"><option value="">اختر المجموعة</option></select>
+                        <select id="u-group" onchange="loadTeams()" class="p-3 rounded-xl text-xs"><option value="">اختر المجموعة</option></select>
                         <select id="u-team" class="p-3 rounded-xl text-xs"><option value="">اختر التيم</option></select>
                     </div>
-                    <button onclick="addUsrSafe()" class="gold-btn w-full p-3 rounded-xl mt-2">تسجيل المتسابق 🔐</button>
+                    <button onclick="addUsr()" class="gold-btn w-full p-3 rounded-xl mt-2">تسجيل المتسابق 🔐</button>
                 </div>
             </div>
             <div class="glass-panel rounded-2xl overflow-x-auto">
                 <table class="w-full text-right text-xs">
-                    <thead class="bg-black/40 text-gray-400 border-b border-gray-800"><tr><th class="p-4">بيانات اللاعب</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإدارة (نقل/حذف)</th></tr></thead>
+                    <thead class="bg-black/40 text-gray-400 border-b border-gray-800"><tr><th class="p-4">بيانات اللاعب</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">الإدارة</th></tr></thead>
                     <tbody id="usr-list"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-global" class="tab-content">
-            <div class="glass-panel rounded-2xl overflow-hidden">
-                <div class="bg-black/50 p-4 border-b border-yellow-600/30 flex justify-between items-center">
-                    <h3 class="text-yellow-500 font-bold"><i class="fas fa-trophy mr-2"></i> الترتيب الرسمي</h3>
-                    <span class="text-[10px] text-gray-400">مجمع بالنقاط</span>
-                </div>
-                <table class="w-full text-right text-sm">
-                    <thead class="bg-black/30 text-gray-300 text-xs"><tr><th class="p-4">المركز</th><th class="p-4">الكيان (تيم / فردي)</th><th class="p-4 text-center">مجموع النقاط</th></tr></thead>
-                    <tbody id="global-body"></tbody>
-                </table>
-            </div>
+            <div id="global-tables-container" class="space-y-6"></div>
         </div>
 
         <div id="tab-quizzes" class="tab-content">
@@ -131,23 +122,23 @@
                 </div>
             </div>
             <div id="q-area" class="space-y-3"></div>
-            <button onclick="saveQSafe()" class="gold-btn w-full p-4 rounded-xl mt-4 text-lg">حفظ النسخة في الخزنة 💾</button>
+            <button onclick="saveQ()" class="gold-btn w-full p-4 rounded-xl mt-4 text-lg">حفظ النسخة في الخزنة 💾</button>
         </div>
 
         <div id="tab-vault" class="tab-content space-y-4">
             <div class="glass-panel p-6 rounded-2xl text-center border border-yellow-500/30">
-                <h3 class="font-bold text-yellow-500 mb-4"><i class="fas fa-satellite-dish mr-2"></i> لوحة التحكم في النشر (Live)</h3>
+                <h3 class="font-bold text-yellow-500 mb-4"><i class="fas fa-satellite-dish mr-2"></i> لوحة النشر (Live)</h3>
                 <select id="pub-day" class="w-full p-3 rounded-xl mb-4 font-bold"></select>
                 <div class="flex gap-2">
-                    <button onclick="setStatusSafe('soon')" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-600 p-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition">قريباً</button>
-                    <button onclick="setStatusSafe('active')" class="flex-1 bg-green-500 text-black p-3 rounded-xl font-black shadow-[0_0_15px_rgba(34,197,94,0.4)]">تفعيل ▶️</button>
-                    <button onclick="setStatusSafe('closed')" class="flex-1 bg-red-600/20 text-red-400 border border-red-600 p-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition">إغلاق 🔒</button>
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-600 p-3 rounded-xl font-bold">قريباً</button>
+                    <button onclick="setStatus('active')" class="flex-1 bg-green-500 text-black p-3 rounded-xl font-black shadow-[0_0_15px_rgba(34,197,94,0.4)]">تفعيل ▶️</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-600/20 text-red-400 border border-red-600 p-3 rounded-xl font-bold">إغلاق 🔒</button>
                 </div>
             </div>
             
             <div class="glass-panel p-5 rounded-2xl">
-                <h3 class="text-gray-300 text-sm font-bold mb-4"><i class="fas fa-search mr-2"></i> فحص محتوى الخزنة</h3>
-                <div class="flex gap-3 mb-4"><select id="v-day" class="flex-grow p-3 rounded-xl font-bold"></select><button onclick="checkVSafe()" class="bg-gray-700 hover:bg-gray-600 text-white px-6 rounded-xl font-bold transition">فحص</button></div>
+                <h3 class="text-gray-300 text-sm font-bold mb-4"><i class="fas fa-search mr-2"></i> فحص الخزنة</h3>
+                <div class="flex gap-3 mb-4"><select id="v-day" class="flex-grow p-3 rounded-xl font-bold"></select><button onclick="checkV()" class="bg-gray-700 text-white px-6 rounded-xl font-bold">فحص</button></div>
                 <div id="v-res" class="p-4 bg-black/60 rounded-xl border border-gray-800 text-sm">أدخل رقم اليوم للفحص...</div>
             </div>
         </div>
@@ -156,17 +147,17 @@
             <div class="glass-panel p-5 rounded-2xl border-l-4 border-yellow-500">
                 <p class="text-yellow-500 font-bold mb-2 text-sm"><i class="fas fa-paper-plane mr-2"></i> رسالة البطل الطائرة:</p>
                 <input type="text" id="msg-c" placeholder="مثال: مبروك لتيم الصقور..." class="w-full p-4 rounded-xl mb-3">
-                <button onclick="saveMSafe('c')" class="gold-btn w-full p-3 rounded-xl">إطلاق الرسالة 🚀</button>
+                <button onclick="saveM('c')" class="gold-btn w-full p-3 rounded-xl">إطلاق الرسالة 🚀</button>
             </div>
             <div class="glass-panel p-5 rounded-2xl border-l-4 border-blue-500">
                 <p class="text-blue-400 font-bold mb-2 text-sm"><i class="fas fa-bullhorn mr-2"></i> الشريط الإخباري:</p>
                 <textarea id="msg-d" placeholder="الأخبار والتنبيهات..." class="w-full p-4 rounded-xl mb-3 h-24 custom-scroll"></textarea>
-                <button onclick="saveMSafe('d')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold w-full p-3 rounded-xl transition">تحديث الشريط 📌</button>
+                <button onclick="saveM('d')" class="bg-blue-600 text-white font-bold w-full p-3 rounded-xl">تحديث الشريط 📌</button>
             </div>
         </div>
     </div>
 
-    <div id="prof-modal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4 transition-all">
+    <div id="prof-modal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4">
         <div class="glass-panel border border-yellow-500/50 rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(212,175,55,0.2)]">
             <div class="bg-gradient-to-br from-yellow-600 to-yellow-800 p-8 text-center relative">
                 <div class="w-20 h-20 bg-black rounded-full mx-auto border-4 border-yellow-400 flex items-center justify-center text-4xl mb-3 shadow-xl">
@@ -182,7 +173,7 @@
                 </div>
                 <h4 class="text-xs text-gray-500 mb-2 font-bold px-1">أعضاء الكيان:</h4>
                 <div id="pf-players" class="max-h-40 overflow-y-auto custom-scroll space-y-2 pr-1"></div>
-                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl font-bold mt-6 border border-gray-700 transition">إغلاق الملف</button>
+                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 text-white p-4 rounded-xl font-bold mt-6 border border-gray-700">إغلاق الملف</button>
             </div>
         </div>
     </div>
@@ -191,7 +182,7 @@
         <div class="glass-panel p-8 rounded-3xl border border-green-500/50 w-full max-w-xs text-center shadow-[0_0_30px_rgba(34,197,94,0.2)]">
             <div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full mx-auto flex items-center justify-center text-4xl mb-4"><i class="fas fa-check"></i></div>
             <p class="text-white font-bold mb-6 text-lg">تم تسجيل البطل!</p>
-            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3 hover:bg-green-500 transition"><i class="fas fa-copy mr-2"></i> نسخ البيانات</button>
+            <button id="cp-btn" class="w-full bg-green-600 text-black p-4 rounded-xl font-black mb-3"><i class="fas fa-copy mr-2"></i> نسخ البيانات</button>
             <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold border border-gray-700">تخطي</button>
         </div>
     </div>
@@ -200,80 +191,93 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // === نظام التشغيل الآمن (عشان مفيش شاشة بيضا تظهر) ===
-        function safeRun(fn) { try { fn(); } catch(e) { console.error(e); } }
-
         const PASS = "1234";
-        let db = null, globalGroups = [], globalUsers = [], tempClipData = "";
+        let db, groups = [], users = [], tempMsg = "";
 
-        // 1. الدخول
-        window.startManagerSafe = function() {
-            safeRun(() => {
-                const p = document.getElementById('gate-pass').value;
-                if(p === PASS) {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('manager-ui').style.display = 'block';
-                    initDatabaseSafe();
-                } else {
-                    alert("كلمة المرور غير صحيحة!");
-                }
-            });
-        };
-
-        // 2. فايربيز والواجهة
-        function initDatabaseSafe() {
-            safeRun(() => {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
-                }
-                db = firebase.firestore();
-                
-                ['q-day', 'pub-day', 'v-day'].forEach(id => {
-                    const el = document.getElementById(id); el.innerHTML = '';
-                    for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
-                });
-
-                const qa = document.getElementById('q-area');
-                if(qa.innerHTML === '') {
-                    for(let i=1; i<=15; i++) {
-                        qa.innerHTML += `<div class="q-block">
-                            <div class="flex justify-between items-center mb-2"><span class="text-yellow-500 text-xs font-black">سؤال ${i}</span></div>
-                            <textarea class="qt w-full p-3 text-sm rounded-xl mb-3 h-16 resize-none" placeholder="اكتب السؤال..."></textarea>
-                            <div class="grid grid-cols-2 gap-2 mb-3">
-                                <input class="o1 p-3 text-xs rounded-lg" placeholder="خيار 1"> <input class="o2 p-3 text-xs rounded-lg" placeholder="خيار 2">
-                                <input class="o3 p-3 text-xs rounded-lg" placeholder="خيار 3"> <input class="o4 p-3 text-xs rounded-lg" placeholder="خيار 4">
-                            </div>
-                            <select class="ca w-full p-2 rounded-lg text-xs font-bold text-green-400 bg-black/50 border-none"><option value="0">الإجابة: 1</option><option value="1">الإجابة: 2</option><option value="2">الإجابة: 3</option><option value="3">الإجابة: 4</option></select>
-                        </div>`;
-                    }
-                }
-                startListening();
-            });
+        // 1. الدخول المباشر
+        function startManager() {
+            let p = document.getElementById('gate-pass').value;
+            if(p === PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('manager-ui').style.display = 'block';
+                initDB();
+            } else { alert("كلمة السر خطأ"); }
         }
 
-        window.showTab = function(t, btn) {
-            safeRun(() => {
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.getElementById('tab-'+t).classList.add('active');
-                btn.classList.add('active');
+        // 2. التهيئة
+        function initDB() {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
+            }
+            db = firebase.firestore();
+            document.getElementById('conn-status').innerText = "متصل بالسيرفر VIP";
+            
+            ['q-day', 'pub-day', 'v-day'].forEach(id => {
+                let el = document.getElementById(id); el.innerHTML = '';
+                for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
-        };
 
-        // 3. جلب البيانات
-        function startListening() {
-            // المجموعات
+            let qa = document.getElementById('q-area');
+            if(qa.innerHTML === '') {
+                for(let i=1; i<=15; i++) {
+                    qa.innerHTML += `<div class="q-block">
+                        <p class="text-yellow-500 text-[10px] font-bold mb-2">سؤال ${i}</p>
+                        <textarea class="qt w-full p-3 text-sm rounded-xl mb-2 h-16 outline-none border border-gray-700" placeholder="اكتب السؤال"></textarea>
+                        <div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded-lg border border-gray-700" placeholder="خيار 1"><input class="o2 p-2 text-xs rounded-lg border border-gray-700" placeholder="خيار 2"><input class="o3 p-2 text-xs rounded-lg border border-gray-700" placeholder="خيار 3"><input class="o4 p-2 text-xs rounded-lg border border-gray-700" placeholder="خيار 4"></div>
+                        <select class="ca w-full p-2 mt-2 text-xs text-green-400 font-bold bg-black/50 border-none rounded-lg"><option value="0">الإجابة 1</option><option value="1">الإجابة 2</option><option value="2">الإجابة 3</option><option value="3">الإجابة 4</option></select>
+                    </div>`;
+                }
+            }
+            listenData();
+        }
+
+        function showTab(t, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-'+t).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // 3. مزامنة الداتا
+        function listenData() {
             db.collection("config").doc("groups_data").onSnapshot(s => {
-                safeRun(() => {
-                    const list = document.getElementById('grp-list'), uG = document.getElementById('u-group');
-                    list.innerHTML = ""; uG.innerHTML = '<option value="">اختر المجموعة</option>';
-                    if(s.exists && s.data().list) {
-                        globalGroups = s.data().list;
-                        globalGroups.forEach((g, i) => {
-                            uG.innerHTML += `<option value="${i}">${g.group}</option>`;
-                            list.innerHTML += `<div class="bg-black/40 p-3 rounded-xl border border-gray-800 flex justify-between items-center">
-                                <div><span class="text-yellow-500 font-bold block text-sm">${g.group}</span><span class="text-[10px] text-gray-400">${g.teams.join(' ضد ')}</span></div>
-                                <button onclick="delGrpSafe(${i})" class="bg-red-500/20 text-red-500 px-3 py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash"></i></button>
-                            </div>`;
-                        });
-                      
+                let list = document.getElementById('grp-list'), uG = document.getElementById('u-group');
+                list.innerHTML = ""; uG.innerHTML = '<option value="">المجموعة</option>';
+                if(s.exists && s.data().list) {
+                    groups = s.data().list;
+                    groups.forEach((g, i) => {
+                        uG.innerHTML += `<option value="${i}">${g.group}</option>`;
+                        list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">
+                            <div><span class="text-yellow-500 font-bold block">${g.group}</span> <span class="text-[10px] text-gray-400">(${g.teams.join(' vs ')})</span></div>
+                            <button onclick="delGrp(${i})" class="bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-500/30"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    });
+                }
+            });
+
+            db.collection("users").onSnapshot(s => {
+                let uL = document.getElementById('usr-list'), container = document.getElementById('global-tables-container');
+                uL.innerHTML = ""; container.innerHTML = "";
+                let rawUsers = []; s.forEach(d => { let u=d.data(); u.id=d.id; rawUsers.push(u); });
+                users = rawUsers;
+
+                let combined = {};
+                rawUsers.forEach(u => {
+                    let key = (u.team === "فردي" || !u.team) ? u.name : u.team;
+                    if(!combined[key]) combined[key] = { score: 0, group: u.group };
+                    combined[key].score += (u.score || 0);
+                });
+
+                let byGroup = {};
+                Object.keys(combined).forEach(k => {
+                    let g = combined[k].group || "غير محدد";
+                    if(!byGroup[g]) byGroup[g] = [];
+                    byGroup[g].push({ name: k, score: combined[k].score });
+                });
+
+                Object.keys(byGroup).forEach(gName => {
+                    let sorted = byGroup[gName].sort((a,b) => b.score - a.score);
+                    let html = `<div class="glass-panel rounded-xl overflow-hidden mb-4 border border-yellow-600/30">
+                        <div class="bg-black/50 p-3 text-yellow-500 font-black text-center border-b border-yellow-600/30"><i class="fas fa-trophy mr-1"></i> ${gName}</div>
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-black/30 text
