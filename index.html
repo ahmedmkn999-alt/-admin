@@ -145,7 +145,6 @@
         const PASS = "1234";
         let db, groups = [], users = [], tempMsg = "";
 
-        // 1. الدخول
         function startManager() {
             if(document.getElementById('gate-pass').value === PASS) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -154,7 +153,6 @@
             } else { alert("كلمة السر خطأ"); }
         }
 
-        // 2. تشغيل فايربيز
         function initDB() {
             if (!firebase.apps.length) {
                 firebase.initializeApp({ apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" });
@@ -162,13 +160,11 @@
             db = firebase.firestore();
             document.getElementById('conn-status').innerText = "✅ متصل بفايربيز";
             
-            // ملء القوائم
             ['q-day', 'pub-day', 'v-day'].forEach(id => {
                 const el = document.getElementById(id);
                 for(let i=1; i<=30; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
 
-            // بناء الأسئلة
             const qa = document.getElementById('q-area');
             for(let i=1; i<=15; i++) {
                 qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-[10px] font-bold">سؤال ${i}</p><textarea class="qt w-full p-2 text-sm rounded mb-2 h-12"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 p-2 text-xs rounded" placeholder="1"><input class="o2 p-2 text-xs rounded" placeholder="2"><input class="o3 p-2 text-xs rounded" placeholder="3"><input class="o4 p-2 text-xs rounded" placeholder="4"></div><select class="ca w-full p-1 mt-1 text-xs text-green-400"><option value="0">الصح 1</option><option value="1">الصح 2</option><option value="2">الصح 3</option><option value="3">الصح 4</option></select></div>`;
@@ -177,7 +173,6 @@
             listenData();
         }
 
-        // 3. التبويبات
         function showTab(t, btn) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -185,7 +180,6 @@
             btn.classList.add('active');
         }
 
-        // 4. مراقبة البيانات
         function listenData() {
             db.collection("config").doc("groups_data").onSnapshot(s => {
                 const list = document.getElementById('grp-list'), uG = document.getElementById('u-group');
@@ -208,8 +202,8 @@
 
                 arr.forEach((u, i) => {
                     let st = u.isBanned ? "text-red-500 line-through" : "text-white";
-                    uL.innerHTML += `<tr class="border-b border-gray-800"><td class="p-2"><p class="${st} font-bold">${u.name}</p></td><td class="p-2 text-yellow-500 font-mono">${u.password}</td><td class="p-2 flex gap-1"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900 p-1 rounded text-[10px]">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900 p-1 rounded text-[10px]">حظر</button><button onclick="delUsr('${u.id}')" class="bg-red-900 p-1 rounded text-[10px]">حذف</button></td></tr>`;
-                    gB.innerHTML += `<tr onclick="openPf('${u.id}',${i+1})" class="border-b border-gray-800"><td class="p-4">${i+1}</td><td class="p-4 font-bold">${u.name}</td><td class="p-4 text-yellow-500 font-black">${u.score||0}</td></tr>`;
+                    uL.innerHTML += `<tr class="border-b border-gray-800"><td class="p-2"><p class="${st} font-bold">${u.name}</p></td><td class="p-2 text-yellow-500 font-mono text-center font-bold">${u.score||0}</td><td class="p-2 flex gap-1"><button onclick="edSc('${u.id}',${u.score||0})" class="bg-blue-900 p-1 rounded text-[10px]">نقط</button><button onclick="banUsr('${u.id}',${u.isBanned})" class="bg-orange-900 p-1 rounded text-[10px]">حظر</button><button onclick="delUsr('${u.id}')" class="bg-red-900 p-1 rounded text-[10px]">حذف</button></td></tr>`;
+                    gB.innerHTML += `<tr onclick="openPf('${u.id}',${i+1})" class="border-b border-gray-800 cursor-pointer"><td class="p-4">${i+1}</td><td class="p-4 font-bold">${u.name}</td><td class="p-4 text-yellow-500 font-black">${u.score||0}</td></tr>`;
                 });
             });
 
@@ -217,7 +211,6 @@
             db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('msg-d').value = s.data().message; });
         }
 
-        // 5. الوظائف
         window.loadTeams = () => {
             const idx = document.getElementById('u-group').value, uT = document.getElementById('u-team');
             uT.innerHTML = '<option value="">التيم</option>';
@@ -235,12 +228,12 @@
             if(!n || gIdx==="" || !t) return alert('ناقص');
             const p = Math.floor(100000 + Math.random() * 900000).toString();
             db.collection("users").add({ name: n, group: groups[gIdx].group, team: t, password: p, score: 0, isBanned: false }).then(() => {
-                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالمجموعة: ${groups[gIdx].group}\nالرابط: https://adani-quiz.vercel.app/`;
+                tempMsg = `الاسم: ${n}\nالكود: ${p}\nالمجموعة: ${groups[gIdx].group}\nالرابط: https://ramadani-quiz.vercel.app/`;
                 document.getElementById('copy-modal').classList.remove('hidden'); document.getElementById('copy-modal').classList.add('flex');
                 document.getElementById('u-name').value = "";
             });
         };
-        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ'); };
+        document.getElementById('cp-btn').onclick = () => { navigator.clipboard.writeText(tempMsg); alert('تم النسخ بالرابط الجديد'); };
 
         window.edSc = (id, cur) => { let n = prompt("النقاط:", cur); if(n) db.collection("users").doc(id).update({score: parseInt(n)}); };
         window.banUsr = (id, st) => { db.collection("users").doc(id).update({isBanned: !st}); };
@@ -267,7 +260,15 @@
         window.checkV = () => {
             const d = document.getElementById('v-day').value, res = document.getElementById('v-res');
             db.collection("quizzes_pool").doc("day_"+d).get().then(s => {
-                if(s.exists) { res.innerHTML = `<div class="flex justify-between items-center text-green-400"><span>✅ كويز موجود</span> <button onclick="pullQ('${d}')" class="bg-blue-600 px-2 py-1 rounded text-white">سحب وتعديل</button></div>`; }
+                if(s.exists) { 
+                    res.innerHTML = `<div class="flex justify-between items-center text-green-400">
+                        <span>✅ كويز موجود</span> 
+                        <div class="flex gap-2">
+                            <button onclick="pullQ('${d}')" class="bg-blue-600 px-2 py-1 rounded text-white">تعديل</button>
+                            <button onclick="delQ('${d}')" class="bg-red-600 px-2 py-1 rounded text-white">حذف 🗑️</button>
+                        </div>
+                    </div>`; 
+                }
                 else { res.innerHTML = "❌ فارغ"; }
             });
         };
@@ -284,6 +285,15 @@
                 });
                 alert("تم سحب الأسئلة لتبويب الكويز");
             });
+        };
+
+        window.delQ = (d) => {
+            if(confirm("هل تريد حذف كويز اليوم " + d + " نهائياً؟")) {
+                db.collection("quizzes_pool").doc("day_"+d).delete().then(() => {
+                    alert("تم الحذف");
+                    checkV();
+                });
+            }
         };
 
         window.setStatus = (st) => {
