@@ -19,14 +19,16 @@
 </head>
 <body class="pb-20">
 
-    <div id="debug-console">🟢 النظام يعمل... جاهز للدخول.</div>
+    <div id="debug-console">🟢 V12: النظام يعمل... في انتظار أمر الدخول المباشر.</div>
 
     <div id="login-screen" class="fixed inset-0 bg-[#030712] z-[9000] flex items-center justify-center p-4">
         <div class="bg-gray-900 p-8 rounded-3xl border border-yellow-600 text-center shadow-2xl w-full max-w-sm">
             <h2 class="text-2xl font-black text-yellow-500 mb-2">دخول الإدارة</h2>
-            <p class="text-green-400 font-bold text-xs mb-6 bg-green-900/30 py-1 rounded">✅ (الإصدار الشامل V11)</p>
-            <input type="password" id="admin-pass" placeholder="كلمة السر هنا..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
-            <button id="login-btn" class="w-full bg-yellow-600 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:bg-yellow-500">دخول اللوحة 🚀</button>
+            <p class="text-blue-400 font-bold text-xs mb-6 bg-blue-900/30 py-1 rounded">✅ (الإصدار النهائي V12)</p>
+            
+            <input type="password" id="admin-pass" onkeypress="if(event.key === 'Enter') window.startLogin()" placeholder="كلمة السر هنا..." class="w-full p-4 bg-gray-800 rounded-xl mb-4 text-center text-white font-bold border border-gray-700 outline-none text-xl tracking-widest">
+            
+            <button onclick="window.startLogin()" class="w-full bg-yellow-600 text-black font-black py-4 rounded-xl text-xl shadow-lg hover:bg-yellow-500">دخول اللوحة 🚀</button>
         </div>
     </div>
 
@@ -41,7 +43,7 @@
                     <div class="bg-gray-800 p-4 rounded-2xl"><p class="text-gray-500 text-xs mb-1">النقاط</p><p id="prof-score" class="text-2xl font-black text-yellow-500">0</p></div>
                     <div class="bg-gray-800 p-4 rounded-2xl"><p class="text-gray-500 text-xs mb-1">الكود</p><p id="prof-pass" class="text-lg font-mono font-bold text-white">---</p></div>
                 </div>
-                <button id="close-prof-btn" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl">إغلاق</button>
+                <button onclick="window.closeProfile()" class="w-full bg-gray-700 text-white font-bold py-3 rounded-xl">إغلاق</button>
             </div>
         </div>
     </div>
@@ -51,12 +53,12 @@
         <div id="sys-status" class="text-yellow-500 font-bold text-sm text-center mb-4 bg-gray-900 py-2 rounded-xl border border-gray-700">⏳ جاري الاتصال بفايربيز...</div>
 
         <header class="flex justify-center gap-1.5 mb-6 border-b border-gray-800 pb-4 flex-wrap">
-            <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-global">الترتيب 🌍</button>
-            <button class="nav-btn active text-[11px] px-3 py-2" data-target="tab-room">المجموعات 🏰</button>
-            <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-users">المتسابقين 👥</button>
-            <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-quizzes">الكويز 📝</button>
-            <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-vault">الخزنة 🚀</button>
-            <button class="nav-btn text-[11px] px-3 py-2" data-target="tab-settings">الإعدادات ⚙️</button>
+            <button class="nav-btn text-[11px] px-3 py-2" onclick="window.switchTab('global', this)">الترتيب 🌍</button>
+            <button class="nav-btn active text-[11px] px-3 py-2" onclick="window.switchTab('room', this)">المجموعات 🏰</button>
+            <button class="nav-btn text-[11px] px-3 py-2" onclick="window.switchTab('users', this)">المتسابقين 👥</button>
+            <button class="nav-btn text-[11px] px-3 py-2" onclick="window.switchTab('quizzes', this)">الكويز 📝</button>
+            <button class="nav-btn text-[11px] px-3 py-2" onclick="window.switchTab('vault', this)">الخزنة 🚀</button>
+            <button class="nav-btn text-[11px] px-3 py-2" onclick="window.switchTab('settings', this)">الإعدادات ⚙️</button>
         </header>
 
         <div id="tab-global" class="tab-content">
@@ -71,7 +73,7 @@
                     <input type="text" id="grp-name" placeholder="اسم المجموعة" class="bg-gray-800 p-3 rounded-xl text-white">
                     <input type="text" id="team1-name" placeholder="اسم تيم 1" class="bg-gray-800 p-3 rounded-xl text-white">
                     <input type="text" id="team2-name" placeholder="اسم تيم 2" class="bg-gray-800 p-3 rounded-xl text-white">
-                    <button id="create-grp-btn" class="bg-blue-600 font-bold rounded-xl text-white py-3">إنشاء المجموعة</button>
+                    <button onclick="window.createGroup()" class="bg-blue-600 font-bold rounded-xl text-white py-3">إنشاء المجموعة</button>
                 </div>
             </div>
             <div id="groups-viewer" class="grid grid-cols-1 gap-4"></div>
@@ -81,14 +83,14 @@
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 mb-6">
                 <div class="grid grid-cols-1 gap-3">
                     <input type="text" id="add-name" placeholder="الاسم" class="bg-gray-800 p-3 rounded-xl text-white outline-none">
-                    <select id="sel-group" class="bg-gray-800 p-3 rounded-xl text-white outline-none"><option value="">اختر المجموعة</option></select>
+                    <select id="sel-group" onchange="window.updateTeams()" class="bg-gray-800 p-3 rounded-xl text-white outline-none"><option value="">اختر المجموعة</option></select>
                     <select id="sel-team" class="bg-gray-800 p-3 rounded-xl text-white outline-none"><option value="">اختر التيم</option></select>
-                    <button id="add-user-btn" class="bg-yellow-600 text-black font-bold rounded-xl py-3">إضافة متسابق (وباسورد تلقائي)</button>
+                    <button onclick="window.addUser()" class="bg-yellow-600 text-black font-bold rounded-xl py-3">إضافة متسابق (وباسورد تلقائي)</button>
                 </div>
             </div>
             <div class="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3 text-yellow-500">الكود</th><th class="p-3 text-center">النقاط</th><th class="p-3 text-center">تحكم كامل</th></tr></thead>
+                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-3">الاسم</th><th class="p-3 text-yellow-500">الكود</th><th class="p-3 text-center">النقاط</th><th class="p-3 text-center">تحكم</th></tr></thead>
                     <tbody id="users-body"></tbody>
                 </table>
             </div>
@@ -98,7 +100,7 @@
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
                 <select id="build-day" class="bg-gray-800 p-3 rounded-xl text-white font-bold mb-4 w-full outline-none"></select>
                 <div id="q-area"></div>
-                <button id="save-quiz-btn" class="w-full bg-gray-700 text-white border border-gray-600 font-black py-4 mt-4 rounded-xl">💾 حفظ / تعديل في الخزنة</button>
+                <button onclick="window.saveQuiz()" class="w-full bg-gray-700 text-white border border-gray-600 font-black py-4 mt-4 rounded-xl">💾 حفظ / تعديل في الخزنة</button>
             </div>
         </div>
 
@@ -107,32 +109,32 @@
                 <h3 class="text-yellow-500 font-bold mb-4">نشر الماتشات على الموقع</h3>
                 <div class="flex gap-2 mb-4"><select id="control-day" class="bg-gray-800 p-3 rounded-xl w-full text-white font-bold outline-none"></select></div>
                 <div class="flex gap-2">
-                    <button onclick="setGlobalStatus('soon')" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold">قريباً ⏳</button>
-                    <button onclick="setGlobalStatus('active')" class="flex-1 bg-green-600 py-3 rounded-xl font-bold text-black">تفعيل ▶️</button>
-                    <button onclick="setGlobalStatus('closed')" class="flex-1 bg-red-600 py-3 rounded-xl font-bold text-white">إغلاق 🔒</button>
+                    <button onclick="window.setGlobalStatus('soon')" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold">قريباً ⏳</button>
+                    <button onclick="window.setGlobalStatus('active')" class="flex-1 bg-green-600 py-3 rounded-xl font-bold text-black">تفعيل ▶️</button>
+                    <button onclick="window.setGlobalStatus('closed')" class="flex-1 bg-red-600 py-3 rounded-xl font-bold text-white">إغلاق 🔒</button>
                 </div>
             </div>
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
                 <h3 class="text-gray-400 font-bold mb-4">فحص الخزنة والتعديل</h3>
-                <div class="flex gap-2 mb-4"><select id="vault-day" class="bg-gray-800 p-3 rounded-xl flex-grow text-white outline-none"></select><button id="btn-check-vault" class="bg-gray-700 px-6 rounded-xl font-bold border border-gray-600">فحص</button></div>
+                <div class="flex gap-2 mb-4"><select id="vault-day" class="bg-gray-800 p-3 rounded-xl flex-grow text-white outline-none"></select><button onclick="window.checkVault()" class="bg-gray-700 px-6 rounded-xl font-bold border border-gray-600">فحص</button></div>
                 <div id="vault-res" class="p-4 bg-gray-800 rounded-xl text-sm text-gray-400">اختر يوماً للفحص...</div>
             </div>
         </div>
 
         <div id="tab-settings" class="tab-content space-y-4">
             <div class="bg-gray-900 p-6 rounded-2xl border border-yellow-500">
-                <h2 class="text-yellow-500 font-black mb-2">رسالة البطل الطائرة (Popup 3 ثواني)</h2>
+                <h2 class="text-yellow-500 font-black mb-2">رسالة البطل الطائرة (Popup)</h2>
                 <input type="text" id="champ-msg" placeholder="مثال: مبروك للصقور..." class="w-full p-4 bg-gray-800 rounded-xl text-white mb-4 outline-none">
                 <div class="flex gap-2">
-                    <button id="save-champ-btn" class="flex-grow bg-yellow-600 text-black font-bold py-3 rounded-xl">نشر الرسالة</button>
-                    <button id="clear-champ-btn" class="bg-red-900/50 text-red-400 border border-red-800 font-bold px-4 py-3 rounded-xl">تفريغ</button>
+                    <button onclick="window.saveChamp()" class="flex-grow bg-yellow-600 text-black font-bold py-3 rounded-xl">نشر الرسالة</button>
+                    <button onclick="window.clearChamp()" class="bg-red-900/50 text-red-400 border border-red-800 font-bold px-4 py-3 rounded-xl">تفريغ</button>
                 </div>
             </div>
             
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                <h2 class="text-blue-400 font-bold mb-2">الشريط الإخباري (ثابت أعلى الموقع)</h2>
+                <h2 class="text-blue-400 font-bold mb-2">الشريط الإخباري الثابت</h2>
                 <textarea id="daily-msg" placeholder="اكتب التنبيه هنا..." class="w-full p-4 bg-gray-800 rounded-xl text-white mb-4 outline-none h-24"></textarea>
-                <button id="save-daily-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">حفظ الشريط</button>
+                <button onclick="window.saveDaily()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">حفظ الشريط</button>
             </div>
         </div>
     </div>
@@ -141,6 +143,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
+        // --- الرادار المباشر ---
         function logDebug(msg, isError = false) {
             const consoleDiv = document.getElementById('debug-console');
             const time = new Date().toLocaleTimeString();
@@ -151,40 +154,14 @@
         window.onerror = function(message, source, lineno) { logDebug(`عطل: ${message} (سطر ${lineno})`, true); };
 
         const ADMIN_PASS = "1234";
-        let db = null;
-        let allGroupsData = [];
-        let allUsersData = [];
+        window.db = null;
+        window.allGroupsData = [];
+        window.allUsersData = [];
 
-        // --- 1. تشغيل الدخول ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginBtn = document.getElementById('login-btn');
-            const passInput = document.getElementById('admin-pass');
-
-            loginBtn.addEventListener('click', function() {
-                logDebug("جاري الدخول...");
-                if (passInput.value === ADMIN_PASS) {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('dashboard-screen').style.display = 'block';
-                    initFirebase(); 
-                } else {
-                    alert("كلمة السر خاطئة!");
-                    passInput.value = '';
-                }
-            });
-
-            passInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') loginBtn.click(); });
-
-            // تبويبات
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    document.getElementById(this.dataset.target).classList.add('active');
-                    this.classList.add('active');
-                });
-            });
-
-            // بناء الكويز
+        // بناء الهيكل الأساسي بمجرد فتح الصفحة
+        window.onload = function() {
+            logDebug("تم تحميل الصفحة (بدون أي قيود).");
+            
             let qa = document.getElementById('q-area');
             for(let i=1; i<=15; i++) {
                 qa.innerHTML += `<div class="q-block"><p class="text-yellow-500 text-xs mb-2 font-bold">سؤال ${i}</p><textarea class="q-txt w-full bg-gray-800 p-3 rounded-xl mb-2 text-white outline-none focus:border-yellow-500 border border-gray-700"></textarea><div class="grid grid-cols-2 gap-2"><input class="o1 bg-gray-800 p-2 text-sm rounded text-white outline-none border border-gray-700" placeholder="خيار 1"><input class="o2 bg-gray-800 p-2 text-sm rounded text-white outline-none border border-gray-700" placeholder="خيار 2"><input class="o3 bg-gray-800 p-2 text-sm rounded text-white outline-none border border-gray-700" placeholder="خيار 3"><input class="o4 bg-gray-800 p-2 text-sm rounded text-white outline-none border border-gray-700" placeholder="خيار 4"></div><select class="cor w-full bg-gray-800 p-2 mt-2 text-green-400 font-bold rounded outline-none border border-gray-700"><option value="0">الإجابة: خيار 1</option><option value="1">الإجابة: خيار 2</option><option value="2">الإجابة: خيار 3</option><option value="3">الإجابة: خيار 4</option></select></div>`;
@@ -194,11 +171,34 @@
                 let el = document.getElementById(id); 
                 for(let i=1; i<=29; i++) el.innerHTML += `<option value="${i}">اليوم ${i}</option>`;
             });
-        });
+        };
 
-        // --- 2. تشغيل فايربيز السليم ---
-        function initFirebase() {
-            logDebug("الاتصال بفايربيز...");
+        // --- 1. الدخول المباشر ---
+        window.startLogin = function() {
+            logDebug("تم ضغط زر الدخول...");
+            let passInput = document.getElementById('admin-pass');
+            if (passInput.value === ADMIN_PASS) {
+                logDebug("الباسورد صحيح! بفتح اللوحة...");
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                window.initFirebase(); 
+            } else {
+                alert("كلمة السر خاطئة!");
+                passInput.value = '';
+            }
+        };
+
+        // التنقل المباشر
+        window.switchTab = function(target, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + target).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        // --- 2. تشغيل فايربيز ---
+        window.initFirebase = function() {
+            logDebug("جاري استدعاء فايربيز...");
             try {
                 if (!firebase.apps.length) {
                     firebase.initializeApp({
@@ -207,74 +207,73 @@
                         appId: "1:343525703258:web:6776b4857425df8bcca263"
                     });
                 }
-                db = firebase.firestore();
+                window.db = firebase.firestore();
                 document.getElementById('sys-status').innerHTML = "✅ متصل بقاعدة البيانات وجاهز";
                 document.getElementById('sys-status').className = "text-green-400 font-bold text-sm text-center mb-4 bg-green-900/30 py-2 rounded-xl border border-green-800";
-                fetchData();
+                window.fetchData();
             } catch (error) {
-                logDebug("انهيار فايربيز: " + error.message, true);
+                logDebug("عطل فايربيز: " + error.message, true);
             }
-        }
+        };
 
-        // --- 3. جلب البيانات (مع التعديل والحظر) ---
-        function fetchData() {
+        // --- 3. جلب البيانات ---
+        window.fetchData = function() {
+            logDebug("جاري جلب الداتا...");
+            
             // المجموعات
-            db.collection("config").doc("groups_data").onSnapshot(s => {
+            window.db.collection("config").doc("groups_data").onSnapshot(s => {
                 let v = document.getElementById('groups-viewer'), sel = document.getElementById('sel-group');
                 v.innerHTML = ""; sel.innerHTML = '<option value="">المجموعة...</option>';
                 if(s.exists && s.data().list) {
-                    allGroupsData = s.data().list;
-                    allGroupsData.forEach((g, i) => {
+                    window.allGroupsData = s.data().list;
+                    window.allGroupsData.forEach((g, i) => {
                         sel.innerHTML += `<option value="${i}">${g.group}</option>`;
-                        v.innerHTML += `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><h3 class="text-yellow-500 font-bold">${g.group}</h3></div>`;
+                        v.innerHTML += `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><h3 class="text-yellow-500 font-bold">${g.group}</h3><p class="text-sm">🛡️ ${g.teams[0]} | 🛡️ ${g.teams[1]}</p></div>`;
                     });
                 }
             });
 
             // اللعيبة
-            db.collection("users").onSnapshot(s => {
+            window.db.collection("users").onSnapshot(s => {
                 let bAdmin = document.getElementById('users-body'), bGlobal = document.getElementById('global-body'); 
                 bAdmin.innerHTML = ""; bGlobal.innerHTML = "";
                 let arr = []; s.forEach(d => { let u=d.data(); u.id=d.id; arr.push(u); });
                 arr.sort((a,b) => (b.score||0) - (a.score||0));
-                allUsersData = arr;
+                window.allUsersData = arr;
 
                 arr.forEach((u, i) => {
-                    // جدول الإدارة (النقط، حظر، حذف)
                     let col = u.isBanned ? "text-red-500 line-through" : "text-white";
                     bAdmin.innerHTML += `
-                        <tr class="border-b border-gray-800 hover:bg-gray-800/50">
-                            <td class="p-3 ${col} font-bold">${u.name}</td>
-                            <td class="p-3 text-yellow-500 font-mono tracking-widest">${u.password}</td>
-                            <td class="p-3 text-yellow-400 font-bold text-center">${u.score||0}</td>
-                            <td class="p-3 flex gap-1 justify-center">
-                                <button onclick="editUserScore('${u.id}', ${u.score||0})" class="bg-blue-900/50 text-blue-400 px-3 py-1.5 rounded-lg text-xs border border-blue-800"><i class="fas fa-edit"></i> نقط</button>
-                                <button onclick="toggleBan('${u.id}', ${u.isBanned})" class="bg-orange-900/50 ${u.isBanned?'text-green-400':'text-orange-400'} px-3 py-1.5 rounded-lg text-xs border border-orange-800"><i class="fas fa-ban"></i> ${u.isBanned?'فك':'حظر'}</button>
-                                <button onclick="deleteUser('${u.id}')" class="bg-red-900/50 text-red-500 px-3 py-1.5 rounded-lg text-xs border border-red-800"><i class="fas fa-trash"></i></button>
+                        <tr class="border-b border-gray-800">
+                            <td class="p-2 ${col} font-bold text-xs">${u.name}</td>
+                            <td class="p-2 text-yellow-500 font-mono text-xs">${u.password}</td>
+                            <td class="p-2 text-yellow-400 font-bold text-center">${u.score||0}</td>
+                            <td class="p-2 flex flex-wrap gap-1 justify-center">
+                                <button onclick="window.editScore('${u.id}', ${u.score||0})" class="bg-blue-900 text-blue-400 px-2 py-1 rounded text-[10px]">نقط</button>
+                                <button onclick="window.toggleBan('${u.id}', ${u.isBanned})" class="bg-orange-900 ${u.isBanned?'text-green-400':'text-orange-400'} px-2 py-1 rounded text-[10px]">${u.isBanned?'فك':'حظر'}</button>
+                                <button onclick="window.deleteUser('${u.id}')" class="bg-red-900 text-red-500 px-2 py-1 rounded text-[10px]">حذف</button>
                             </td>
                         </tr>`;
                     
-                    // الترتيب العام
-                    let rDisp = i===0 ? '👑 1' : i+1;
-                    bGlobal.innerHTML += `<tr onclick="showProf('${u.id}', ${i+1})" class="border-b border-gray-800 cursor-pointer hover:bg-gray-800"><td class="p-4 text-yellow-400 font-bold">${rDisp}</td><td class="p-4 text-white font-bold">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-yellow-500 font-bold text-center">${u.score||0}</td></tr>`;
+                    let rDisp = i===0 ? '👑' : i+1;
+                    bGlobal.innerHTML += `<tr onclick="window.showProf('${u.id}', ${i+1})" class="border-b border-gray-800 cursor-pointer hover:bg-gray-800"><td class="p-4 text-yellow-400 font-bold">${rDisp}</td><td class="p-4 text-white font-bold">${u.name}</td><td class="p-4 text-xs">${u.group}</td><td class="p-4 text-yellow-500 font-bold text-center">${u.score||0}</td></tr>`;
                 });
             });
 
             // الرسائل
-            db.collection("settings").doc("champData").get().then(s => { if(s.exists) document.getElementById('champ-msg').value = s.data().message || ""; });
-            db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('daily-msg').value = s.data().message || ""; });
-        }
+            window.db.collection("settings").doc("champData").get().then(s => { if(s.exists) document.getElementById('champ-msg').value = s.data().message || ""; });
+            window.db.collection("settings").doc("dailyData").get().then(s => { if(s.exists) document.getElementById('daily-msg').value = s.data().message || ""; });
+        };
 
-        // --- المجموعات والإضافة ---
-        document.getElementById('sel-group').addEventListener('change', function() {
-            let idx = this.value, sel = document.getElementById('sel-team');
-            sel.innerHTML = '<option value="">التيم...</option>';
-            if(idx !== "") { sel.innerHTML += `<option value="${allGroupsData[idx].teams[0]}">${allGroupsData[idx].teams[0]}</option><option value="${allGroupsData[idx].teams[1]}">${allGroupsData[idx].teams[1]}</option>`; }
-        });
+        // --- الأوامر المباشرة ---
+        window.updateTeams = function() {
+            let idx = document.getElementById('sel-group').value, sel = document.getElementById('sel-team');
+            sel.innerHTML = '<option value="">اختر التيم...</option>';
+            if(idx !== "") { sel.innerHTML += `<option value="${window.allGroupsData[idx].teams[0]}">${window.allGroupsData[idx].teams[0]}</option><option value="${window.allGroupsData[idx].teams[1]}">${window.allGroupsData[idx].teams[1]}</option>`; }
+        };
 
-        document.getElementById('create-grp-btn').addEventListener('click', () => {
+        window.createGroup = function() {
             let g = document.getElementById('grp-name').value, t1 = document.getElementById('team1-name').value, t2 = document.getElementById('team2-name').value;
             if(g && t1 && t2) {
-                db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] }) }, { merge: true });
-                document.getElementById('grp-name').value = ""; document.getElementById('team1-name').value = ""; document.getElementById('team2-name').value = "";
-       
+                window.db.collection("config").doc("groups_data").set({ list: firebase.firestore.FieldValue.arrayUnion({ group: g, teams: [t1, t2] }) }, { merge: true });
+                document.getElementById('grp-name').value = ""; document.getElementById('team1-name').value = ""; docum
