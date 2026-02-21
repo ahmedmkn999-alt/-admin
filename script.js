@@ -9,11 +9,9 @@ const firebaseConfig = {
     appId: "1:343525703258:web:6776b4857425df8bcca263" 
 };
 
-// --- تشغيل الواجهة فوراً (لا تنتظر الفايربيز) ---
 setupDays();
 setupQuestions();
 
-// --- التنقل بين القوائم ---
 function showTab(t, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -52,9 +50,7 @@ function setupQuestions() {
     if(document.getElementById('q-area')) document.getElementById('q-area').innerHTML = html;
 }
 
-// --- الاتصال بقاعدة البيانات ---
 window.addEventListener('DOMContentLoaded', () => {
-    // إعطاء وقت صغير للفايربيز يحمل
     setTimeout(() => {
         try {
             if (typeof firebase === 'undefined') {
@@ -98,7 +94,6 @@ function startListening() {
     }, err => console.error(err));
 }
 
-// --- إدارة المجموعات ---
 function saveGrp() {
     const name = document.getElementById('g-name').value.trim();
     const type = document.getElementById('g-type').value;
@@ -131,11 +126,7 @@ function renderGroups() {
     
     globalGroups.forEach((g, i) => {
         select.innerHTML += `<option value="${i}">${g.group || "مجموعة مجهولة"}</option>`;
-        
-        let teamStr = "";
-        if (g.type === 'single') teamStr = "فردي";
-        else if (g.teams && Array.isArray(g.teams)) teamStr = g.teams.join(' vs ');
-        else teamStr = "مباراة";
+        let teamStr = g.type === 'single' ? "فردي" : (g.teams ? g.teams.join(' vs ') : "مباراة");
 
         list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2">
             <div>
@@ -165,7 +156,6 @@ function delGrp(i) {
     }
 }
 
-// --- إدارة اللاعبين والبروفايل ---
 function addUsr() {
     let n = document.getElementById('u-name').value.trim();
     let gIdx = document.getElementById('u-group').value;
@@ -176,7 +166,7 @@ function addUsr() {
     let pass = Math.floor(100000 + Math.random() * 900000).toString();
     
     db.collection("users").add({
-        name: n, password: pass, group: groupName, team: t || "", score: 0, isBanned: false
+        name: n, password: pass, group: groupName, team: t || "", score: 0, isBanned: false, cheatCount: 0
     }).then(() => {
         document.getElementById('u-name').value = "";
         document.getElementById('copy-modal').style.display = 'flex';
@@ -194,12 +184,15 @@ function renderUsers() {
     
     let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
     safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
+        // فحص عدد مرات الغش
+        let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span class="bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse" title="سبب الغش الأخير: ${u.lastCheatReason || 'غير محدد'}"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
+
         uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50 transition">
-            <td class="p-4">
-                <b class="${u.isBanned?'text-red-500 line-through':''}">${u.name || "مجهول"}</b>
+            <td class="p-4 leading-relaxed">
+                <b class="${u.isBanned?'text-red-500 line-through':''}">${u.name || "مجهول"}</b> ${cheatBadge}
                 <br><small class="text-yellow-500">${u.password || ""} | ${u.team || ""}</small>
             </td>
-            <td class="text-center font-bold text-yellow-500">${u.score}</td>
+            <td class="text-center font-bold text-yellow-500 text-lg">${u.score}</td>
             <td class="p-4 flex flex-wrap gap-1 justify-center">
                 <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
                 <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
@@ -224,7 +217,6 @@ function openProfile(userId) {
     db.collection("users").doc(userId).collection("game_logs").get().then(snap => {
         let logs = [];
         snap.forEach(doc => logs.push(doc.data()));
-        
         logs.sort((a,b) => (b.day || 0) - (a.day || 0));
 
         if(logs.length === 0) {
@@ -260,17 +252,14 @@ function calculateGlobalRanking() {
     try {
         let container = document.getElementById('global-tables-container');
         if(!container) return;
-        
         container.innerHTML = "";
         let groups = {};
         
         globalUsers.forEach(u => {
             let g = u.group || "بدون مجموعة";
             if(!groups[g]) groups[g] = {};
-            
             let key = u.team || "مجهول";
             if (u.team === "فردي" || !u.team) key = u.name || "مجهول";
-            
             groups[g][key] = (groups[g][key] || 0) + (u.score || 0);
         });
 
@@ -289,12 +278,9 @@ function calculateGlobalRanking() {
             html += `</tbody></table></div>`;
             container.innerHTML += html;
         }
-    } catch (err) {
-        console.error("خطأ في الترتيب:", err);
-    }
+    } catch (err) { console.error("خطأ في الترتيب:", err); }
 }
 
-// --- الكويز وإدارة التحديات ---
 function loadQ() {
     let d = document.getElementById('q-day').value;
     let v = document.getElementById('q-var').value;
@@ -367,3 +353,4 @@ function edSc(id, old) {
 function banUsr(id, s) { db.collection("users").doc(id).update({ isBanned: !s }); }
 function delUsr(id) { if(confirm("هل أنت متأكد من حذف المتسابق نهائياً؟")) db.collection("users").doc(id).delete(); }
 function logOut() { localStorage.removeItem('admin_access'); window.location.reload(); }
+            
