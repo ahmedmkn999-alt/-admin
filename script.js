@@ -184,7 +184,6 @@ function renderUsers() {
     
     let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
     safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
-        // فحص عدد مرات الغش
         let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span class="bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse" title="سبب الغش الأخير: ${u.lastCheatReason || 'غير محدد'}"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
 
         uL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50 transition">
@@ -203,6 +202,9 @@ function renderUsers() {
     });
 }
 
+// متغير عالمي لحفظ سجل اللاعب الحالي عشان نعرف نفلتره
+let currentUserLogs = [];
+
 function openProfile(userId) {
     let user = globalUsers.find(u => u.id === userId);
     if(!user) return;
@@ -210,42 +212,75 @@ function openProfile(userId) {
     document.getElementById('prof-name').innerText = user.name || "مجهول";
     document.getElementById('prof-team').innerText = `${user.group || ""} | ${user.team || ""}`;
     document.getElementById('prof-score').innerText = user.score || 0;
-    document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
     
+    // تجهيز الفلتر والسجل في الواجهة
+    let filterHtml = `
+        <div class="mb-3">
+            <select id="log-day-filter" onchange="renderFilteredLogs()" class="w-full p-2 rounded-xl bg-gray-900 border border-purple-500 text-purple-300 text-sm outline-none">
+                <option value="all">عرض كل الأيام</option>
+                ${Array.from({length: 30}, (_, i) => `<option value="${i+1}">اليوم ${i+1}</option>`).join('')}
+            </select>
+        </div>
+        <div id="logs-container" class="space-y-2"></div>
+    `;
+    
+    document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
     document.getElementById('user-profile-modal').style.display = 'flex';
 
     db.collection("users").doc(userId).collection("game_logs").get().then(snap => {
-        let logs = [];
-        snap.forEach(doc => logs.push(doc.data()));
-        logs.sort((a,b) => (b.day || 0) - (a.day || 0));
+        currentUserLogs = []; // تفريغ السجل القديم
+        snap.forEach(doc => currentUserLogs.push(doc.data()));
+        currentUserLogs.sort((a,b) => (b.day || 0) - (a.day || 0));
 
-        if(logs.length === 0) {
+        if(currentUserLogs.length === 0) {
             document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
             return;
         }
 
-        let html = "";
-        logs.forEach(log => {
-            let dateStr = 'غير معروف';
-            if (log.timestamp && typeof log.timestamp.toDate === 'function') {
-                dateStr = log.timestamp.toDate().toLocaleString('ar-EG', { hour12: true, month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
-            }
-
-            html += `<div class="bg-gray-800/80 p-3 rounded-xl flex justify-between items-center border border-gray-700 hover:border-purple-500/50 transition">
-                <div>
-                    <p class="text-white font-bold text-sm">الجولة ${log.day || "?"}</p>
-                    <p class="text-[10px] text-gray-400"><i class="fas fa-clock mr-1"></i> ${dateStr}</p>
-                </div>
-                <div class="text-center">
-                    <span class="text-xl font-black text-green-400">${log.score || 0}</span>
-                    <span class="text-[10px] text-gray-400 block -mt-1">نقطة</span>
-                </div>
-            </div>`;
-        });
-        document.getElementById('prof-logs').innerHTML = html;
+        document.getElementById('prof-logs').innerHTML = filterHtml;
+        renderFilteredLogs(); // عرض السجل كله كبداية
+        
     }).catch(err => {
         document.getElementById('prof-logs').innerHTML = '<p class="text-center text-red-500 text-sm py-4">حدث خطأ في جلب السجل</p>';
     });
+}
+
+// دالة جديدة لفلترة وعرض السجل بناءً على اليوم المختار
+function renderFilteredLogs() {
+    let filterVal = document.getElementById('log-day-filter').value;
+    let container = document.getElementById('logs-container');
+    container.innerHTML = "";
+
+    let filteredLogs = currentUserLogs;
+    if(filterVal !== "all") {
+        filteredLogs = currentUserLogs.filter(log => log.day === parseInt(filterVal));
+    }
+
+    if(filteredLogs.length === 0) {
+        container.innerHTML = `<p class="text-center text-gray-500 text-sm py-4">لم يلعب في هذا اليوم.</p>`;
+        return;
+    }
+
+    let html = "";
+    filteredLogs.forEach(log => {
+        let dateStr = 'غير معروف';
+        if (log.timestamp && typeof log.timestamp.toDate === 'function') {
+            dateStr = log.timestamp.toDate().toLocaleString('ar-EG', { hour12: true, month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+        }
+
+        html += `<div class="bg-gray-800/80 p-3 rounded-xl flex justify-between items-center border border-gray-700 hover:border-purple-500/50 transition">
+            <div>
+                <p class="text-white font-bold text-sm">الجولة ${log.day || "?"}</p>
+                <p class="text-[10px] text-gray-400"><i class="fas fa-clock mr-1"></i> ${dateStr}</p>
+            </div>
+            <div class="text-center">
+                <span class="text-xl font-black text-green-400">${log.score || 0}</span>
+                <span class="text-[10px] text-gray-400 block -mt-1">نقطة</span>
+            </div>
+        </div>`;
+    });
+    
+    container.innerHTML = html;
 }
 
 function calculateGlobalRanking() {
@@ -353,4 +388,3 @@ function edSc(id, old) {
 function banUsr(id, s) { db.collection("users").doc(id).update({ isBanned: !s }); }
 function delUsr(id) { if(confirm("هل أنت متأكد من حذف المتسابق نهائياً؟")) db.collection("users").doc(id).delete(); }
 function logOut() { localStorage.removeItem('admin_access'); window.location.reload(); }
-            
