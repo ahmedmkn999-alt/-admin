@@ -9,77 +9,26 @@ const firebaseConfig = {
     appId: "1:343525703258:web:6776b4857425df8bcca263" 
 };
 
-// --- 🛡️ نظام الانطلاق الذكي (عشان مستحيل يعلق تاني) ---
-function bootSystem() {
-    setupDays();
-    setupQuestions();
-    
-    let status = document.getElementById('conn-status');
-    
-    // تأخير بسيط جداً لضمان إن الفايربيز اتربط
-    setTimeout(() => {
-        try {
-            if (typeof firebase === 'undefined') {
-                if(status) {
-                    status.innerText = "🔴 خطأ: ملفات فايربيز غير موجودة في الـ HTML!";
-                    status.classList.replace('text-yellow-500', 'text-red-500');
-                }
-                alert("ملفات الفايربيز ناقصة في ملف HTML الخاص بلوحة التحكم!");
-                return;
-            }
-            
-            if (!firebase.apps.length) { 
-                firebase.initializeApp(firebaseConfig); 
-            }
-            db = firebase.firestore();
-            
-            if(status) {
-                status.innerText = "متصل بنجاح 🟢";
-                status.classList.replace('text-yellow-500', 'text-green-500');
-            }
-            
-            startListening();
-        } catch (error) {
-            console.error("خطأ:", error);
-            if(status) {
-                status.innerText = "خطأ في الاتصال 🔴";
-                status.classList.replace('text-yellow-500', 'text-red-500');
-            }
-        }
-    }, 1000);
-}
-
-// التأكد من تحميل الصفحة بأكثر من طريقة
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootSystem);
-} else {
-    bootSystem(); // لو الصفحة كانت محملة أصلاً، اشتغل فوراً
-}
-// --------------------------------------------------------
+setupDays();
+setupQuestions();
 
 function showTab(t, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    let tab = document.getElementById('tab-'+t);
-    if(tab) tab.style.display = 'block';
+    document.getElementById('tab-'+t).style.display = 'block';
     if(btn) btn.classList.add('active');
 }
 
 function toggleGroupInputs() {
-    let typeEl = document.getElementById('g-type');
-    let areaEl = document.getElementById('teams-input-area');
-    if(typeEl && areaEl) {
-        areaEl.style.display = (typeEl.value === 'teams') ? 'grid' : 'none';
-    }
+    const type = document.getElementById('g-type').value;
+    document.getElementById('teams-input-area').style.display = (type === 'teams') ? 'grid' : 'none';
 }
 
 function setupDays() {
     let html = "";
     for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
-    let qDay = document.getElementById('q-day');
-    let pubDay = document.getElementById('pub-day');
-    if(qDay) qDay.innerHTML = html;
-    if(pubDay) pubDay.innerHTML = html;
+    if(document.getElementById('q-day')) document.getElementById('q-day').innerHTML = html;
+    if(document.getElementById('pub-day')) document.getElementById('pub-day').innerHTML = html;
 }
 
 function setupQuestions() {
@@ -98,18 +47,43 @@ function setupQuestions() {
             </select>
         </div>`;
     }
-    let qArea = document.getElementById('q-area');
-    if(qArea) qArea.innerHTML = html;
+    if(document.getElementById('q-area')) document.getElementById('q-area').innerHTML = html;
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        try {
+            if (typeof firebase === 'undefined') {
+                let status = document.getElementById('conn-status');
+                status.innerText = "خطأ في الاتصال بالانترنت 🔴";
+                status.classList.replace('text-yellow-500', 'text-red-500');
+                return;
+            }
+            if (!firebase.apps.length) { 
+                firebase.initializeApp(firebaseConfig); 
+            }
+            db = firebase.firestore();
+            let status = document.getElementById('conn-status');
+            status.innerText = "متصل بنجاح 🟢";
+            status.classList.replace('text-yellow-500', 'text-green-500');
+            
+            startListening();
+        } catch (error) {
+            console.error("خطأ:", error);
+            document.getElementById('conn-status').innerText = "خطأ في الاتصال 🔴";
+        }
+    }, 500);
+});
 
 function startListening() {
     db.collection("config").doc("groups_data").onSnapshot(s => {
         if(s.exists) { 
             globalGroups = s.data().list || []; 
+            renderGroups(); 
         } else {
             globalGroups = [];
+            renderGroups();
         }
-        renderGroups(); 
     }, err => console.error(err));
 
     db.collection("users").onSnapshot(s => {
@@ -121,12 +95,8 @@ function startListening() {
 }
 
 function saveGrp() {
-    let nameEl = document.getElementById('g-name');
-    let typeEl = document.getElementById('g-type');
-    if(!nameEl || !typeEl) return;
-    
-    const name = nameEl.value.trim();
-    const type = typeEl.value;
+    const name = document.getElementById('g-name').value.trim();
+    const type = document.getElementById('g-type').value;
     if(!name) return alert("اكتب اسم المجموعة");
     
     let newG = { group: name, type: type, teams: [] };
@@ -139,11 +109,9 @@ function saveGrp() {
 
     globalGroups.push(newG);
     db.collection("config").doc("groups_data").set({ list: globalGroups }).then(() => {
-        nameEl.value = "";
-        let t1El = document.getElementById('t1');
-        let t2El = document.getElementById('t2');
-        if(t1El) t1El.value = "";
-        if(t2El) t2El.value = "";
+        document.getElementById('g-name').value = "";
+        document.getElementById('t1').value = "";
+        document.getElementById('t2').value = "";
         alert("تم الحفظ بنجاح");
     }).catch(err => alert("حدث خطأ أثناء الحفظ"));
 }
@@ -173,8 +141,6 @@ function renderGroups() {
 function loadTeams() {
     let idx = document.getElementById('u-group').value;
     let teamSelect = document.getElementById('u-team');
-    if(!teamSelect) return;
-    
     teamSelect.innerHTML = "";
     if(idx !== "" && globalGroups[idx]) {
         let g = globalGroups[idx];
@@ -199,19 +165,16 @@ function addUsr() {
     let groupName = globalGroups[gIdx] ? globalGroups[gIdx].group : "غير معروف";
     let pass = Math.floor(100000 + Math.random() * 900000).toString();
     
+    // تم إضافة isEliminated هنا عشان يترفع مع اللاعب الجديد
     db.collection("users").add({
         name: n, password: pass, group: groupName, team: t || "", score: 0, isBanned: false, isEliminated: false, cheatCount: 0
     }).then(() => {
         document.getElementById('u-name').value = "";
-        let copyModal = document.getElementById('copy-modal');
-        if(copyModal) copyModal.style.display = 'flex';
-        let cpBtn = document.getElementById('cp-btn');
-        if(cpBtn) {
-            cpBtn.onclick = () => {
-                navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`);
-                alert("تم النسخ!");
-            };
-        }
+        document.getElementById('copy-modal').style.display = 'flex';
+        document.getElementById('cp-btn').onclick = () => {
+            navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`);
+            alert("تم النسخ!");
+        };
     }).catch(err => alert("حدث خطأ أثناء الإنشاء"));
 }
 
@@ -222,7 +185,10 @@ function renderUsers() {
     
     let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
     safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
-        let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span onclick="resetCheat('${u.id}')" class="cursor-pointer bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse hover:bg-red-500" title="سبب الغش الأخير: ${u.lastCheatReason || 'غير محدد'} | اضغط لتصفير الغش"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
+        // شارة الغش بقت زرار تقدر تدوس عليه عشان تتصفر
+        let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span onclick="resetCheat('${u.id}')" style="cursor:pointer;" class="bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse hover:bg-red-500" title="سبب الغش الأخير: ${u.lastCheatReason || 'غير محدد'} | اضغط لمسامحته"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
+
+        // تمييز اللاعب المقصى (خسر)
         let elimClass = u.isEliminated ? 'text-gray-500 line-through' : '';
         let banClass = u.isBanned ? 'text-red-500 line-through' : '';
 
@@ -236,47 +202,49 @@ function renderUsers() {
             <td class="p-4 flex flex-wrap gap-1 justify-center">
                 <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
                 <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
-                <button onclick="eliminateUsr('${u.id}',${u.isEliminated || false})" class="${u.isEliminated ? 'bg-gray-600 hover:bg-gray-500' : 'bg-pink-700 hover:bg-pink-600'} p-2 rounded text-[10px] flex-1">${u.isEliminated?'فك الإقصاء':'خسر/إقصاء'}</button>
-                <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك حظر':'حظر'}</button>
+                
+                <button onclick="eliminateUsr('${u.id}',${u.isEliminated || false})" class="${u.isEliminated ? 'bg-gray-600 hover:bg-gray-500' : 'bg-pink-700 hover:bg-pink-600'} p-2 rounded text-[10px] flex-1 text-white">${u.isEliminated?'فك الإقصاء':'خسر/إقصاء'}</button>
+                
+                <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
                 <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px] flex-1">حذف</button>
             </td>
         </tr>`;
     });
 }
 
+// دالة تصفير الغش
 function resetCheat(userId) {
     if(confirm("هل تريد مسامحة اللاعب وتصفير عداد الغش الخاص به؟")) {
         db.collection("users").doc(userId).update({ cheatCount: 0, lastCheatReason: "" })
-        .then(() => alert("تم تصفير الغش بنجاح!"))
+        .then(() => alert("تم تصفير الغش ومسامحة اللاعب بنجاح!"))
         .catch(err => alert("حدث خطأ!"));
     }
 }
 
+// دالة الإقصاء (الخسارة/لعب ودي)
 function eliminateUsr(userId, currentState) {
-    let msg = currentState ? "هل تريد فك الإقصاء عن هذا اللاعب؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه القادمة)";
+    let msg = currentState ? "هل تريد فك الإقصاء عن هذا اللاعب وإرجاعه للمنافسة؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه في الترتيب مجددا)";
     if(confirm(msg)) {
         db.collection("users").doc(userId).update({ isEliminated: !currentState })
-        .then(() => alert("تم تحديث الحالة بنجاح!"))
+        .then(() => alert("تم التحديث بنجاح!"))
         .catch(err => alert("حدث خطأ!"));
     }
 }
 
+// متغير عالمي لحفظ سجل اللاعب الحالي والـ ID عشان نعرف نفلتره ونمسح منه
 let currentUserLogs = [];
-let currentOpenedUserId = null; 
+let currentOpenedUserId = null;
 
 function openProfile(userId) {
-    currentOpenedUserId = userId; 
+    currentOpenedUserId = userId; // حفظنا الـ ID
     let user = globalUsers.find(u => u.id === userId);
     if(!user) return;
 
-    let profName = document.getElementById('prof-name');
-    let profTeam = document.getElementById('prof-team');
-    let profScore = document.getElementById('prof-score');
+    document.getElementById('prof-name').innerText = user.name || "مجهول";
+    document.getElementById('prof-team').innerText = `${user.group || ""} | ${user.team || ""}`;
+    document.getElementById('prof-score').innerText = user.score || 0;
     
-    if(profName) profName.innerText = user.name || "مجهول";
-    if(profTeam) profTeam.innerText = `${user.group || ""} | ${user.team || ""}`;
-    if(profScore) profScore.innerText = user.score || 0;
-    
+    // تجهيز الفلتر والسجل في الواجهة
     let filterHtml = `
         <div class="mb-3">
             <select id="log-day-filter" onchange="renderFilteredLogs()" class="w-full p-2 rounded-xl bg-gray-900 border border-purple-500 text-purple-300 text-sm outline-none">
@@ -287,36 +255,32 @@ function openProfile(userId) {
         <div id="logs-container" class="space-y-2"></div>
     `;
     
-    let profLogs = document.getElementById('prof-logs');
-    if(profLogs) profLogs.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
-    
-    let modal = document.getElementById('user-profile-modal');
-    if(modal) modal.style.display = 'flex';
+    document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
+    document.getElementById('user-profile-modal').style.display = 'flex';
 
     db.collection("users").doc(userId).collection("game_logs").get().then(snap => {
-        currentUserLogs = []; 
-        snap.forEach(doc => currentUserLogs.push({docId: doc.id, ...doc.data()})); 
+        currentUserLogs = []; // تفريغ السجل القديم
+        // ضفنا هنا doc.id عشان نقدر نمسح الجولة
+        snap.forEach(doc => currentUserLogs.push({docId: doc.id, ...doc.data()}));
         currentUserLogs.sort((a,b) => (b.day || 0) - (a.day || 0));
 
         if(currentUserLogs.length === 0) {
-            if(profLogs) profLogs.innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
+            document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
             return;
         }
 
-        if(profLogs) profLogs.innerHTML = filterHtml;
-        renderFilteredLogs(); 
+        document.getElementById('prof-logs').innerHTML = filterHtml;
+        renderFilteredLogs(); // عرض السجل كله كبداية
         
     }).catch(err => {
-        if(profLogs) profLogs.innerHTML = '<p class="text-center text-red-500 text-sm py-4">حدث خطأ في جلب السجل</p>';
+        document.getElementById('prof-logs').innerHTML = '<p class="text-center text-red-500 text-sm py-4">حدث خطأ في جلب السجل</p>';
     });
 }
 
+// دالة جديدة لفلترة وعرض السجل بناءً على اليوم المختار
 function renderFilteredLogs() {
-    let filterSelect = document.getElementById('log-day-filter');
+    let filterVal = document.getElementById('log-day-filter').value;
     let container = document.getElementById('logs-container');
-    if(!container) return;
-    
-    let filterVal = filterSelect ? filterSelect.value : "all";
     container.innerHTML = "";
 
     let filteredLogs = currentUserLogs;
@@ -346,7 +310,7 @@ function renderFilteredLogs() {
                     <span class="text-xl font-black text-green-400">${log.score || 0}</span>
                     <span class="text-[10px] text-gray-400 block -mt-1">نقطة</span>
                 </div>
-                <button onclick="cancelRound('${log.docId}', ${log.score})" class="bg-red-900/50 hover:bg-red-600 border border-red-500 text-red-100 p-1.5 rounded-lg text-xs transition-all shadow-md" title="إلغاء وخصم النقط ليلعبها مجدداً">
+                <button onclick="cancelRound('${log.docId}', ${log.score || 0})" class="bg-red-900 hover:bg-red-600 text-white p-2 rounded-lg text-xs" title="إلغاء الجولة والسماح بإعادتها">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -356,17 +320,21 @@ function renderFilteredLogs() {
     container.innerHTML = html;
 }
 
+// دالة إلغاء الجولة وخصم النقاط
 function cancelRound(logDocId, scoreToDeduct) {
-    if(confirm(`هل أنت متأكد من إلغاء هذه الجولة؟\n- سيتم مسح الجولة ليتمكن من لعبها مجدداً.\n- سيتم خصم ${scoreToDeduct} نقطة من حسابه أوتوماتيكياً.`)) {
+    if(confirm(`هل أنت متأكد من إلغاء هذه الجولة؟\n- سيتم مسح الجولة والسماح له بلعبها مجدداً.\n- سيتم خصم ${scoreToDeduct} نقطة من حسابه.`)) {
         
+        // 1. مسح الجولة من سجل اللاعب
         db.collection("users").doc(currentOpenedUserId).collection("game_logs").doc(logDocId).delete()
         .then(() => {
+            // 2. خصم النقاط من التوتال بتاعه
             return db.collection("users").doc(currentOpenedUserId).update({
                 score: firebase.firestore.FieldValue.increment(-scoreToDeduct)
             });
         })
         .then(() => {
-            alert("✅ تم إلغاء الجولة وخصم النقاط بنجاح!");
+            alert("تم إلغاء الجولة وخصم النقاط بنجاح!");
+            // إعادة تحديث البروفايل عشان النتيجة تتعدل قدامك
             openProfile(currentOpenedUserId);
         })
         .catch(err => {
@@ -465,4 +433,14 @@ function saveQ() {
 }
 
 function setStatus(s) {
-    let d 
+    let d = document.getElementById('pub-day').value;
+    db.collection("settings").doc("global_status").set({ currentDay: parseInt(d), status: s }).then(() => alert("تم التحديث"));
+}
+
+function saveMessage(doc) {
+    let val = (doc === 'champData') ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
+    db.collection("settings").doc(doc).set({ message: val }).then(() => alert("تم النشر"));
+}
+
+function edSc(id, old) {
+    let n = prompt("تعديل النقاط (أدخل القيمة لإضافتها أو خصمها بـ -):"
