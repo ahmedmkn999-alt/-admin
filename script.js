@@ -9,43 +9,63 @@ const firebaseConfig = {
     appId: "1:343525703258:web:6776b4857425df8bcca263" 
 };
 
-// 🛡️ التعديل السحري: هنخلي الكود يستنى الصفحة تحمل بالكامل الأول
-window.onload = () => {
+// 🛡️ التعديل الجذري: تشغيل فوري بمجرد رسم الصفحة بدون انتظار الصور والملفات
+document.addEventListener('DOMContentLoaded', () => {
     setupDays();
     setupQuestions();
-    initFirebaseForAdmin();
-};
-
-function initFirebaseForAdmin() {
+    
     let status = document.getElementById('conn-status');
-    setTimeout(() => {
-        try {
-            if (typeof firebase === 'undefined') {
-                if(status) {
-                    status.innerText = "خطأ في الاتصال بالانترنت 🔴";
-                    status.classList.replace('text-yellow-500', 'text-red-500');
-                }
-                return;
-            }
-            if (!firebase.apps.length) { 
-                firebase.initializeApp(firebaseConfig); 
-            }
-            db = firebase.firestore();
-            
+    if(status) {
+        status.innerText = "جاري تهيئة النظام... ⏳";
+    }
+    
+    waitForFirebase();
+});
+
+// مراقب ذكي للتأكد من تحميل الفايربيز
+function waitForFirebase() {
+    let maxWait = 30; // 15 ثانية كحد أقصى للانتظار
+    let checks = 0;
+    
+    let interval = setInterval(() => {
+        checks++;
+        // لو الفايربيز حمل وبقى جاهز
+        if (typeof firebase !== 'undefined' && typeof firebase.firestore !== 'undefined') {
+            clearInterval(interval);
+            initializeFirebase();
+        } 
+        // لو اتأخر جداً (مشكلة نت)
+        else if (checks >= maxWait) {
+            clearInterval(interval);
+            let status = document.getElementById('conn-status');
             if(status) {
-                status.innerText = "متصل بنجاح 🟢";
-                status.classList.replace('text-yellow-500', 'text-green-500');
-            }
-            
-            startListening();
-        } catch (error) {
-            console.error("خطأ:", error);
-            if(status) {
-                status.innerText = "خطأ في الاتصال 🔴";
+                status.innerText = "خطأ في تحميل قواعد البيانات 🔴 (تأكد من النت)";
                 status.classList.replace('text-yellow-500', 'text-red-500');
             }
         }
-    }, 500);
+    }, 500); // بيفحص كل نص ثانية
+}
+
+function initializeFirebase() {
+    try {
+        if (!firebase.apps.length) { 
+            firebase.initializeApp(firebaseConfig); 
+        }
+        db = firebase.firestore();
+        let status = document.getElementById('conn-status');
+        if(status) {
+            status.innerText = "متصل بنجاح 🟢";
+            status.classList.replace('text-yellow-500', 'text-green-500');
+        }
+        startListening();
+    } catch (e) {
+        console.error("خطأ في الاتصال:", e);
+        let status = document.getElementById('conn-status');
+        if(status) {
+            status.innerText = "خطأ داخلي 🔴";
+            status.classList.replace('text-yellow-500', 'text-red-500');
+        }
+    }
 }
 
 function showTab(t, btn) {
@@ -448,18 +468,4 @@ function saveQ() {
         }
     });
 
-    if(questions.length === 0) return alert("لا يمكن حفظ كويز فارغ!");
-
-    db.collection("quizzes_pool").doc("day_"+d).set({
-        variations: { [v]: { questions: questions } }
-    }, {merge: true}).then(() => alert("✅ تم الحفظ بنجاح")).catch(err => alert("حدث خطأ"));
-}
-
-function setStatus(s) {
-    let d = document.getElementById('pub-day').value;
-    db.collection("settings").doc("global_status").set({ currentDay: parseInt(d), status: s }).then(() => alert("تم التحديث"));
-}
-
-function saveMessage(doc) {
-    let val = (doc === 'champData') ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
-    db.collection("settings").doc(doc).set({
+    if(questions.lengt
