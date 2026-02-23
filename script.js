@@ -9,26 +9,68 @@ const firebaseConfig = {
     appId: "1:343525703258:web:6776b4857425df8bcca263" 
 };
 
-setupDays();
-setupQuestions();
+// 🛡️ التعديل السحري: هنخلي الكود يستنى الصفحة تحمل بالكامل الأول
+window.onload = () => {
+    setupDays();
+    setupQuestions();
+    initFirebaseForAdmin();
+};
+
+function initFirebaseForAdmin() {
+    let status = document.getElementById('conn-status');
+    setTimeout(() => {
+        try {
+            if (typeof firebase === 'undefined') {
+                if(status) {
+                    status.innerText = "خطأ في الاتصال بالانترنت 🔴";
+                    status.classList.replace('text-yellow-500', 'text-red-500');
+                }
+                return;
+            }
+            if (!firebase.apps.length) { 
+                firebase.initializeApp(firebaseConfig); 
+            }
+            db = firebase.firestore();
+            
+            if(status) {
+                status.innerText = "متصل بنجاح 🟢";
+                status.classList.replace('text-yellow-500', 'text-green-500');
+            }
+            
+            startListening();
+        } catch (error) {
+            console.error("خطأ:", error);
+            if(status) {
+                status.innerText = "خطأ في الاتصال 🔴";
+                status.classList.replace('text-yellow-500', 'text-red-500');
+            }
+        }
+    }, 500);
+}
 
 function showTab(t, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-'+t).style.display = 'block';
+    let tab = document.getElementById('tab-'+t);
+    if(tab) tab.style.display = 'block';
     if(btn) btn.classList.add('active');
 }
 
 function toggleGroupInputs() {
-    const type = document.getElementById('g-type').value;
-    document.getElementById('teams-input-area').style.display = (type === 'teams') ? 'grid' : 'none';
+    let typeEl = document.getElementById('g-type');
+    let areaEl = document.getElementById('teams-input-area');
+    if(typeEl && areaEl) {
+        areaEl.style.display = (typeEl.value === 'teams') ? 'grid' : 'none';
+    }
 }
 
 function setupDays() {
     let html = "";
     for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
-    if(document.getElementById('q-day')) document.getElementById('q-day').innerHTML = html;
-    if(document.getElementById('pub-day')) document.getElementById('pub-day').innerHTML = html;
+    let qDay = document.getElementById('q-day');
+    let pubDay = document.getElementById('pub-day');
+    if(qDay) qDay.innerHTML = html;
+    if(pubDay) pubDay.innerHTML = html;
 }
 
 function setupQuestions() {
@@ -47,43 +89,18 @@ function setupQuestions() {
             </select>
         </div>`;
     }
-    if(document.getElementById('q-area')) document.getElementById('q-area').innerHTML = html;
+    let qArea = document.getElementById('q-area');
+    if(qArea) qArea.innerHTML = html;
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        try {
-            if (typeof firebase === 'undefined') {
-                let status = document.getElementById('conn-status');
-                status.innerText = "خطأ في الاتصال بالانترنت 🔴";
-                status.classList.replace('text-yellow-500', 'text-red-500');
-                return;
-            }
-            if (!firebase.apps.length) { 
-                firebase.initializeApp(firebaseConfig); 
-            }
-            db = firebase.firestore();
-            let status = document.getElementById('conn-status');
-            status.innerText = "متصل بنجاح 🟢";
-            status.classList.replace('text-yellow-500', 'text-green-500');
-            
-            startListening();
-        } catch (error) {
-            console.error("خطأ:", error);
-            document.getElementById('conn-status').innerText = "خطأ في الاتصال 🔴";
-        }
-    }, 500);
-});
 
 function startListening() {
     db.collection("config").doc("groups_data").onSnapshot(s => {
         if(s.exists) { 
             globalGroups = s.data().list || []; 
-            renderGroups(); 
         } else {
             globalGroups = [];
-            renderGroups();
         }
+        renderGroups(); 
     }, err => console.error(err));
 
     db.collection("users").onSnapshot(s => {
@@ -95,8 +112,12 @@ function startListening() {
 }
 
 function saveGrp() {
-    const name = document.getElementById('g-name').value.trim();
-    const type = document.getElementById('g-type').value;
+    let nameEl = document.getElementById('g-name');
+    let typeEl = document.getElementById('g-type');
+    if(!nameEl || !typeEl) return;
+    
+    const name = nameEl.value.trim();
+    const type = typeEl.value;
     if(!name) return alert("اكتب اسم المجموعة");
     
     let newG = { group: name, type: type, teams: [] };
@@ -109,9 +130,11 @@ function saveGrp() {
 
     globalGroups.push(newG);
     db.collection("config").doc("groups_data").set({ list: globalGroups }).then(() => {
-        document.getElementById('g-name').value = "";
-        document.getElementById('t1').value = "";
-        document.getElementById('t2').value = "";
+        nameEl.value = "";
+        let t1El = document.getElementById('t1');
+        let t2El = document.getElementById('t2');
+        if(t1El) t1El.value = "";
+        if(t2El) t2El.value = "";
         alert("تم الحفظ بنجاح");
     }).catch(err => alert("حدث خطأ أثناء الحفظ"));
 }
@@ -141,6 +164,8 @@ function renderGroups() {
 function loadTeams() {
     let idx = document.getElementById('u-group').value;
     let teamSelect = document.getElementById('u-team');
+    if(!teamSelect) return;
+    
     teamSelect.innerHTML = "";
     if(idx !== "" && globalGroups[idx]) {
         let g = globalGroups[idx];
@@ -169,11 +194,15 @@ function addUsr() {
         name: n, password: pass, group: groupName, team: t || "", score: 0, isBanned: false, isEliminated: false, cheatCount: 0
     }).then(() => {
         document.getElementById('u-name').value = "";
-        document.getElementById('copy-modal').style.display = 'flex';
-        document.getElementById('cp-btn').onclick = () => {
-            navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`);
-            alert("تم النسخ!");
-        };
+        let copyModal = document.getElementById('copy-modal');
+        if(copyModal) copyModal.style.display = 'flex';
+        let cpBtn = document.getElementById('cp-btn');
+        if(cpBtn) {
+            cpBtn.onclick = () => {
+                navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`);
+                alert("تم النسخ!");
+            };
+        }
     }).catch(err => alert("حدث خطأ أثناء الإنشاء"));
 }
 
@@ -184,10 +213,7 @@ function renderUsers() {
     
     let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
     safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
-        // شارة الغش بقت زرار تقدر تدوس عليه عشان تصفر الغش
         let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span onclick="resetCheat('${u.id}')" class="cursor-pointer bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse hover:bg-red-500" title="سبب الغش الأخير: ${u.lastCheatReason || 'غير محدد'} | اضغط لتصفير الغش"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
-
-        // شارة أو اسم بيوضح إنه مقصى (خسر)
         let elimClass = u.isEliminated ? 'text-gray-500 line-through' : '';
         let banClass = u.isBanned ? 'text-red-500 line-through' : '';
 
@@ -209,37 +235,38 @@ function renderUsers() {
     });
 }
 
-// دالة تصفير الغش
 function resetCheat(userId) {
     if(confirm("هل تريد مسامحة اللاعب وتصفير عداد الغش الخاص به؟")) {
         db.collection("users").doc(userId).update({ cheatCount: 0, lastCheatReason: "" })
-        .then(() => alert("تم تصفير الغش ومسامحة اللاعب بنجاح!"))
+        .then(() => alert("تم تصفير الغش بنجاح!"))
         .catch(err => alert("حدث خطأ!"));
     }
 }
 
-// دالة الإقصاء (لعب ودي)
 function eliminateUsr(userId, currentState) {
-    let msg = currentState ? "هل تريد فك الإقصاء عن هذا اللاعب وإرجاعه للمنافسة الرسمية؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه القادمة)";
+    let msg = currentState ? "هل تريد فك الإقصاء عن هذا اللاعب؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه القادمة)";
     if(confirm(msg)) {
         db.collection("users").doc(userId).update({ isEliminated: !currentState })
-        .then(() => alert("تم تحديث حالة اللاعب بنجاح!"))
+        .then(() => alert("تم تحديث الحالة بنجاح!"))
         .catch(err => alert("حدث خطأ!"));
     }
 }
 
-
 let currentUserLogs = [];
-let currentOpenedUserId = null; // عشان نعرف مين اللي فاتحين بروفايله
+let currentOpenedUserId = null; 
 
 function openProfile(userId) {
-    currentOpenedUserId = userId; // حفظ الـ ID
+    currentOpenedUserId = userId; 
     let user = globalUsers.find(u => u.id === userId);
     if(!user) return;
 
-    document.getElementById('prof-name').innerText = user.name || "مجهول";
-    document.getElementById('prof-team').innerText = `${user.group || ""} | ${user.team || ""}`;
-    document.getElementById('prof-score').innerText = user.score || 0;
+    let profName = document.getElementById('prof-name');
+    let profTeam = document.getElementById('prof-team');
+    let profScore = document.getElementById('prof-score');
+    
+    if(profName) profName.innerText = user.name || "مجهول";
+    if(profTeam) profTeam.innerText = `${user.group || ""} | ${user.team || ""}`;
+    if(profScore) profScore.innerText = user.score || 0;
     
     let filterHtml = `
         <div class="mb-3">
@@ -251,30 +278,36 @@ function openProfile(userId) {
         <div id="logs-container" class="space-y-2"></div>
     `;
     
-    document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
-    document.getElementById('user-profile-modal').style.display = 'flex';
+    let profLogs = document.getElementById('prof-logs');
+    if(profLogs) profLogs.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">جاري تحميل السجل...</p>';
+    
+    let modal = document.getElementById('user-profile-modal');
+    if(modal) modal.style.display = 'flex';
 
     db.collection("users").doc(userId).collection("game_logs").get().then(snap => {
         currentUserLogs = []; 
-        snap.forEach(doc => currentUserLogs.push({docId: doc.id, ...doc.data()})); // ضفنا الـ docId عشان نعرف نمسحها
+        snap.forEach(doc => currentUserLogs.push({docId: doc.id, ...doc.data()})); 
         currentUserLogs.sort((a,b) => (b.day || 0) - (a.day || 0));
 
         if(currentUserLogs.length === 0) {
-            document.getElementById('prof-logs').innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
+            if(profLogs) profLogs.innerHTML = '<p class="text-center text-gray-500 text-sm py-4">لم يلعب أي جولة حتى الآن.</p>';
             return;
         }
 
-        document.getElementById('prof-logs').innerHTML = filterHtml;
+        if(profLogs) profLogs.innerHTML = filterHtml;
         renderFilteredLogs(); 
         
     }).catch(err => {
-        document.getElementById('prof-logs').innerHTML = '<p class="text-center text-red-500 text-sm py-4">حدث خطأ في جلب السجل</p>';
+        if(profLogs) profLogs.innerHTML = '<p class="text-center text-red-500 text-sm py-4">حدث خطأ في جلب السجل</p>';
     });
 }
 
 function renderFilteredLogs() {
-    let filterVal = document.getElementById('log-day-filter').value;
+    let filterSelect = document.getElementById('log-day-filter');
     let container = document.getElementById('logs-container');
+    if(!container) return;
+    
+    let filterVal = filterSelect ? filterSelect.value : "all";
     container.innerHTML = "";
 
     let filteredLogs = currentUserLogs;
@@ -314,21 +347,17 @@ function renderFilteredLogs() {
     container.innerHTML = html;
 }
 
-// --- دالة إلغاء الجولة السحرية ---
 function cancelRound(logDocId, scoreToDeduct) {
     if(confirm(`هل أنت متأكد من إلغاء هذه الجولة؟\n- سيتم مسح الجولة ليتمكن من لعبها مجدداً.\n- سيتم خصم ${scoreToDeduct} نقطة من حسابه أوتوماتيكياً.`)) {
         
-        // 1. مسح الجولة من سجل اللاعب
         db.collection("users").doc(currentOpenedUserId).collection("game_logs").doc(logDocId).delete()
         .then(() => {
-            // 2. خصم النقاط من التوتال بتاعه
             return db.collection("users").doc(currentOpenedUserId).update({
                 score: firebase.firestore.FieldValue.increment(-scoreToDeduct)
             });
         })
         .then(() => {
-            alert("✅ تم إلغاء الجولة وخصم النقاط بنجاح! يمكنه الآن إعادة لعبها.");
-            // إعادة تحديث البروفايل عشان النتيجة تتعدل قدامك
+            alert("✅ تم إلغاء الجولة وخصم النقاط بنجاح!");
             openProfile(currentOpenedUserId);
         })
         .catch(err => {
@@ -337,7 +366,6 @@ function cancelRound(logDocId, scoreToDeduct) {
         });
     }
 }
-// ---------------------------------
 
 function calculateGlobalRanking() {
     try {
@@ -434,11 +462,4 @@ function setStatus(s) {
 
 function saveMessage(doc) {
     let val = (doc === 'champData') ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
-    db.collection("settings").doc(doc).set({ message: val }).then(() => alert("تم النشر"));
-}
-
-function edSc(id, old) {
-    let n = prompt("تعديل النقاط (أدخل القيمة لإضافتها أو خصمها بـ -):", "0");
-    if(n && !isNaN(n)) db.collection("users").doc(id).update({ score: old + parseInt(n) });
-}
-function banUsr(id, s) { db.collection("users").doc(i
+    db.collection("settings").doc(doc).set({
