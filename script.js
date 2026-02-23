@@ -9,64 +9,53 @@ const firebaseConfig = {
     appId: "1:343525703258:web:6776b4857425df8bcca263" 
 };
 
-// 🛡️ التعديل الجذري: تشغيل فوري بمجرد رسم الصفحة بدون انتظار الصور والملفات
-document.addEventListener('DOMContentLoaded', () => {
+// --- 🛡️ نظام الانطلاق الذكي (عشان مستحيل يعلق تاني) ---
+function bootSystem() {
     setupDays();
     setupQuestions();
     
     let status = document.getElementById('conn-status');
-    if(status) {
-        status.innerText = "جاري تهيئة النظام... ⏳";
-    }
     
-    waitForFirebase();
-});
-
-// مراقب ذكي للتأكد من تحميل الفايربيز
-function waitForFirebase() {
-    let maxWait = 30; // 15 ثانية كحد أقصى للانتظار
-    let checks = 0;
-    
-    let interval = setInterval(() => {
-        checks++;
-        // لو الفايربيز حمل وبقى جاهز
-        if (typeof firebase !== 'undefined' && typeof firebase.firestore !== 'undefined') {
-            clearInterval(interval);
-            initializeFirebase();
-        } 
-        // لو اتأخر جداً (مشكلة نت)
-        else if (checks >= maxWait) {
-            clearInterval(interval);
-            let status = document.getElementById('conn-status');
+    // تأخير بسيط جداً لضمان إن الفايربيز اتربط
+    setTimeout(() => {
+        try {
+            if (typeof firebase === 'undefined') {
+                if(status) {
+                    status.innerText = "🔴 خطأ: ملفات فايربيز غير موجودة في الـ HTML!";
+                    status.classList.replace('text-yellow-500', 'text-red-500');
+                }
+                alert("ملفات الفايربيز ناقصة في ملف HTML الخاص بلوحة التحكم!");
+                return;
+            }
+            
+            if (!firebase.apps.length) { 
+                firebase.initializeApp(firebaseConfig); 
+            }
+            db = firebase.firestore();
+            
             if(status) {
-                status.innerText = "خطأ في تحميل قواعد البيانات 🔴 (تأكد من النت)";
+                status.innerText = "متصل بنجاح 🟢";
+                status.classList.replace('text-yellow-500', 'text-green-500');
+            }
+            
+            startListening();
+        } catch (error) {
+            console.error("خطأ:", error);
+            if(status) {
+                status.innerText = "خطأ في الاتصال 🔴";
                 status.classList.replace('text-yellow-500', 'text-red-500');
             }
         }
-    }, 500); // بيفحص كل نص ثانية
+    }, 1000);
 }
 
-function initializeFirebase() {
-    try {
-        if (!firebase.apps.length) { 
-            firebase.initializeApp(firebaseConfig); 
-        }
-        db = firebase.firestore();
-        let status = document.getElementById('conn-status');
-        if(status) {
-            status.innerText = "متصل بنجاح 🟢";
-            status.classList.replace('text-yellow-500', 'text-green-500');
-        }
-        startListening();
-    } catch (e) {
-        console.error("خطأ في الاتصال:", e);
-        let status = document.getElementById('conn-status');
-        if(status) {
-            status.innerText = "خطأ داخلي 🔴";
-            status.classList.replace('text-yellow-500', 'text-red-500');
-        }
-    }
+// التأكد من تحميل الصفحة بأكثر من طريقة
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootSystem);
+} else {
+    bootSystem(); // لو الصفحة كانت محملة أصلاً، اشتغل فوراً
 }
+// --------------------------------------------------------
 
 function showTab(t, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
@@ -468,4 +457,12 @@ function saveQ() {
         }
     });
 
-    if(questions.lengt
+    if(questions.length === 0) return alert("لا يمكن حفظ كويز فارغ!");
+
+    db.collection("quizzes_pool").doc("day_"+d).set({
+        variations: { [v]: { questions: questions } }
+    }, {merge: true}).then(() => alert("✅ تم الحفظ بنجاح")).catch(err => alert("حدث خطأ"));
+}
+
+function setStatus(s) {
+    let d 
