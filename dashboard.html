@@ -2,195 +2,197 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم | ملعب رمضان</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة التحكم | VIP</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        body { 
-            background-color: #0b1120; color: white; font-family: 'Cairo', sans-serif; 
-            background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.1), transparent),
-                        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent);
-            min-height: 100vh;
-        }
-        .glass-card {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .input-dark {
-            background: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #facc15;
-        }
-        .input-dark:focus { border-color: #eab308; outline: none; }
-        .btn-gold { background: linear-gradient(135deg, #ca8a04, #eab308); color: black; font-weight: 900; }
-        .btn-gold:hover { transform: scale(1.02); brightness: 1.1; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css"> 
+    
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script defer src="script.js"></script>
 </head>
-<body class="p-4 md:p-8">
+<body class="pb-24 bg-gray-900 text-white min-h-screen">
 
-    <div class="max-w-4xl mx-auto">
-        <div class="flex items-center justify-between mb-10 glass-card p-6 rounded-3xl">
-            <div class="flex items-center gap-4">
-                <img src="https://i.postimg.cc/QN7YYDZb/1772330473684.png" class="w-12 h-12 rounded-full border-2 border-yellow-500">
-                <h1 class="text-xl font-black">لوحة الإدارة 🏆</h1>
-            </div>
-            <button onclick="logout()" class="text-red-400 font-bold text-sm">تسجيل خروج</button>
+    <div class="p-4 max-w-5xl mx-auto relative z-10">
+        <div class="glass-panel flex justify-between items-center mb-6 p-4 rounded-2xl">
+            <span id="conn-status" class="text-yellow-500 text-xs font-bold">جاري الاتصال... ⏳</span>
+            <button onclick="logOut()" class="bg-red-900/80 text-red-300 border border-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition">خروج 🔒</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div class="glass-card p-6 rounded-[2.5rem]">
-                <h2 class="text-yellow-500 font-black mb-6 flex items-center gap-2">
-                    <span>➕</span> إضافة سؤال جديد
-                </h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">نص السؤال</label>
-                        <textarea id="q-text" class="input-dark w-full p-3 rounded-xl text-sm" placeholder="مثلاً: من هو هداف كأس العالم التاريخي؟"></textarea>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="text" id="opt-a" class="input-dark p-3 rounded-xl text-xs" placeholder="اختيار A">
-                        <input type="text" id="opt-b" class="input-dark p-3 rounded-xl text-xs" placeholder="اختيار B">
-                        <input type="text" id="opt-c" class="input-dark p-3 rounded-xl text-xs" placeholder="اختيار C">
-                        <input type="text" id="opt-d" class="input-dark p-3 rounded-xl text-xs" placeholder="اختيار D">
-                    </div>
+        <nav class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            <button class="nav-btn active" onclick="showTab('room', this)">المجموعات</button>
+            <button class="nav-btn" onclick="showTab('users', this)">المتسابقين</button>
+            <button class="nav-btn" onclick="showTab('final', this)">الدور الأخير 🏆</button>
+            <button class="nav-btn" onclick="showTab('global', this)">الترتيب</button>
+            <button class="nav-btn" onclick="showTab('quizzes', this)">الكويز</button>
+            <button class="nav-btn" onclick="showTab('vault', this)">الخزنة</button>
+            <button class="nav-btn" onclick="showTab('settings', this)">الرسائل</button>
+        </nav>
 
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">الإجابة الصحيحة</label>
-                        <select id="correct-ans" class="input-dark w-full p-3 rounded-xl text-sm font-bold uppercase">
-                            <option value="A">الاختيار A</option>
-                            <option value="B">الاختيار B</option>
-                            <option value="C">الاختيار C</option>
-                            <option value="D">الاختيار D</option>
-                        </select>
-                    </div>
+        <div id="tab-room" class="tab-content active">
+            <div class="glass-panel p-5 rounded-2xl mb-6">
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إنشاء مجموعة جديدة</h3>
+                <input type="text" id="g-name" placeholder="اسم المجموعة..." class="w-full p-3 rounded-xl mb-3 bg-black/40 text-white border border-gray-700">
+                <div class="mb-3">
+                    <select id="g-type" onchange="toggleGroupInputs()" class="w-full p-3 rounded-xl bg-black/40 text-white border border-gray-700">
+                        <option value="teams">مباراة (تيم ضد تيم)</option>
+                        <option value="single">فردي (مجموعة أفراد)</option>
+                    </select>
+                </div>
+                <div id="teams-input-area" class="grid grid-cols-2 gap-3 mb-3">
+                    <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700">
+                    <input type="text" id="t2" placeholder="تيم 2" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700">
+                </div>
+                <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl text-lg mt-2">إضافة المجموعة ✅</button>
+            </div>
+            <div id="grp-list" class="space-y-3"></div>
+        </div>
 
-                    <button onclick="saveQuiz()" id="save-btn" class="btn-gold w-full py-4 rounded-2xl shadow-lg transition-all mt-4">
-                        حفظ السؤال في المسودة 💾
-                    </button>
+        <div id="tab-users" class="tab-content">
+            <div class="glass-panel p-5 rounded-2xl mb-6">
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">تسجيل لاعب جديد</h3>
+                <input type="text" id="u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-xl mb-3 bg-black/40 text-white border border-gray-700">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <select id="u-group" onchange="loadTeams()" class="p-3 rounded-xl text-xs bg-black/40 text-white border border-gray-700">
+                        <option value="">اختر المجموعة</option>
+                    </select>
+                    <select id="u-team" class="p-3 rounded-xl text-xs bg-black/40 text-white border border-gray-700">
+                        <option value="">اختر التيم</option>
+                    </select>
+                </div>
+                <button onclick="addUsr()" class="gold-btn w-full p-3 rounded-xl text-lg mt-2">إنشاء الحساب 🔐</button>
+            </div>
+            <div class="glass-panel rounded-2xl overflow-x-auto border border-gray-800">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-gray-800 text-gray-400"><tr><th class="p-4">المتسابق</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">تحكم</th></tr></thead>
+                    <tbody id="usr-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-final" class="tab-content">
+            <div class="glass-panel p-5 rounded-2xl mb-6 border border-yellow-500 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <h3 class="text-yellow-500 font-black mb-2 text-lg"><i class="fas fa-trophy"></i> تصفيات الدور الأخير</h3>
+                <p class="text-xs text-gray-300 font-bold">المقصي يمكنه اللعب وتجميع النقاط للترتيب العام، لكنه يعتبر خارج المنافسة النهائية للبطولة.</p>
+            </div>
+            <div class="glass-panel rounded-2xl overflow-x-auto border border-gray-800">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-gray-800 text-gray-400">
+                        <tr><th class="p-4">المتسابق</th><th class="p-4 text-center">الحالة</th><th class="p-4 text-center">النقاط</th><th class="p-4 text-center">تحكم</th></tr>
+                    </thead>
+                    <tbody id="final-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-global" class="tab-content">
+            <div id="global-tables-container" class="space-y-6"></div>
+        </div>
+
+        <div id="tab-quizzes" class="tab-content">
+            <div class="glass-panel p-5 rounded-2xl mb-4">
+                <div class="flex gap-3 mb-3">
+                    <select id="q-day" class="flex-1 p-3 rounded-xl bg-black/40 text-yellow-500 font-bold border border-yellow-600"></select>
+                    <select id="q-var" class="w-1/3 p-3 rounded-xl bg-black/40 text-blue-400 font-bold border border-blue-600">
+                        <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option><option value="3">نسخة 4</option>
+                    </select>
+                </div>
+                <button onclick="loadQ()" class="w-full bg-blue-900/80 hover:bg-blue-700 text-blue-300 border border-blue-500 p-3 rounded-xl font-bold transition">⬇️ استدعاء الأسئلة للتعديل</button>
+            </div>
+            <div id="q-area" class="space-y-3 transition-opacity duration-300"></div>
+            <button onclick="saveQ()" class="gold-btn w-full p-4 rounded-xl mt-4 text-lg shadow-lg">💾 حفظ نسخة الأسئلة</button>
+        </div>
+
+        <div id="tab-vault" class="tab-content space-y-4">
+            <div class="glass-panel p-6 rounded-2xl text-center border border-gray-700">
+                <h3 class="mb-4 font-bold text-yellow-500 text-lg">تحكم في حالة الملعب والمباريات</h3>
+                <select id="pub-day" class="w-full p-3 rounded-xl mb-4 font-bold bg-black/40 text-white border border-gray-600"></select>
+                <div class="flex gap-2">
+                    <button onclick="setStatus('soon')" class="flex-1 bg-blue-900 hover:bg-blue-800 text-blue-300 p-3 rounded-xl font-bold transition">قريباً ⏳</button>
+                    <button onclick="setStatus('active')" class="flex-1 bg-green-500 hover:bg-green-600 text-black p-3 rounded-xl font-black shadow-[0_0_15px_rgba(34,197,94,0.4)] transition">تفعيل ▶️</button>
+                    <button onclick="setStatus('closed')" class="flex-1 bg-red-900 hover:bg-red-800 text-red-300 p-3 rounded-xl font-bold transition">إغلاق 🔒</button>
                 </div>
             </div>
+        </div>
 
-            <div class="glass-card p-6 rounded-[2.5rem]">
-                <h2 class="text-blue-400 font-black mb-6 flex items-center gap-2">
-                    <span>🚀</span> التحكم في الملعب
-                </h2>
-                
-                <div class="bg-black/20 p-4 rounded-2xl border border-blue-500/20 mb-6">
-                    <p class="text-xs text-gray-400">السؤال الحالي في الملعب:</p>
-                    <p id="current-active-q" class="text-yellow-400 font-bold">جاري التحميل...</p>
-                </div>
-
-                <div id="quizzes-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scroll">
-                    </div>
+        <div id="tab-settings" class="tab-content space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border-r-4 border-yellow-500">
+                <p class="text-yellow-500 text-xs mb-2 font-bold">رسالة البطل الطائرة (Pop-up):</p>
+                <input type="text" id="msg-champ" placeholder="اكتب الرسالة..." class="w-full p-3 rounded-xl mb-3 bg-black/40 text-white border border-gray-700">
+                <button onclick="saveMessage('champData')" class="gold-btn w-full p-3 rounded-xl">نشر الرسالة</button>
             </div>
-
+            <div class="glass-panel p-5 rounded-2xl border-r-4 border-blue-500">
+                <p class="text-blue-400 text-xs mb-2 font-bold">الشريط الإخباري (Marquee):</p>
+                <textarea id="msg-daily" placeholder="تنبيهات وأخبار..." class="w-full p-3 rounded-xl mb-3 h-24 bg-black/40 text-white border border-gray-700"></textarea>
+                <button onclick="saveMessage('dailyData')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold w-full p-3 rounded-xl transition">تحديث الشريط</button>
+            </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <div id="edit-group-modal" class="modal-overlay">
+        <div class="glass-panel p-6 rounded-3xl border border-blue-500 w-full max-w-sm">
+            <h3 class="text-blue-400 font-black mb-4 text-center text-xl">تعديل المجموعة</h3>
+            <input type="text" id="edit-g-name" placeholder="اسم المجموعة الجديد" class="w-full p-3 rounded-xl mb-3 text-sm bg-black/40 text-white">
+            <div class="mb-3">
+                <select id="edit-g-type" onchange="toggleEditGroupInputs()" class="w-full p-3 rounded-xl text-sm bg-black/40 text-white">
+                    <option value="teams">مباراة (تيم ضد تيم)</option>
+                    <option value="single">فردي (مجموعة أفراد)</option>
+                </select>
+            </div>
+            <div id="edit-teams-input-area" class="grid grid-cols-2 gap-3 mb-4">
+                <input type="text" id="edit-t1" placeholder="تيم 1" class="p-3 rounded-xl text-sm bg-black/40 text-white">
+                <input type="text" id="edit-t2" placeholder="تيم 2" class="p-3 rounded-xl text-sm bg-black/40 text-white">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="saveEditedGrp()" class="flex-1 bg-blue-600 text-white font-black p-3 rounded-xl">حفظ</button>
+                <button onclick="document.getElementById('edit-group-modal').style.display='none'" class="flex-1 bg-gray-800 text-white p-3 rounded-xl font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8", projectId: "ramadan-87817", appId: "1:343525703258:web:6776b4857425df8bcca263" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    <div id="edit-user-modal" class="modal-overlay">
+        <div class="glass-panel p-6 rounded-3xl border border-purple-500 w-full max-w-sm">
+            <h3 class="text-purple-400 font-black mb-4 text-center text-xl">تعديل اللاعب</h3>
+            <input type="text" id="edit-u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-xl mb-3 text-sm bg-black/40 text-white">
+            <label class="block text-[10px] text-gray-400 mb-1">المجموعة:</label>
+            <select id="edit-u-group" onchange="loadEditUserTeams()" class="w-full p-3 rounded-xl mb-3 text-sm bg-black/40 text-white"></select>
+            <label class="block text-[10px] text-gray-400 mb-1">التيم:</label>
+            <select id="edit-u-team" class="w-full p-3 rounded-xl mb-4 text-sm bg-black/40 text-white"></select>
+            <div class="flex gap-2">
+                <button onclick="saveEditedUsr()" class="flex-1 bg-purple-600 text-white font-black p-3 rounded-xl">تحديث</button>
+                <button onclick="document.getElementById('edit-user-modal').style.display='none'" class="flex-1 bg-gray-800 text-white p-3 rounded-xl font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
-        // فحص الدخول (Admin Check)
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser || currentUser.role !== 'admin') {
-            // لو مش ادمن رجعه لصفحة الدخول (تأكد إن الرول في الداتابيز admin)
-            // window.location.replace('index.html'); 
-        }
+    <div id="copy-modal" class="modal-overlay">
+        <div class="glass-panel p-8 rounded-3xl border border-green-500 w-full max-w-xs text-center">
+            <p class="text-white font-bold mb-6 text-lg">تم التسجيل بنجاح! 🎉</p>
+            <button id="cp-btn" class="w-full bg-green-500 hover:bg-green-400 text-black p-4 rounded-xl font-black mb-3 transition">نسخ بيانات الدخول</button>
+            <button onclick="document.getElementById('copy-modal').style.display='none'" class="w-full bg-gray-800 text-white p-3 rounded-xl font-bold">إغلاق</button>
+        </div>
+    </div>
 
-        // --- وظيفة حفظ الكويز ---
-        function saveQuiz() {
-            const question = document.getElementById('q-text').value.trim();
-            const opts = {
-                A: document.getElementById('opt-a').value.trim(),
-                B: document.getElementById('opt-b').value.trim(),
-                C: document.getElementById('opt-c').value.trim(),
-                D: document.getElementById('opt-d').value.trim()
-            };
-            const answer = document.getElementById('correct-ans').value;
-
-            if (!question || !opts.A || !opts.B || !opts.C || !opts.D) {
-                alert("⚠️ املأ كل البيانات يا بطل!");
-                return;
-            }
-
-            const btn = document.getElementById('save-btn');
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ...";
-
-            db.collection("quizzes").add({
-                question: question,
-                options: opts,
-                answer: answer,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("✅ السؤال اتحفظ بنجاح!");
-                location.reload(); // تحديث عشان يظهر في القائمة
-            }).catch(err => {
-                alert("❌ فشل الحفظ!");
-                btn.disabled = false;
-            });
-        }
-
-        // --- تحميل قائمة الأسئلة ---
-        function loadQuizzes() {
-            const listDiv = document.getElementById('quizzes-list');
-            db.collection("quizzes").orderBy("createdAt", "desc").get().then(snap => {
-                listDiv.innerHTML = "";
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    listDiv.innerHTML += `
-                        <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex justify-between items-center">
-                            <div class="truncate ml-4">
-                                <p class="text-sm font-bold truncate">${data.question}</p>
-                                <p class="text-[10px] text-gray-500">الإجابة: ${data.answer}</p>
-                            </div>
-                            <button onclick="publishQuiz('${doc.id}', '${data.question}')" 
-                                class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-xs font-black transition-all">
-                                نشر الآن
-                            </button>
-                        </div>
-                    `;
-                });
-            });
-
-            // تحميل السؤال المنشور حالياً
-            db.collection("settings").doc("currentQuiz").onSnapshot(doc => {
-                if(doc.exists) {
-                    document.getElementById('current-active-q').innerText = doc.data().questionName || "لا يوجد سؤال نشط";
-                }
-            });
-        }
-
-        // --- وظيفة النشر الحقيقي ---
-        function publishQuiz(id, name) {
-            if(!confirm("هل تريد نشر هذا السؤال لكل اللاعبين؟")) return;
-
-            db.collection("settings").doc("currentQuiz").set({
-                activeId: id,
-                questionName: name,
-                publishedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("🚀 الكويز بقى " + name + " دلوقتى على موبايلات الكل!");
-            });
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.replace('index.html');
-        }
-
-        loadQuizzes();
-    </script>
+    <div id="user-profile-modal" class="modal-overlay">
+        <div class="glass-panel p-6 rounded-3xl border border-purple-500/50 w-full max-w-md max-h-[85vh] overflow-y-auto relative">
+            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 left-4 w-8 h-8 bg-gray-800 rounded-full text-gray-400 hover:text-white flex items-center justify-center font-bold">&times;</button>
+            <div class="text-center border-b border-gray-700 pb-4 mb-4 mt-2">
+                <i class="fas fa-user-astronaut text-4xl text-purple-400 mb-2"></i>
+                <h2 id="prof-name" class="text-2xl font-black text-white">...</h2>
+                <p id="prof-team" class="text-xs text-purple-300 font-bold mt-1 bg-purple-900/30 inline-block px-3 py-1 rounded-full border border-purple-700/50">...</p>
+            </div>
+            <div class="bg-gradient-to-r from-yellow-900/40 to-yellow-600/40 border border-yellow-600/50 rounded-2xl p-4 text-center mb-6">
+                <p class="text-xs text-gray-300 font-bold mb-1">إجمالي النقاط</p>
+                <p id="prof-score" class="text-4xl font-black text-yellow-400 drop-shadow-md">0</p>
+            </div>
+            <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fas fa-history text-purple-400"></i> سجل الاختبارات</h3>
+            <div id="prof-logs" class="space-y-2"></div>
+        </div>
+    </div>
 </body>
-</html>
+                            </html>
+    
