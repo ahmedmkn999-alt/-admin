@@ -30,7 +30,6 @@
     </div>
 
     <script>
-        // الدخول التلقائي لو مسجل من قبل
         if(localStorage.getItem('admin_access') === 'granted') {
             window.location.href = 'dashboard.html';
         }
@@ -39,7 +38,7 @@
             let pass = document.getElementById('gate-pass').value;
             if(pass === "1234") {
                 localStorage.setItem('admin_access', 'granted');
-                window.location.href = 'dashboard.html'; // بيحولك للملف التاني فوراً
+                window.location.href = 'dashboard.html';
             } else {
                 alert("كلمة المرور غير صحيحة!");
                 document.getElementById('gate-pass').value = '';
@@ -47,5 +46,4 @@
         }
     </script>
 </body>
-            </html>
-            
+</html>
