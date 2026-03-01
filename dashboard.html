@@ -34,7 +34,7 @@
 
         <div id="tab-room" class="tab-content active">
             <div class="glass-panel p-5 rounded-2xl mb-6">
-                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إعداد المجموعات</h3>
+                <h3 class="text-yellow-500 font-bold mb-4 text-sm">إنشاء مجموعة جديدة</h3>
                 <input type="text" id="g-name" placeholder="اسم المجموعة..." class="w-full p-3 rounded-xl mb-3">
                 <div class="mb-3">
                     <select id="g-type" onchange="toggleGroupInputs()" class="w-full p-3 rounded-xl">
@@ -46,7 +46,7 @@
                     <input type="text" id="t1" placeholder="تيم 1" class="p-3 rounded-xl">
                     <input type="text" id="t2" placeholder="تيم 2" class="p-3 rounded-xl">
                 </div>
-                <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl text-lg">حفظ المجموعة ✅</button>
+                <button onclick="saveGrp()" class="gold-btn w-full p-3 rounded-xl text-lg">إضافة المجموعة ✅</button>
             </div>
             <div id="grp-list" class="space-y-3"></div>
         </div>
@@ -79,7 +79,7 @@
                     <thead class="bg-gray-800 text-gray-400">
                         <tr>
                             <th class="p-4">المتسابق</th>
-                            <th class="p-4 text-center">حالة البطولة</th>
+                            <th class="p-4 text-center">الحالة</th>
                             <th class="p-4 text-center">النقاط</th>
                             <th class="p-4 text-center">تحكم</th>
                         </tr>
@@ -98,9 +98,7 @@
                 <div class="flex gap-3 mb-3">
                     <select id="q-day" class="flex-1 p-3 rounded-xl text-yellow-500 font-bold border-yellow-600"></select>
                     <select id="q-var" class="w-1/3 p-3 rounded-xl text-blue-400 font-bold border-blue-600">
-                        <option value="0">نسخة 1</option><option value="1">نسخة 2</option>
-                        <option value="2">نسخة 3</option><option value="3">نسخة 4</option>
-                        <option value="4">نسخة 5</option><option value="5">نسخة 6</option>
+                        <option value="0">نسخة 1</option><option value="1">نسخة 2</option><option value="2">نسخة 3</option><option value="3">نسخة 4</option><option value="4">نسخة 5</option><option value="5">نسخة 6</option>
                     </select>
                 </div>
                 <button onclick="loadQ()" class="w-full bg-blue-900/80 text-blue-300 border border-blue-500 p-3 rounded-xl font-bold">⬇️ استدعاء الأسئلة للتعديل</button>
@@ -135,6 +133,43 @@
         </div>
     </div>
 
+    <div id="edit-group-modal" class="modal-overlay">
+        <div class="glass-panel p-6 rounded-3xl border border-blue-500 w-full max-w-sm">
+            <h3 class="text-blue-400 font-black mb-4 text-center text-xl">تعديل المجموعة</h3>
+            <input type="text" id="edit-g-name" placeholder="اسم المجموعة الجديد" class="w-full p-3 rounded-xl mb-3 text-sm">
+            <div class="mb-3">
+                <select id="edit-g-type" onchange="toggleEditGroupInputs()" class="w-full p-3 rounded-xl text-sm">
+                    <option value="teams">مباراة (تيم ضد تيم)</option>
+                    <option value="single">فردي (مجموعة أفراد)</option>
+                </select>
+            </div>
+            <div id="edit-teams-input-area" class="grid grid-cols-2 gap-3 mb-4">
+                <input type="text" id="edit-t1" placeholder="تيم 1" class="p-3 rounded-xl text-sm">
+                <input type="text" id="edit-t2" placeholder="تيم 2" class="p-3 rounded-xl text-sm">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="saveEditedGrp()" class="flex-1 bg-blue-600 text-white font-black p-3 rounded-xl">حفظ التعديلات</button>
+                <button onclick="document.getElementById('edit-group-modal').style.display='none'" class="flex-1 bg-gray-800 text-white p-3 rounded-xl font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-user-modal" class="modal-overlay">
+        <div class="glass-panel p-6 rounded-3xl border border-purple-500 w-full max-w-sm">
+            <h3 class="text-purple-400 font-black mb-4 text-center text-xl">تعديل بيانات اللاعب</h3>
+            <input type="text" id="edit-u-name" placeholder="اسم اللاعب" class="w-full p-3 rounded-xl mb-3 text-sm">
+            <label class="block text-[10px] text-gray-400 mb-1">نقل لمجموعة أخرى:</label>
+            <select id="edit-u-group" onchange="loadEditUserTeams()" class="w-full p-3 rounded-xl mb-3 text-sm"></select>
+            <label class="block text-[10px] text-gray-400 mb-1">نقل لتيم آخر:</label>
+            <select id="edit-u-team" class="w-full p-3 rounded-xl mb-4 text-sm"></select>
+            
+            <div class="flex gap-2">
+                <button onclick="saveEditedUsr()" class="flex-1 bg-purple-600 text-white font-black p-3 rounded-xl">تحديث اللاعب</button>
+                <button onclick="document.getElementById('edit-user-modal').style.display='none'" class="flex-1 bg-gray-800 text-white p-3 rounded-xl font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <div id="copy-modal" class="modal-overlay">
         <div class="glass-panel p-8 rounded-3xl border border-green-500 w-full max-w-xs text-center">
             <p class="text-white font-bold mb-6 text-lg">تم التسجيل بنجاح!</p>
@@ -160,5 +195,4 @@
         </div>
     </div>
 </body>
-    </html>
-    
+</html>
