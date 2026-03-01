@@ -25,6 +25,7 @@
         <nav class="flex gap-2 mb-6 overflow-x-auto pb-2">
             <button class="nav-btn active" onclick="showTab('room', this)">المجموعات</button>
             <button class="nav-btn" onclick="showTab('users', this)">المتسابقين</button>
+            <button class="nav-btn" onclick="showTab('final', this)">الدور الأخير 🏆</button>
             <button class="nav-btn" onclick="showTab('global', this)">الترتيب</button>
             <button class="nav-btn" onclick="showTab('quizzes', this)">الكويز</button>
             <button class="nav-btn" onclick="showTab('vault', this)">الخزنة</button>
@@ -68,6 +69,26 @@
             </div>
         </div>
 
+        <div id="tab-final" class="tab-content">
+            <div class="glass-panel p-5 rounded-2xl mb-6 border border-yellow-500 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <h3 class="text-yellow-500 font-black mb-2 text-lg"><i class="fas fa-trophy"></i> تصفيات الدور الأخير</h3>
+                <p class="text-xs text-gray-300 font-bold">المقصي يمكنه اللعب وتجميع النقاط للترتيب العام، لكنه يعتبر خارج المنافسة النهائية للبطولة.</p>
+            </div>
+            <div class="glass-panel rounded-2xl overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-gray-800 text-gray-400">
+                        <tr>
+                            <th class="p-4">المتسابق</th>
+                            <th class="p-4 text-center">حالة البطولة</th>
+                            <th class="p-4 text-center">النقاط</th>
+                            <th class="p-4 text-center">تحكم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="final-list"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="tab-global" class="tab-content">
             <div id="global-tables-container" class="space-y-6"></div>
         </div>
@@ -77,12 +98,9 @@
                 <div class="flex gap-3 mb-3">
                     <select id="q-day" class="flex-1 p-3 rounded-xl text-yellow-500 font-bold border-yellow-600"></select>
                     <select id="q-var" class="w-1/3 p-3 rounded-xl text-blue-400 font-bold border-blue-600">
-                        <option value="0">نسخة 1</option>
-                        <option value="1">نسخة 2</option>
-                        <option value="2">نسخة 3</option>
-                        <option value="3">نسخة 4</option>
-                        <option value="4">نسخة 5</option>
-                        <option value="5">نسخة 6</option>
+                        <option value="0">نسخة 1</option><option value="1">نسخة 2</option>
+                        <option value="2">نسخة 3</option><option value="3">نسخة 4</option>
+                        <option value="4">نسخة 5</option><option value="5">نسخة 6</option>
                     </select>
                 </div>
                 <button onclick="loadQ()" class="w-full bg-blue-900/80 text-blue-300 border border-blue-500 p-3 rounded-xl font-bold">⬇️ استدعاء الأسئلة للتعديل</button>
@@ -142,5 +160,5 @@
         </div>
     </div>
 </body>
-                </html>
-                
+    </html>
+    
