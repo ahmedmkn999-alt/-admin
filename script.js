@@ -1,4 +1,3 @@
-// --- 1. الأساسيات ---
 let db = null;
 let globalGroups = [];
 let globalUsers = [];
@@ -95,6 +94,7 @@ function startListening() {
         globalUsers = [];
         s.forEach(d => globalUsers.push({id: d.id, ...d.data()}));
         renderUsers();
+        renderFinalRound(); // تحديث شاشة الدور الأخير
         calculateGlobalRanking();
     }, err => console.error(err));
 }
@@ -189,10 +189,7 @@ function renderUsers() {
     
     let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
     safeUsers.sort((a,b) => b.score - a.score).forEach(u => {
-        // زرار مسامحة الغش
         let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span onclick="resetCheat('${u.id}')" style="cursor:pointer;" class="bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse hover:bg-red-500" title="سبب الغش: ${u.lastCheatReason || ''}"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
-
-        // ستايل الإقصاء
         let elimClass = u.isEliminated ? 'text-gray-500 line-through' : '';
         let banClass = u.isBanned ? 'text-red-500 line-through' : '';
 
@@ -206,9 +203,7 @@ function renderUsers() {
             <td class="p-4 flex flex-wrap gap-1 justify-center">
                 <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
                 <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
-                
                 <button onclick="eliminateUsr('${u.id}',${u.isEliminated || false})" class="${u.isEliminated ? 'bg-gray-600 hover:bg-gray-500' : 'bg-pink-700 hover:bg-pink-600'} p-2 rounded text-[10px] flex-1 text-white">${u.isEliminated?'فك الإقصاء':'خسر/إقصاء'}</button>
-                
                 <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
                 <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px] flex-1">حذف</button>
             </td>
@@ -216,7 +211,47 @@ function renderUsers() {
     });
 }
 
-// دالة تصفير الغش
+// الدالة الجديدة الخاصة بعرض المتسابقين في الدور الأخير
+function renderFinalRound() {
+    let fL = document.getElementById('final-list');
+    if(!fL) return;
+    fL.innerHTML = "";
+    
+    let safeUsers = globalUsers.map(u => ({...u, score: u.score || 0}));
+    
+    // الترتيب: المكملين أولاً، وبعدين المقصيين، وداخل كل فئة ترتيب بالنقاط
+    safeUsers.sort((a, b) => {
+        if (a.isEliminated === b.isEliminated) {
+            return b.score - a.score;
+        }
+        return a.isEliminated ? 1 : -1;
+    }).forEach(u => {
+        let statusBadge = u.isEliminated 
+            ? '<span class="bg-red-900/80 text-red-300 border border-red-500 px-3 py-1 rounded-lg text-xs font-black shadow-[0_0_10px_rgba(239,68,68,0.4)]">مقصى ❌</span>'
+            : '<span class="bg-green-900/80 text-green-300 border border-green-500 px-3 py-1 rounded-lg text-xs font-black shadow-[0_0_10px_rgba(34,197,94,0.4)]">مكمل 🏆</span>';
+
+        let rowStyle = u.isEliminated ? 'bg-red-900/20 opacity-80' : 'bg-green-900/10';
+        let nameStyle = u.isEliminated ? 'text-gray-400 line-through' : 'text-white';
+        let cheatBadge = (u.cheatCount && u.cheatCount > 0) ? `<span onclick="resetCheat('${u.id}')" style="cursor:pointer;" class="bg-red-600/80 text-white px-2 py-0.5 rounded text-[10px] ml-1 border border-red-500 animate-pulse hover:bg-red-500" title="سبب الغش: ${u.lastCheatReason || ''}"><i class="fas fa-flag"></i> غش (${u.cheatCount})</span>` : '';
+
+        fL.innerHTML += `<tr class="border-b border-gray-800 hover:bg-gray-800/50 transition ${rowStyle}">
+            <td class="p-4 leading-relaxed">
+                <b class="${nameStyle}">${u.name || "مجهول"}</b> ${cheatBadge}
+                <br><small class="text-yellow-500 font-bold">${u.group || ""} | ${u.team || ""}</small>
+            </td>
+            <td class="text-center p-4">${statusBadge}</td>
+            <td class="text-center font-black text-yellow-500 text-xl">${u.score}</td>
+            <td class="p-4 flex flex-wrap gap-1 justify-center">
+                <button onclick="openProfile('${u.id}')" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded text-[10px] w-full mb-1"><i class="fas fa-user"></i> بروفايل</button>
+                <button onclick="edSc('${u.id}',${u.score})" class="bg-blue-600 hover:bg-blue-500 p-2 rounded text-[10px] flex-1">نقط</button>
+                <button onclick="eliminateUsr('${u.id}',${u.isEliminated || false})" class="${u.isEliminated ? 'bg-gray-600 hover:bg-gray-500' : 'bg-pink-700 hover:bg-pink-600'} p-2 rounded text-[10px] flex-1 text-white">${u.isEliminated ? 'إعادة' : 'إقصاء ❌'}</button>
+                <button onclick="banUsr('${u.id}',${u.isBanned || false})" class="bg-orange-600 hover:bg-orange-500 p-2 rounded text-[10px] flex-1">${u.isBanned?'فك':'حظر'}</button>
+                <button onclick="delUsr('${u.id}')" class="bg-red-600 hover:bg-red-500 p-2 rounded text-[10px] flex-1">حذف</button>
+            </td>
+        </tr>`;
+    });
+}
+
 function resetCheat(userId) {
     if(confirm("هل تريد مسامحة المتسابق وتصفير عداد الغش؟")) {
         db.collection("users").doc(userId).update({ cheatCount: 0, lastCheatReason: "" })
@@ -225,9 +260,8 @@ function resetCheat(userId) {
     }
 }
 
-// دالة الإقصاء (الخسارة)
 function eliminateUsr(userId, currentState) {
-    let msg = currentState ? "هل تريد فك الإقصاء عن المتسابق؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه في الترتيب مجددا)";
+    let msg = currentState ? "هل تريد فك الإقصاء عن المتسابق وإعادته للبطولة؟" : "هل أنت متأكد من إقصاء اللاعب؟ (لن يتم احتساب نقاطه في الدور الأخير مجددا)";
     if(confirm(msg)) {
         db.collection("users").doc(userId).update({ isEliminated: !currentState })
         .then(() => alert("تم التحديث!"))
@@ -320,7 +354,6 @@ function renderFilteredLogs() {
     container.innerHTML = html;
 }
 
-// دالة إلغاء الجولة
 function cancelRound(logDocId, scoreToDeduct) {
     if(confirm(`سيتم مسح الجولة وخصم ${scoreToDeduct} نقطة. متأكد؟`)) {
         db.collection("users").doc(currentOpenedUserId).collection("game_logs").doc(logDocId).delete()
@@ -442,4 +475,3 @@ function edSc(id, old) {
 function banUsr(id, s) { db.collection("users").doc(id).update({ isBanned: !s }); }
 function delUsr(id) { if(confirm("هل أنت متأكد من حذف المتسابق نهائياً؟")) db.collection("users").doc(id).delete(); }
 function logOut() { localStorage.removeItem('admin_access'); window.location.reload(); }
-                
