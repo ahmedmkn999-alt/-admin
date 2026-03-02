@@ -173,29 +173,31 @@ function renderUsers() {
 }
 
 // ==========================================
-// 5. إدارة الكويز (الحفظ والاستدعاء)
+// 5. إدارة الكويز (الحفظ والاستدعاء المحدث)
 // ==========================================
 function loadQ() {
     const day = document.getElementById('q-day').value;
     const version = document.getElementById('q-var').value;
-    db.collection("quizzes").doc(`day_${day}_v${version}`).get().then(doc => {
+    
+    // تم التعديل ليقرأ من quizzes_pool زي ما الموقع بيسحب بالضبط
+    db.collection("quizzes_pool").doc(`day_${day}`).get().then(doc => {
         setupQuestions(); // تفريغ
-        if (doc.exists) {
-            const data = doc.data().questions;
+        if (doc.exists && doc.data().variations && doc.data().variations[version]) {
+            const data = doc.data().variations[version].questions;
             const blocks = document.querySelectorAll('.q-block');
             data.forEach((q, i) => {
                 if (blocks[i]) {
-                    blocks[i].querySelector('.qt').value = q.text;
+                    blocks[i].querySelector('.qt').value = q.q; // تم التعديل من text لـ q
                     blocks[i].querySelector('.o1').value = q.options[0];
                     blocks[i].querySelector('.o2').value = q.options[1];
                     blocks[i].querySelector('.o3').value = q.options[2];
                     blocks[i].querySelector('.o4').value = q.options[3];
-                    blocks[i].querySelector('.ca').value = q.answer;
+                    blocks[i].querySelector('.ca').value = q.correctIndex; // تم التعديل من answer
                 }
             });
             alert("تم استدعاء الأسئلة بنجاح ✅");
         } else {
-            alert("اليوم ده لسه ملوش أسئلة، ابدأ اكتب!");
+            alert("النسخة دي لسه ملهاش أسئلة، ابدأ اكتب!");
         }
     });
 }
@@ -210,19 +212,23 @@ function saveQ() {
         const text = b.querySelector('.qt').value.trim();
         if(text) {
             allQuestions.push({
-                text: text,
+                q: text, // تم التعديل ليتوافق مع الموقع
                 options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
-                answer: b.querySelector('.ca').value
+                correctIndex: parseInt(b.querySelector('.ca').value) // تم التعديل ليتوافق مع الموقع وتحويلها لرقم
             });
         }
     });
 
     if(allQuestions.length === 0) return alert("اكتب سؤال واحد على الأقل!");
     
-    db.collection("quizzes").doc(`day_${day}_v${version}`).set({
-        questions: allQuestions,
+    // تم التعديل ليتم الحفظ في مسار variations الصحيح
+    let updateData = {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert("🚀 تم حفظ ونشر الأسئلة بنجاح!"));
+    };
+    updateData[`variations.${version}`] = { questions: allQuestions };
+
+    db.collection("quizzes_pool").doc(`day_${day}`).set(updateData, { merge: true })
+      .then(() => alert("🚀 تم حفظ ونشر الأسئلة بنجاح!"));
 }
 
 // ==========================================
@@ -325,4 +331,4 @@ function saveMessage(doc) {
     const val = doc === 'champData' ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
     db.collection("settings").doc(doc).set({ text: val, updatedAt: Date.now() })
       .then(() => alert("تم تحديث الرسالة ✅"));
-    }
+}
