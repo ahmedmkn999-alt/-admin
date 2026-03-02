@@ -40,7 +40,7 @@ function startListening() {
         globalUsers = [];
         s.forEach(d => globalUsers.push({id: d.id, ...d.data()}));
         renderUsers();
-        renderFinalRound(); 
+        if(typeof renderFinalRound === 'function') renderFinalRound(); 
         calculateGlobalRanking();
     });
 }
@@ -51,7 +51,8 @@ function startListening() {
 function showTab(t, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-'+t).style.display = 'block';
+    const targetTab = document.getElementById('tab-'+t);
+    if(targetTab) targetTab.style.display = 'block';
     if(btn) btn.classList.add('active');
 }
 
@@ -115,15 +116,14 @@ function renderGroups() {
     if(!list) return;
     
     list.innerHTML = "";
-    select.innerHTML = '<option value="">اختر المجموعة</option>';
+    if(select) select.innerHTML = '<option value="">اختر المجموعة</option>';
     
     globalGroups.forEach((g, i) => {
-        select.innerHTML += `<option value="${i}">${g.group}</option>`;
+        if(select) select.innerHTML += `<option value="${i}">${g.group}</option>`;
         list.innerHTML += `
         <div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2 border border-gray-700">
             <div><b class="text-yellow-500">${g.group}</b><small class="block text-gray-400 text-[10px]">${g.type === 'single' ? 'فردي' : g.teams.join(' vs ')}</small></div>
             <div class="flex gap-2">
-                <button onclick="openEditGrp(${i})" class="bg-blue-600 p-2 rounded-lg text-[10px] font-black">تعديل</button>
                 <button onclick="delGrp(${i})" class="bg-red-900 p-2 rounded-lg text-[10px]">حذف</button>
             </div>
         </div>`;
@@ -146,11 +146,15 @@ function addUsr() {
         name: n, password: pass, group: groupName, team: t || "فردي", 
         score: 0, isBanned: false, cheatCount: 0, isEliminated: false
     }).then(() => {
-        document.getElementById('copy-modal').style.display = 'flex';
-        document.getElementById('cp-btn').onclick = () => { 
-            navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`); 
-            alert("تم النسخ!"); 
-        };
+        const modal = document.getElementById('copy-modal');
+        if(modal) modal.style.display = 'flex';
+        const cpBtn = document.getElementById('cp-btn');
+        if(cpBtn) {
+            cpBtn.onclick = () => { 
+                navigator.clipboard.writeText(`الاسم: ${n}\nالكود: ${pass}`); 
+                alert("تم النسخ!"); 
+            };
+        }
     });
 }
 
@@ -179,20 +183,19 @@ function loadQ() {
     const day = document.getElementById('q-day').value;
     const version = document.getElementById('q-var').value;
     
-    // تم التعديل ليقرأ من quizzes_pool زي ما الموقع بيسحب بالضبط
     db.collection("quizzes_pool").doc(`day_${day}`).get().then(doc => {
-        setupQuestions(); // تفريغ
+        setupQuestions(); 
         if (doc.exists && doc.data().variations && doc.data().variations[version]) {
             const data = doc.data().variations[version].questions;
             const blocks = document.querySelectorAll('.q-block');
             data.forEach((q, i) => {
                 if (blocks[i]) {
-                    blocks[i].querySelector('.qt').value = q.q; // تم التعديل من text لـ q
+                    blocks[i].querySelector('.qt').value = q.q; 
                     blocks[i].querySelector('.o1').value = q.options[0];
                     blocks[i].querySelector('.o2').value = q.options[1];
                     blocks[i].querySelector('.o3').value = q.options[2];
                     blocks[i].querySelector('.o4').value = q.options[3];
-                    blocks[i].querySelector('.ca').value = q.correctIndex; // تم التعديل من answer
+                    blocks[i].querySelector('.ca').value = q.correctIndex;
                 }
             });
             alert("تم استدعاء الأسئلة بنجاح ✅");
@@ -212,16 +215,21 @@ function saveQ() {
         const text = b.querySelector('.qt').value.trim();
         if(text) {
             allQuestions.push({
-                q: text, // تم التعديل ليتوافق مع الموقع
-                options: [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value],
-                correctIndex: parseInt(b.querySelector('.ca').value) // تم التعديل ليتوافق مع الموقع وتحويلها لرقم
+                q: text,
+                options: [
+                    b.querySelector('.o1').value, 
+                    b.querySelector('.o2').value, 
+                    b.querySelector('.o3').value, 
+                    b.querySelector('.o4').value
+                ],
+                correctIndex: parseInt(b.querySelector('.ca').value)
             });
         }
     });
 
     if(allQuestions.length === 0) return alert("اكتب سؤال واحد على الأقل!");
     
-    // تم التعديل ليتم الحفظ في مسار variations الصحيح
+    // التعديل المطلوب: حفظ كـ Map باستخدام Dot Notation لعدم مسح النسخ الأخرى
     let updateData = {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -261,7 +269,6 @@ function openProfile(id) {
     document.getElementById('prof-score').innerText = u.score || 0;
     document.getElementById('user-profile-modal').style.display = 'flex';
     
-    // جلب سجل الجولات
     db.collection("users").doc(id).collection("game_logs").get().then(snap => {
         let html = "";
         snap.forEach(doc => {
@@ -276,10 +283,6 @@ function openProfile(id) {
     });
 }
 
-function eliminateUsr(id, current) {
-    db.collection("users").doc(id).update({ isEliminated: !current });
-}
-
 function delUsr(id) {
     if(confirm("سيتم حذف اللاعب وكل بياناته، متأكد؟")) {
         db.collection("users").doc(id).delete();
@@ -291,7 +294,6 @@ function logOut() {
     location.reload();
 }
 
-// دالة ترتيب المجموعات (الترتيب العام)
 function calculateGlobalRanking() {
     const container = document.getElementById('global-tables-container');
     if(!container) return;
@@ -314,10 +316,10 @@ function calculateGlobalRanking() {
     }
 }
 
-// دالة تحميل التيمات في الـ Select
 function loadTeams() {
     const idx = document.getElementById('u-group').value;
     const tSelect = document.getElementById('u-team');
+    if(!tSelect) return;
     tSelect.innerHTML = "";
     if(idx !== "" && globalGroups[idx]) {
         const g = globalGroups[idx];
@@ -326,9 +328,9 @@ function loadTeams() {
     }
 }
 
-// وظائف الرسائل
 function saveMessage(doc) {
-    const val = doc === 'champData' ? document.getElementById('msg-champ').value : document.getElementById('msg-daily').value;
+    const elId = doc === 'champData' ? 'msg-champ' : 'msg-daily';
+    const val = document.getElementById(elId).value;
     db.collection("settings").doc(doc).set({ text: val, updatedAt: Date.now() })
       .then(() => alert("تم تحديث الرسالة ✅"));
 }
