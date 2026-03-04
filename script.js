@@ -41,58 +41,13 @@ function startListening() {
 }
 
 // ==========================================
-// 2. وظائف الواجهة (Tabs & Setup)
-// ==========================================
-function showTab(t, btn) {
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    const targetTab = document.getElementById('tab-'+t);
-    if(targetTab) targetTab.style.display = 'block';
-    if(btn) btn.classList.add('active');
-}
-
-function setupDays() {
-    let html = "";
-    for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
-    ['q-day', 'pub-day'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.innerHTML = html;
-    });
-}
-
-function setupQuestions() {
-    let html = "";
-    for(let i=1; i<=15; i++) {
-        html += `
-        <div class="q-block glass-panel p-4 rounded-xl mb-4 border border-gray-700">
-            <p class="text-yellow-500 text-[10px] font-bold mb-1">سؤال ${i}</p>
-            <textarea class="qt w-full p-2 text-sm rounded-lg mb-2 h-12 bg-black/40 text-white" placeholder="اكتب السؤال..."></textarea>
-            <div class="grid grid-cols-2 gap-2">
-                <input class="o1 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 1">
-                <input class="o2 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 2">
-                <input class="o3 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 3">
-                <input class="o4 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 4">
-            </div>
-            <select class="ca w-full p-2 mt-2 text-xs text-green-400 bg-black rounded">
-                <option value="0">الإجابة الصحيحة: 1</option>
-                <option value="1">الإجابة الصحيحة: 2</option>
-                <option value="2">الإجابة الصحيحة: 3</option>
-                <option value="3">الإجابة الصحيحة: 4</option>
-            </select>
-        </div>`;
-    }
-    const qArea = document.getElementById('q-area');
-    if(qArea) qArea.innerHTML = html;
-}
-
-// ==========================================
-// 3. إدارة الكويز (الاستدعاء والحفظ المصلح)
+// 2. إدارة الكويز (الحل النهائي لظهور الأسئلة)
 // ==========================================
 function loadQ() {
     const day = document.getElementById('q-day').value;
     const version = document.getElementById('q-var').value;
     
-    // أسئلة الجولة 10 المضافة
+    // أسئلة الجولة 10 (النسخة الأصلية)
     const day10Hard = [
         { q: "اللاعب الوحيد سجل في نهائي الأبطال مع فريقين مختلفين في القرن الـ21؟", options: ["رونالدو", "ماندزوكيتش", "سواريز", "رونالدو وماندزوكيتش"], correctIndex: 3 },
         { q: "صاحب الرقم القياسي لأكثر أسيست في موسم واحد بالأبطال (9 أسيست)؟", options: ["نيمار", "ميسي", "جيمس ميلنر", "دي بروين"], correctIndex: 2 },
@@ -124,7 +79,7 @@ function loadQ() {
                 blocks[i].querySelector('.ca').value = q.correctIndex;
             }
         });
-        alert("✨ تم استدعاء أسئلة الجولة 10 العظمة! راجعهم ودوس حفظ.");
+        alert("✅ تم استدعاء أسئلة الجولة 10! دوس حفظ الآن.");
     } else {
         db.collection("quizzes_pool").doc(`day_${day}`).get().then(doc => {
             setupQuestions(); 
@@ -166,17 +121,17 @@ function saveQ() {
 
     if(allQuestions.length === 0) return alert("اكتب سؤال واحد على الأقل!");
     
-    // التعديل الهام: الحفظ في نسخة "0" وفي "v1" عشان الموقع يقرأ فوراً
+    // السر هنا: بنسيف في الخانة 0 والخانة اللي إنت مختارها عشان الموقع يقرأ صح
     let updateData = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
     updateData[`variations.0`] = { questions: allQuestions };
     updateData[`variations.${version}`] = { questions: allQuestions };
 
     db.collection("quizzes_pool").doc(`day_${day}`).set(updateData, { merge: true })
-      .then(() => alert("🚀 تم الحفظ والنشر بنجاح!"));
+      .then(() => alert("🚀 تم الحفظ والنشر بنجاح! جرب تفتح الكويز دلوقتي."));
 }
 
 // ==========================================
-// 4. البروفايل وحذف السجلات (مهم)
+// 3. البروفايل وحذف سجلات الجولات
 // ==========================================
 function openProfile(id) {
     const u = globalUsers.find(x => x.id === id);
@@ -211,13 +166,13 @@ function deleteLog(userId, logId) {
 }
 
 // ==========================================
-// 5. بقية الدوال (المجموعات، المستخدمين، الترتيب)
+// 4. بقية وظائف الإدارة الأصلية
 // ==========================================
 function setStatus(s) {
     const day = document.getElementById('pub-day').value;
     db.collection("settings").doc("global_status").set({
         currentDay: parseInt(day), status: s
-    }).then(() => alert(`الحالة الآن: ${s}`));
+    }).then(() => alert(`تم تغيير حالة الملعب لـ: ${s}`));
 }
 
 function edSc(id) {
@@ -258,7 +213,38 @@ function calculateGlobalRanking() {
     }
 }
 
-// الدوال المساعدة المتبقية (saveGrp, renderGroups, delGrp, addUsr, loadTeams, saveMessage)
+// الدوال المساعدة (تجهيز الأيام والأسئلة)
+function setupDays() {
+    let html = "";
+    for(let d=1; d<=30; d++) html += `<option value="${d}">اليوم ${d}</option>`;
+    ['q-day', 'pub-day'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = html; });
+}
+
+function setupQuestions() {
+    let html = "";
+    for(let i=1; i<=15; i++) {
+        html += `
+        <div class="q-block glass-panel p-4 rounded-xl mb-4 border border-gray-700">
+            <p class="text-yellow-500 text-[10px] font-bold mb-1">سؤال ${i}</p>
+            <textarea class="qt w-full p-2 text-sm rounded-lg mb-2 h-12 bg-black/40 text-white" placeholder="اكتب السؤال..."></textarea>
+            <div class="grid grid-cols-2 gap-2">
+                <input class="o1 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 1">
+                <input class="o2 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 2">
+                <input class="o3 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 3">
+                <input class="o4 p-2 text-xs rounded bg-black/40 text-white" placeholder="خيار 4">
+            </div>
+            <select class="ca w-full p-2 mt-2 text-xs text-green-400 bg-black rounded">
+                <option value="0">الإجابة الصحيحة: 1</option>
+                <option value="1">الإجابة الصحيحة: 2</option>
+                <option value="2">الإجابة الصحيحة: 3</option>
+                <option value="3">الإجابة الصحيحة: 4</option>
+            </select>
+        </div>`;
+    }
+    if(document.getElementById('q-area')) document.getElementById('q-area').innerHTML = html;
+}
+
+// دوال إدارة المستخدمين والمجموعات
 function saveGrp() {
     const name = document.getElementById('g-name').value.trim();
     const type = document.getElementById('g-type').value;
@@ -282,36 +268,9 @@ function renderGroups() {
     if(select) select.innerHTML = '<option value="">اختر المجموعة</option>';
     globalGroups.forEach((g, i) => {
         if(select) select.innerHTML += `<option value="${i}">${g.group}</option>`;
-        list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2 border border-gray-700"><div><b class="text-yellow-500">${g.group}</b></div><button onclick="delGrp(${i})" class="bg-red-900 p-2 rounded-lg text-[10px]">حذف</button></div>`;
+        list.innerHTML += `<div class="glass-panel p-3 rounded-xl flex justify-between items-center mb-2"><div><b class="text-yellow-500">${g.group}</b></div><button onclick="delGrp(${i})" class="bg-red-900 p-2 rounded-lg text-[10px]">حذف</button></div>`;
     });
 }
 
-function delGrp(i) {
-    if(confirm("حذف المجموعة؟")) { globalGroups.splice(i, 1); db.collection("config").doc("groups_data").set({ list: globalGroups }); }
-}
-
-function addUsr() {
-    let n = document.getElementById('u-name').value.trim();
-    let gIdx = document.getElementById('u-group').value;
-    let t = document.getElementById('u-team').value;
-    if(!n || gIdx === "") return alert("كمل البيانات");
-    let groupName = globalGroups[gIdx].group;
-    let pass = Math.floor(100000 + Math.random() * 900000).toString();
-    db.collection("users").add({ name: n, password: pass, group: groupName, team: t || "فردي", score: 0 }).then(() => alert("تم الإضافة: " + n + " | الكود: " + pass));
-}
-
-function delUsr(id) {
-    if(confirm("حذف اللاعب؟")) db.collection("users").doc(id).delete();
-}
-
-function loadTeams() {
-    const idx = document.getElementById('u-group').value;
-    const tSelect = document.getElementById('u-team');
-    if(!tSelect) return;
-    tSelect.innerHTML = "";
-    if(idx !== "" && globalGroups[idx]) {
-        const g = globalGroups[idx];
-        if(g.type === 'single') tSelect.innerHTML = '<option value="فردي">فردي</option>';
-        else g.teams.forEach(t => tSelect.innerHTML += `<option value="${t}">${t}</option>`);
-    }
-}
+function delUsr(id) { if(confirm("حذف اللاعب؟")) db.collection("users").doc(id).delete(); }
+function delGrp(i) { if(confirm("حذف المجموعة؟")) { globalGroups.splice(i, 1); db.collection("config").doc("groups_data").set({ list: globalGroups }); } }
