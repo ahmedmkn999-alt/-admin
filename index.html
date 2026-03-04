@@ -1,1 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 دخول محظور</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        * { font-family: 'Cairo', sans-serif; }
+        body {
+            background: #030712;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(212,175,55,0.07) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(239,68,68,0.05) 0%, transparent 50%);
+        }
+        .glass {
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212,175,55,0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        .gold-btn {
+            background: linear-gradient(135deg, #d4af37, #92700a);
+            color: #000;
+            font-weight: 900;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .gold-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(212,175,55,0.4); }
+        .gold-btn:active { transform: scale(0.97); }
+        .gold-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
+        /* شريط تحميل */
+        .progress-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #d4af37, #f59e0b);
+            width: 0%;
+            transition: width 0.1s linear;
+            border-radius: 99px;
+        }
+
+        /* Shake animation للخطأ */
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            10%,50%,90% { transform: translateX(-8px); }
+            30%,70% { transform: translateX(8px); }
+        }
+        .shake { animation: shake 0.5s ease; }
+
+        /* مؤثر الخلفية */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background-image:
+                linear-gradient(rgba(212,175,55,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212,175,55,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px #0f172a inset !important; -webkit-text-fill-color: #fff !important; }
+
+        /* منع الـ inspect */
+        * { -webkit-user-select: none !important; user-select: none !important; }
+        input { -webkit-user-select: text !important; user-select: text !important; }
+    </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="glass p-8 rounded-3xl w-full max-w-sm mx-4 relative overflow-hidden">
+    <!-- شريط ذهبي في الأعلى -->
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+
+    <!-- أيقونة -->
+    <div class="text-center mb-6">
+        <div id="lock-icon" class="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-500/20 to-yellow-900/20 border border-yellow-500/30 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-500">
+            <i class="fas fa-shield-alt text-3xl text-yellow-500"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white">منطقة مقيّدة</h2>
+        <p class="text-gray-500 text-xs font-bold mt-1">الدخول للمصرح لهم فقط</p>
+    </div>
+
+    <!-- Progress bar (تحت الأيقونة) -->
+    <div class="bg-gray-800 rounded-full h-1 mb-6 overflow-hidden">
+        <div id="progress-bar" class="progress-bar"></div>
+    </div>
+
+    <!-- حقل كلمة المرور -->
+    <div class="relative mb-4">
+        <input
+            type="password"
+            id="gate-pass"
+            placeholder="أدخل كود الدخول..."
+            maxlength="30"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            class="w-full p-4 pr-12 rounded-xl text-center text-lg tracking-[0.3em] font-black bg-gray-900/80 border border-gray-700 outline-none text-white focus:border-yellow-500/70 transition-colors"
+            onkeydown="if(event.key==='Enter') attemptLogin()"
+        >
+        <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+    </div>
+
+    <!-- رسالة الخطأ -->
+    <div id="error-msg" class="hidden mb-4 p-3 bg-red-900/30 border border-red-500/30 rounded-xl text-center">
+        <p id="error-text" class="text-red-400 text-sm font-bold"></p>
+    </div>
+
+    <!-- رسالة الحظر -->
+    <div id="block-msg" class="hidden mb-4 p-3 bg-red-900/50 border border-red-500/50 rounded-xl text-center">
+        <i class="fas fa-ban text-red-500 text-2xl mb-2 block"></i>
+        <p class="text-red-400 text-sm font-black">تم حظرك مؤقتاً</p>
+        <p id="block-timer" class="text-red-300 text-xs mt-1 font-bold">انتظر: <span id="block-countdown">--</span></p>
+    </div>
+
+    <!-- زر الدخول -->
+    <button id="login-btn" onclick="attemptLogin()" class="gold-btn w-full py-4 rounded-xl text-base shadow-lg">
+        <i class="fas fa-sign-in-alt ml-2"></i> دخول
+    </button>
+
+    <!-- عداد المحاولات -->
+    <div id="attempts-indicator" class="mt-4 text-center hidden">
+        <p class="text-xs text-gray-600 font-bold">المحاولات المتبقية:
+            <span id="attempts-left" class="text-yellow-600 font-black">5</span>
+        </p>
+        <div class="flex justify-center gap-1 mt-2">
+            <div class="attempt-dot w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div class="attempt-dot w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div class="attempt-dot w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div class="attempt-dot w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div class="attempt-dot w-2 h-2 rounded-full bg-yellow-500"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    // ══════════════════════════════════════════
+    // الإعدادات - غيّر كلمة المرور من هنا فقط
+    // ══════════════════════════════════════════
+    const ADMIN_CONFIG = {
+        // كلمة المرور مش مخزنة كـ plain text -
+        // دي النسخة المشفرة بـ SHA-256 لكلمة المرور "admin2025"
+        // عشان تغيرها: اتصل بـ hashPassword() في الكونسول وحط الناتج هنا
+        passwordHash: "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", // "123"
+        maxAttempts: 5,          // عدد المحاولات قبل الحظر
+        blockDuration: 300,      // مدة الحظر بالثواني (5 دقائق)
+        sessionDuration: 8 * 60 * 60 * 1000, // مدة الجلسة (8 ساعات)
+        loginDelay: 1500,        // تأخير مصطنع (ms) عشان يمنع Brute Force السريع
+    };
+
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8",
+        projectId: "ramadan-87817",
+        appId: "1:343525703258:web:6776b4857425df8bcca263"
+    };
+
+    let db = null;
+    let isLoading = false;
+
+    // ══════════════════════════════════════════
+    // تشفير SHA-256
+    // ══════════════════════════════════════════
+    async function hashPassword(password) {
+        const msgBuffer = new TextEncoder().encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ══════════════════════════════════════════
+    // نظام الحظر المحلي (Brute Force Protection)
+    // ══════════════════════════════════════════
+    function getAttemptData() {
+        try {
+            const data = JSON.parse(sessionStorage.getItem('__atd') || '{}');
+            return { attempts: data.a || 0, blockedUntil: data.b || 0 };
+        } catch(e) { return { attempts: 0, blockedUntil: 0 }; }
+    }
+
+    function saveAttemptData(attempts, blockedUntil) {
+        sessionStorage.setItem('__atd', JSON.stringify({ a: attempts, b: blockedUntil }));
+    }
+
+    function isBlocked() {
+        const { blockedUntil } = getAttemptData();
+        return Date.now() < blockedUntil;
+    }
+
+    function getRemainingBlockTime() {
+        const { blockedUntil } = getAttemptData();
+        return Math.ceil((blockedUntil - Date.now()) / 1000);
+    }
+
+    // ══════════════════════════════════════════
+    // التحقق من الجلسة الموجودة
+    // ══════════════════════════════════════════
+    function checkExistingSession() {
+        try {
+            const session = JSON.parse(localStorage.getItem('__adm_s') || 'null');
+            if (session && session.token && session.expires > Date.now()) {
+                // جلسة صالحة - وجّهه للداشبورد
+                window.location.replace('dashboard.html');
+                return true;
+            }
+            // الجلسة منتهية - امسحها
+            localStorage.removeItem('__adm_s');
+        } catch(e) { localStorage.removeItem('__adm_s'); }
+        return false;
+    }
+
+    // ══════════════════════════════════════════
+    // تسجيل محاولة الدخول في Firebase
+    // ══════════════════════════════════════════
+    function logLoginAttempt(success) {
+        if (!db) return;
+        try {
+            db.collection("admin_logs").add({
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                success: success,
+                userAgent: navigator.userAgent.substring(0, 100),
+                screen: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                lang: navigator.language,
+            });
+        } catch(e) {}
+    }
+
+    // ══════════════════════════════════════════
+    // UI Helpers
+    // ══════════════════════════════════════════
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        const txt = document.getElementById('error-text');
+        el.classList.remove('hidden');
+        txt.textContent = msg;
+        // Shake animation
+        const input = document.getElementById('gate-pass');
+        input.classList.remove('shake');
+        void input.offsetWidth;
+        input.classList.add('shake');
+        input.value = '';
+        setTimeout(() => input.classList.remove('shake'), 600);
+    }
+
+    function showBlockScreen(seconds) {
+        document.getElementById('error-msg').classList.add('hidden');
+        document.getElementById('block-msg').classList.remove('hidden');
+        document.getElementById('login-btn').disabled = true;
+        document.getElementById('gate-pass').disabled = true;
+        document.getElementById('attempts-indicator').classList.add('hidden');
+
+        // أيقونة محمرة
+        const icon = document.getElementById('lock-icon');
+        icon.className = icon.className.replace('yellow', 'red').replace('from-yellow-500/20', 'from-red-500/20').replace('to-yellow-900/20', 'to-red-900/20').replace('border-yellow-500/30', 'border-red-500/30');
+
+        let remaining = seconds;
+        const countEl = document.getElementById('block-countdown');
+
+        const timer = setInterval(() => {
+            remaining--;
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            countEl.textContent = m > 0 ? `${m}:${s.toString().padStart(2,'0')}` : `${s} ثانية`;
+
+            if (remaining <= 0) {
+                clearInterval(timer);
+                // إعادة تفعيل
+                document.getElementById('block-msg').classList.add('hidden');
+                document.getElementById('login-btn').disabled = false;
+                document.getElementById('gate-pass').disabled = false;
+                document.getElementById('gate-pass').focus();
+                saveAttemptData(0, 0);
+                updateAttemptDots(ADMIN_CONFIG.maxAttempts);
+                // إعادة أيقونة الدرع
+                document.getElementById('lock-icon').innerHTML = '<i class="fas fa-shield-alt text-3xl text-yellow-500"></i>';
+            }
+        }, 1000);
+        countEl.textContent = `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`;
+    }
+
+    function updateAttemptDots(remaining) {
+        const indicator = document.getElementById('attempts-indicator');
+        const dots = document.querySelectorAll('.attempt-dot');
+        const leftEl = document.getElementById('attempts-left');
+
+        if (remaining < ADMIN_CONFIG.maxAttempts) {
+            indicator.classList.remove('hidden');
+        }
+
+        leftEl.textContent = remaining;
+        dots.forEach((dot, i) => {
+            dot.style.background = i < remaining ? '#eab308' : '#374151';
+        });
+    }
+
+    function startProgressBar() {
+        const bar = document.getElementById('progress-bar');
+        bar.style.width = '0%';
+        let w = 0;
+        const interval = setInterval(() => {
+            w += 2;
+            bar.style.width = Math.min(w, 90) + '%';
+            if (w >= 90) clearInterval(interval);
+        }, 30);
+        return interval;
+    }
+
+    function completeProgressBar() {
+        const bar = document.getElementById('progress-bar');
+        bar.style.width = '100%';
+        bar.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+    }
+
+    // ══════════════════════════════════════════
+    // الدالة الرئيسية للدخول
+    // ══════════════════════════════════════════
+    window.attemptLogin = async function() {
+        if (isLoading || isBlocked()) return;
+
+        const pass = document.getElementById('gate-pass').value.trim();
+        if (!pass) {
+            document.getElementById('gate-pass').classList.add('shake');
+            setTimeout(() => document.getElementById('gate-pass').classList.remove('shake'), 600);
+            return;
+        }
+
+        isLoading = true;
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin ml-2"></i> جاري التحقق...';
+
+        const progressInterval = startProgressBar();
+
+        // تأخير مصطنع لمنع Brute Force السريع
+        await new Promise(r => setTimeout(r, ADMIN_CONFIG.loginDelay));
+
+        try {
+            // تشفير كلمة المرور المدخلة
+            const inputHash = await hashPassword(pass);
+
+            clearInterval(progressInterval);
+
+            if (inputHash === ADMIN_CONFIG.passwordHash) {
+                // ✅ كلمة المرور صح
+                completeProgressBar();
+
+                // توليد token عشوائي للجلسة
+                const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                    .map(b => b.toString(16).padStart(2,'0')).join('');
+
+                // حفظ الجلسة بتاريخ انتهاء
+                localStorage.setItem('__adm_s', JSON.stringify({
+                    token: token,
+                    expires: Date.now() + ADMIN_CONFIG.sessionDuration,
+                    loginTime: Date.now()
+                }));
+
+                // مسح سجل المحاولات
+                saveAttemptData(0, 0);
+
+                // تسجيل الدخول الناجح
+                logLoginAttempt(true);
+
+                // أيقونة نجاح
+                document.getElementById('lock-icon').innerHTML = '<i class="fas fa-check-circle text-3xl text-green-400"></i>';
+
+                btn.innerHTML = '<i class="fas fa-check ml-2"></i> مرحباً بك!';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+
+                setTimeout(() => {
+                    window.location.replace('dashboard.html');
+                }, 800);
+
+            } else {
+                // ❌ كلمة المرور غلط
+                const { attempts } = getAttemptData();
+                const newAttempts = attempts + 1;
+                const remaining = ADMIN_CONFIG.maxAttempts - newAttempts;
+
+                logLoginAttempt(false);
+
+                if (newAttempts >= ADMIN_CONFIG.maxAttempts) {
+                    // حظر مؤقت
+                    const blockedUntil = Date.now() + (ADMIN_CONFIG.blockDuration * 1000);
+                    saveAttemptData(newAttempts, blockedUntil);
+                    showBlockScreen(ADMIN_CONFIG.blockDuration);
+                } else {
+                    saveAttemptData(newAttempts, 0);
+                    updateAttemptDots(remaining);
+
+                    if (remaining === 1) {
+                        showError(`❌ كلمة المرور خاطئة! تحذير: باقي محاولة واحدة فقط`);
+                    } else {
+                        showError(`❌ كلمة المرور خاطئة! (${remaining} محاولات متبقية)`);
+                    }
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt ml-2"></i> دخول';
+                }
+
+                document.getElementById('progress-bar').style.width = '0%';
+            }
+        } catch(e) {
+            clearInterval(progressInterval);
+            showError('حدث خطأ، حاول مرة أخرى');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt ml-2"></i> دخول';
+            document.getElementById('progress-bar').style.width = '0%';
+        }
+
+        isLoading = false;
+    };
+
+    // ══════════════════════════════════════════
+    // حماية إضافية - منع DevTools وView Source
+    // ══════════════════════════════════════════
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.keyCode === 123) { e.preventDefault(); return false; }
+        if (e.ctrlKey && ['u','i','j','s','a'].includes(e.key.toLowerCase())) {
+            e.preventDefault(); return false;
+        }
+        if (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) {
+            e.preventDefault(); return false;
+        }
+    });
+
+    // ══════════════════════════════════════════
+    // Init
+    // ══════════════════════════════════════════
+    window.addEventListener('DOMContentLoaded', () => {
+        // اتصال Firebase للـ logs
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch(e) {}
+
+        // فحص الجلسة الموجودة
+        if (checkExistingSession()) return;
+
+        // فحص الحظر
+        if (isBlocked()) {
+            showBlockScreen(getRemainingBlockTime());
+            return;
+        }
+
+        // فحص المحاولات السابقة
+        const { attempts } = getAttemptData();
+        if (attempts > 0) {
+            updateAttemptDots(ADMIN_CONFIG.maxAttempts - attempts);
+        }
+
+        document.getElementById('gate-pass').focus();
+    });
+
+})();
+</script>
+</body>
+  </html>
