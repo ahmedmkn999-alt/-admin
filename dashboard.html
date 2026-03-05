@@ -48,7 +48,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <script defer src="script-core.js"></script>
+    <script defer src="script-init.js"></script>
+    <script defer src="script-groups.js"></script>
+    <script defer src="script-quiz-mgr.js"></script>
     <script defer src="script-users.js"></script>
 </head>
 <body class="pb-24 bg-gray-900 text-white min-h-screen">
@@ -313,5 +315,18 @@
     </div>
 </div>
 
-</body>
-    </html>
+
+    <!-- مودال إعادة اللعب -->
+    <div id="replay-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+        <div style="background:#0f172a;border:1px solid rgba(34,197,94,0.4);border-radius:24px;padding:24px;width:100%;max-width:360px;box-shadow:0 25px 50px rgba(0,0,0,0.8);">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:40px;margin-bottom:8px;">🔄</div>
+                <h3 style="color:#4ade80;font-weight:900;font-size:18px;">إعادة لعب</h3>
+                <p id="replay-name" style="color:#9ca3af;font-size:13px;font-weight:bold;margin-top:4px;"></p>
+            </div>
+            <input type="hidden" id="replay-userid">
+
+            <!-- إعادة جولة واحدة -->
+            <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:14px;margin-bottom:12px;">
+                <p style="color:#4ade80;font-size:12px;font-weight:900;margin-bottom:8px;">🎯 إعادة جولة معينة</p>
+                <select id="replay-day-select" style="width:100%;padding:10px;background:#1f2937;border:1px solid 
