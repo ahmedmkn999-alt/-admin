@@ -73,6 +73,7 @@
         <button class="nav-btn" onclick="showTab('tab-quizzes', this)">✏️ إضافة أسئلة</button>
         <button class="nav-btn" onclick="showTab('tab-vault', this)">الخزنة</button>
         <button class="nav-btn" onclick="showTab('tab-settings', this)">الرسائل</button>
+        <button class="nav-btn" onclick="showTab('tab-night', this)">🌙 سؤال الليلة</button>
     </nav>
 
     <!-- ══════════════════════════════════════ -->
@@ -234,6 +235,71 @@
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════ -->
+    <!-- تاب سؤال الليلة 🌙 -->
+    <!-- ══════════════════════════════════════ -->
+    <div id="tab-night" class="tab-content space-y-4">
+        <div class="glass-panel p-5 rounded-2xl border-r-4 border-purple-500">
+            <h3 class="text-purple-400 font-black mb-4 text-lg">🌙 إعداد سؤال الليلة</h3>
+
+            <!-- الحالة -->
+            <div class="flex items-center gap-3 mb-4">
+                <label class="text-sm text-gray-300 font-bold">تفعيل السؤال:</label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="nq-active" style="width:18px;height:18px;accent-color:#a855f7;">
+                    <span id="nq-active-label" class="text-sm font-bold text-gray-400">غير مفعّل</span>
+                </label>
+            </div>
+
+            <!-- السؤال -->
+            <label class="block text-xs text-gray-400 mb-1 font-bold">نص السؤال:</label>
+            <textarea id="nq-question" placeholder="اكتب سؤال الليلة هنا..." class="w-full p-3 rounded-xl mb-3 bg-black/40 text-white border border-gray-700 h-20" style="resize:none;"></textarea>
+
+            <!-- الخيارات -->
+            <label class="block text-xs text-gray-400 mb-2 font-bold">الخيارات:</label>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <input type="text" id="nq-opt0" placeholder="الخيار أ" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                <input type="text" id="nq-opt1" placeholder="الخيار ب" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                <input type="text" id="nq-opt2" placeholder="الخيار ج" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                <input type="text" id="nq-opt3" placeholder="الخيار د" class="p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+            </div>
+
+            <!-- الإجابة الصحيحة -->
+            <label class="block text-xs text-gray-400 mb-1 font-bold">الإجابة الصحيحة:</label>
+            <select id="nq-correct" class="w-full p-3 rounded-xl mb-3 bg-black/40 text-white border border-gray-700">
+                <option value="0">الخيار أ</option>
+                <option value="1">الخيار ب</option>
+                <option value="2">الخيار ج</option>
+                <option value="3">الخيار د</option>
+            </select>
+
+            <!-- النقاط ووقت الفتح -->
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">النقاط:</label>
+                    <input type="number" id="nq-points" value="10" min="1" max="50" class="w-full p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">وقت الفتح (س):</label>
+                    <input type="number" id="nq-open-h" value="19" min="0" max="23" class="w-full p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-bold">وقت الإغلاق (س):</label>
+                    <input type="number" id="nq-close-h" value="4" min="0" max="23" class="w-full p-3 rounded-xl bg-black/40 text-white border border-gray-700 text-sm">
+                </div>
+            </div>
+
+            <button onclick="saveNightQuestion()" class="gold-btn w-full p-3 rounded-xl text-base">💾 حفظ سؤال الليلة</button>
+        </div>
+
+        <!-- معاينة الحالة الحالية -->
+        <div class="glass-panel p-5 rounded-2xl border border-gray-800">
+            <h3 class="text-gray-400 font-bold mb-3 text-sm">📊 الحالة الحالية في Firebase</h3>
+            <div id="nq-preview" class="text-xs text-gray-500 font-bold text-center py-4">اضغط "تحميل" لعرض البيانات الحالية</div>
+            <button onclick="loadNightQuestion()" class="w-full mt-3 bg-gray-800 text-gray-300 border border-gray-700 p-3 rounded-xl font-bold text-sm hover:bg-gray-700 transition">⬇️ تحميل البيانات الحالية</button>
+        </div>
+    </div>
+
 </div>
 
 <!-- ══════════════════════════════════════ -->
@@ -329,4 +395,27 @@
             <!-- إعادة جولة واحدة -->
             <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:14px;margin-bottom:12px;">
                 <p style="color:#4ade80;font-size:12px;font-weight:900;margin-bottom:8px;">🎯 إعادة جولة معينة</p>
-                <select id="replay-day-select" style="width:100%;padding:10px;background:#1f2937;border:1px solid 
+                <select id="replay-day-select" style="width:100%;padding:10px;background:#1f2937;border:1px solid rgba(34,197,94,0.3);border-radius:8px;color:white;margin-bottom:10px;font-family:inherit;">
+                    <option value="">اختر الجولة...</option>
+                </select>
+                <button onclick="replayRound()" style="width:100%;padding:10px;background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.5);color:#4ade80;border-radius:8px;font-weight:900;cursor:pointer;font-family:inherit;">
+                    ✅ السماح بإعادة الجولة
+                </button>
+            </div>
+
+            <!-- تصفير كل النقاط -->
+            <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
+                <p style="color:#f87171;font-size:12px;font-weight:900;margin-bottom:8px;">⚠️ تصفير كل شيء</p>
+                <button onclick="resetAllScore()" style="width:100%;padding:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;border-radius:8px;font-weight:900;cursor:pointer;font-family:inherit;">
+                    🗑️ تصفير كل النقاط والجولات
+                </button>
+            </div>
+
+            <button onclick="document.getElementById('replay-modal').style.display='none'" style="width:100%;padding:10px;background:#1f2937;border:1px solid #374151;color:#9ca3af;border-radius:8px;font-weight:bold;cursor:pointer;font-family:inherit;">
+                إغلاق
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
