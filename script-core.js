@@ -259,12 +259,16 @@ function saveQ() {
 
     if (allQuestions.length === 0) return alert("لا توجد أسئلة للحفظ!");
 
+    // ✅ FIX: نحفظ النسخة المختارة فقط - مش نكتب فوق باقي النسخ
     let updateData = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
     updateData[`variations.${version}`] = { questions: allQuestions };
-    updateData[`variations.0`] = { questions: allQuestions };
+    // نسخة 0 بس لو المستخدم اختار النسخة 0 أو أول نسخة في اليوم
+    // لا نكتب variations.0 تلقائياً عشان ميمسحش النسخ التانية
 
     db.collection("quizzes_pool").doc(`day_${day}`).set(updateData, { merge: true })
-        .then(() => alert("🚀 تم الحفظ والنشر بنجاح! اليوم " + day + " - نسخة " + (parseInt(version) + 1)))
+        .then(() => {
+            alert("🚀 تم الحفظ والنشر بنجاح!\nاليوم " + day + " - نسخة " + (parseInt(version) + 1));
+        })
         .catch(err => alert("خطأ في الحفظ: " + err.message));
 }
 
