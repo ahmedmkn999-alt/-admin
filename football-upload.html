@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ رفع أسئلة الكورة</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #030712;
+    color: #e5e7eb;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .header {
+    text-align: center;
+    padding: 28px 20px;
+    background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.05));
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .header h1 { font-size: 26px; font-weight: 900; color: #4ade80; margin-bottom: 4px; }
+  .header p  { color: #6b7280; font-size: 12px; }
+  .card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    transition: border-color .3s;
+  }
+  .card.done   { border-color: rgba(34,197,94,0.45); background: rgba(34,197,94,0.04); }
+  .card.fail   { border-color: rgba(239,68,68,0.45); }
+  .badge {
+    display: inline-block;
+    padding: 3px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .status {
+    background: rgba(0,0,0,0.35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+  }
+  .btn-green {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg,#16a34a,#15803d);
+    color: white; border: none; border-radius: 12px;
+    font-family: 'Cairo',sans-serif; font-size: 14px; font-weight: 900;
+    cursor: pointer;
+  }
+  .btn-green:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-all {
+    width: 100%; padding: 17px;
+    background: linear-gradient(135deg,#d97706,#b45309);
+    color: white; border: none; border-radius: 16px;
+    font-family: 'Cairo',sans-serif; font-size: 16px; font-weight: 900;
+    cursor: pointer; margin-bottom: 22px;
+    box-shadow: 0 4px 20px rgba(217,119,6,.3);
+  }
+  .btn-all:disabled { opacity:.5; cursor:not-allowed; }
+  .back-link {
+    display: block; text-align: center;
+    color: #4b5563; font-size: 12px;
+    margin-top: 24px; text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚽ رفع أسئلة الكورة</h1>
+  <p>15 سؤال صعب جداً لكل جولة — الجولات 11 و 12 و 13 و 14</p>
+</div>
+
+<button class="btn-all" id="btn-all" onclick="uploadAll()">
+  🚀 رفع الجولات الأربعة دفعة واحدة
+</button>
+
+<div class="card" id="card-11">
+  <span class="badge" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;">جولة 11</span>
+  <div class="status" id="st-11">جاهز للرفع...</div>
+  <button class="btn-green" id="b-11" onclick="go(11)">⬆️ رفع جولة 11</button>
+</div>
+
+<div class="card" id="card-12">
+  <span class="badge" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;">جولة 12</span>
+  <div class="status" id="st-12">جاهز للرفع...</div>
+  <button class="btn-green" id="b-12" onclick="go(12)">⬆️ رفع جولة 12</button>
+</div>
+
+<div class="card" id="card-13">
+  <span class="badge" style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#c084fc;">جولة 13</span>
+  <div class="status" id="st-13">جاهز للرفع...</div>
+  <button class="btn-green" id="b-13" onclick="go(13)">⬆️ رفع جولة 13</button>
+</div>
+
+<div class="card" id="card-14">
+  <span class="badge" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;">جولة 14</span>
+  <div class="status" id="st-14">جاهز للرفع...</div>
+  <button class="btn-green" id="b-14" onclick="go(14)">⬆️ رفع جولة 14</button>
+</div>
+
+<a class="back-link" href="dashboard.html">← رجوع للوحة الأدمن</a>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBZMnIJ_IOqeAfXqFt-m4tM1Lvo0tUDnk8",
+  projectId: "ramadan-87817",
+  appId: "1:343525703258:web:6776b4857425df8bcca263"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const Q = {
+  11:[
+    {q:"من هو الهداف التاريخي لكأس العالم بمجموع الأهداف في جميع نسخه؟",options:["ميروسلاف كلوزه","رونالدو البرازيلي","غيرد مولر","جاست فونتين"],correctIndex:0},
+    {q:"في أي عام فازت الجزائر بكأس أمم أفريقيا لأول مرة؟",options:["1990","1982","2019","2000"],correctIndex:1},
+    {q:"كم مرة فاز برشلونة بدوري أبطال أوروبا حتى عام 2024؟",options:["4","5","6","7"],correctIndex:2},
+    {q:"ما هو الرقم القياسي لأسرع هدف في تاريخ كأس العالم؟",options:["10.8 ثانية","8.5 ثانية","11 ثانية","9.2 ثانية"],correctIndex:0},
+    {q:"من سجل 'هدف اليد' الأشهر في تاريخ كأس العالم عام 1986؟",options:["بيليه","دييغو مارادونا","زيكو","ستيف هودج"],correctIndex:1},
+    {q:"كم هدفاً سجل ميسي في الدوري الإسباني مع برشلونة طوال مسيرته؟",options:["474","450","520","496"],correctIndex:0},
+    {q:"أي فريق فاز بأول دوري أبطال أوروبا عام 1956؟",options:["بنفيكا","ريال مدريد","يوفنتوس","أياكس"],correctIndex:1},
+    {q:"من هو المدرب الذي قاد اليونان للفوز بيورو 2004؟",options:["أوتو ريهاغل","ماركيلو ليبي","سكولاري","أرسين فينغر"],correctIndex:0},
+    {q:"في أي ملعب أُقيمت نهائي كأس العالم 2022 في قطر؟",options:["ملعب الجنوب","ملعب لوسيل","ملعب البيت","ملعب 974"],correctIndex:1},
+    {q:"كم مرة فازت البرازيل بكأس العالم؟",options:["4","6","5","3"],correctIndex:2},
+    {q:"من هو أصغر لاعب يسجل هدفاً في تاريخ كأس العالم؟",options:["بيليه","مبابي","مايكل أوين","سيسيليو"],correctIndex:3},
+    {q:"بم يُلقَّب روبيرتو كارلوس؟",options:["أسد الأمازون","قنبلة البرازيل","أسد التيرا","الصاروخ"],correctIndex:2},
+    {q:"كم بطولة دوري أبطال أوروبا يمتلك ريال مدريد حتى 2024؟",options:["12","13","15","14"],correctIndex:2},
+    {q:"من هو مدرب إيطاليا الذي فاز بكأس العالم 2006؟",options:["كارلو أنشيلوتي","ماركيلو ليبي","أنتونيو كونتي","فابيو كابيلو"],correctIndex:1},
+    {q:"في أي عام أُسِّس الاتحاد الدولي لكرة القدم فيفا؟",options:["1900","1904","1910","1898"],correctIndex:1}
+  ],
+  12:[
+    {q:"أي نادٍ يلقب بـ 'العجوز السيدة'؟",options:["إنتر ميلان","ميلان","يوفنتوس","روما"],correctIndex:2},
+    {q:"كم هدفاً سجل رونالدو البرازيلي في كؤوس العالم؟",options:["12","15","10","8"],correctIndex:1},
+    {q:"أي فريق يلقب بـ 'الشياطين الحمر'؟",options:["ليفربول","مانشستر يونايتد","آرسنال","تشيلسي"],correctIndex:1},
+    {q:"من هو أول لاعب يفوز بالكرة الذهبية 6 مرات؟",options:["كريستيانو رونالدو","ليونيل ميسي","نيمار","مبابي"],correctIndex:1},
+    {q:"في أي عام أُقيمت أول بطولة كأس العالم؟",options:["1926","1934","1930","1928"],correctIndex:2},
+    {q:"ما اسم ملعب أتلتيكو مدريد الحالي؟",options:["ملعب ميتروبوليتانو","ملعب بيسينتي كالديرون","ملعب ريمون سانشيز","ملعب بلدية"],correctIndex:0},
+    {q:"كم مرة فاز المنتخب الأرجنتيني بكأس العالم؟",options:["2","4","1","3"],correctIndex:3},
+    {q:"من هو اللاعب الملقب بـ 'الفلاح الذهبي' في كرة القدم المصرية؟",options:["حسام حسن","محمود الخطيب","أحمد حسن","حازم إمام"],correctIndex:1},
+    {q:"أي منتخب فاز بيورو 2020 المقام عام 2021؟",options:["فرنسا","إنجلترا","إيطاليا","إسبانيا"],correctIndex:2},
+    {q:"من هو المدرب الذي أوصل مصر لكأس العالم 2018؟",options:["حسن شحاتة","أجيري","هيكتور كوبر","مارتن يول"],correctIndex:2},
+    {q:"كم مرة أحرز الأهلي المصري دوري أبطال أفريقيا؟",options:["8","12","10","11"],correctIndex:3},
+    {q:"أي أرض يلعب عليها بوروسيا دورتموند؟",options:["ألياتز أرينا","زيغنال إيدونا بارك","فيلتينز أرينا","رين-إنيرجي شتاديون"],correctIndex:1},
+    {q:"من هو اللاعب الأشهر في الأهلي المصري الملقب بـ 'الأسطورة'؟",options:["شيكابالا","محمد عبد المنصف","محمد أبو تريكة","حسن شحاتة"],correctIndex:2},
+    {q:"ما هو أطول عقوبة إيقاف صدرت بحق لاعب في تاريخ كرة القدم؟",options:["8 سنوات","3 سنوات","5 سنوات","سنتان"],correctIndex:0},
+    {q:"من هو الهداف التاريخي لمنتخب ألمانيا قبل أن يتجاوزه توماس مولر؟",options:["غيرد مولر","رومينيغه","كلينسمان","بيرهوف"],correctIndex:0}
+  ],
+  13:[
+    {q:"ما هي أكثر دولة فازت بكأس أمم أوروبا يورو؟",options:["ألمانيا","إسبانيا","فرنسا","إيطاليا"],correctIndex:1},
+    {q:"من هو اللاعب الأكثر ظهوراً في تاريخ كأس العالم بـ 25 مباراة؟",options:["لوثر ماتيوس","ميروسلاف كلوزه","باولو مالديني","رونالدو"],correctIndex:1},
+    {q:"كم ضربة جزاء أُهدرت في نهائي كأس العالم 1994؟",options:["4","5","6","3"],correctIndex:1},
+    {q:"من هو أول لاعب عربي يفوز بلقب دوري أبطال أوروبا؟",options:["محمد صلاح","رياض محرز","سامي الجابر","زينيدين زيدان"],correctIndex:3},
+    {q:"ما هو الرقم القياسي لأكثر أهداف في موسم واحد بالبريميرليغ؟",options:["36 هدف","34 هدف","38 هدف","32 هدف"],correctIndex:2},
+    {q:"من هو أول مدرب يفوز بدوري أبطال أوروبا مع ثلاثة أندية مختلفة؟",options:["مورينيو","كارلو أنشيلوتي","ييب هيينكيس","فيرغسون"],correctIndex:1},
+    {q:"كم دولة شاركت في كأس العالم الأول عام 1930؟",options:["16","13","8","20"],correctIndex:1},
+    {q:"أي لاعب حمل شارة قيادة إيطاليا في كأس العالم 2006؟",options:["أندريا بيرلو","فابيو كانافارو","توتي","بوفون"],correctIndex:1},
+    {q:"من هو أول لاعب يسجل في 4 كؤوس عالم مختلفة؟",options:["رونالدو البرتغالي","كلوزه","بيليه","كافو"],correctIndex:2},
+    {q:"أي دولة استضافت كأس العالم 1966؟",options:["ألمانيا","فرنسا","إنجلترا","إيطاليا"],correctIndex:2},
+    {q:"كم مرة فاز ريال مدريد بالليغا الإسبانية حتى 2024؟",options:["32","35","36","30"],correctIndex:1},
+    {q:"من هو الحارس الأسطوري الروسي الملقب بـ 'العنكبوت الأسود'؟",options:["أكينفييف","داساييف","تريبيل","ليف ياشين"],correctIndex:3},
+    {q:"في أي مدينة يوجد ملعب سانتياغو برنابيو؟",options:["برشلونة","ميلان","مدريد","لشبونة"],correctIndex:2},
+    {q:"في أي دوري يلعب بايرن ميونيخ؟",options:["الإيطالي","الإنجليزي","الفرنسي","الألماني"],correctIndex:3},
+    {q:"أي فريق فاز بأول دوري أبطال أفريقي؟",options:["الأهلي المصري","الترجي التونسي","الوداد المغربي","أسيكي ميموسا"],correctIndex:3}
+  ],
+  14:[
+    {q:"ما هو الاسم الكامل لكريستيانو رونالدو؟",options:["كريستيانو لويس رونالدو","كريستيانو رونالدو دوس سانتوس أفيرو","كريستيانو نونو رونالدو","كريستيانو مانويل رونالدو"],correctIndex:1},
+    {q:"أين وُلد ليونيل ميسي؟",options:["بوينوس آيرس","روساريو","كوردوبا","مندوسا"],correctIndex:1},
+    {q:"من هو المدرب الأطول في إدارة نادٍ واحد في التاريخ الحديث؟",options:["أليكس فيرغسون","أرسين فينغر","أوتو ريهاغل","بوب بيزلي"],correctIndex:0},
+    {q:"أي ناد أول من وصل إلى 100 نقطة في الدوري الإنجليزي في موسم واحد؟",options:["مانشستر يونايتد","آرسنال","مانشستر سيتي","ليفربول"],correctIndex:2},
+    {q:"كم مباراة خسر مانشستر يونايتد في موسم الثلاثية التاريخية 1999؟",options:["لم يخسر","3 مباريات","5 مباريات","مباراتان"],correctIndex:3},
+    {q:"من سجل هدف الفوز لفرنسا في نهائي كأس العالم 2018 ضد كرواتيا؟",options:["غريزمان","كيليان مبابي","بوغبا","مانجالا"],correctIndex:1},
+    {q:"كم مرة أُقيم كأس العالم في أمريكا الجنوبية؟",options:["5 مرات","6 مرات","4 مرات","3 مرات"],correctIndex:0},
+    {q:"أي منتخب يُعدّ الأكثر مشاركة في كأس العالم دون انقطاع؟",options:["ألمانيا","البرازيل","إيطاليا","الأرجنتين"],correctIndex:1},
+    {q:"في أي عام بدأت الكرة الذهبية بالون دور للمرة الأولى؟",options:["1956","1960","1948","1950"],correctIndex:0},
+    {q:"ما هو أكبر فوز في تاريخ كأس العالم؟",options:["ألمانيا 8-0 السعودية","هنغاريا 10-1 السلفادور","يوغسلافيا 9-0 الزائير","أستراليا 31-0 ساموا الأمريكية"],correctIndex:1},
+    {q:"كم لاعباً طُرد في مباراة البرتغال وهولندا في كأس العالم 2006؟",options:["2","3","4","1"],correctIndex:2},
+    {q:"من هو أول لاعب أفريقي يفوز بجائزة أفضل لاعب في العالم من الفيفا؟",options:["دروغبا","أبيدي بيليه","جورج ويا","ماهيني"],correctIndex:2},
+    {q:"أي ناد يحمل لقب 'نادي القرن' من قِبَل الفيفا؟",options:["برشلونة","مانشستر يونايتد","ريال مدريد","بايرن ميونيخ"],correctIndex:2},
+    {q:"ما هو اللقب الرسمي لمنتخب البرتغال؟",options:["الذئاب","أسود الأطلس","السيليساو","الكانارينهوش"],correctIndex:2},
+    {q:"من هو صاحب أسرع هاتريك في تاريخ دوري أبطال أوروبا؟",options:["كريستيانو رونالدو","هاري كين","بيرفانوف","زلاتان إبراهيموفيتش"],correctIndex:0}
+  ]
+};
+
+async function go(day) {
+  const btn  = document.getElementById('b-' + day);
+  const st   = document.getElementById('st-' + day);
+  const card = document.getElementById('card-' + day);
+
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الرفع...';
+  st.textContent  = '⏳ جاري الرفع على Firebase...';
+  st.style.color  = '#fbbf24';
+
+  try {
+    const docRef = db.collection("quizzes_pool").doc("day_" + day);
+    const doc    = await docRef.get();
+    let variations = doc.exists ? (doc.data().variations || {}) : {};
+    variations["0"] = { questions: Q[day] };
+    await docRef.set({
+      variations,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      dayNumber: day
+    }, { merge: true });
+
+    st.textContent   = '✅ تم! ' + Q[day].length + ' سؤال محفوظ بنجاح';
+    st.style.color   = '#4ade80';
+    card.className   = 'card done';
+    btn.textContent  = '✅ تم الرفع';
+    btn.style.background = 'rgba(34,197,94,0.2)';
+  } catch(err) {
+    st.textContent  = '❌ خطأ: ' + err.message;
+    st.style.color  = '#f87171';
+    card.className  = 'card fail';
+    btn.disabled    = false;
+    btn.textContent = '🔄 إعادة المحاولة';
+  }
+}
+
+async function uploadAll() {
+  const btn = document.getElementById('btn-all');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري رفع الكل...';
+  for (const d of [11,12,13,14]) {
+    await go(d);
+    await new Promise(r => setTimeout(r, 500));
+  }
+  btn.textContent = '✅ تم رفع الجولات الأربعة بنجاح!';
+}
+</script>
+</body>
+</html>
