@@ -146,6 +146,23 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// فحص الاتصال عند التحميل
+window.addEventListener('load', () => {
+  const statusDiv = document.createElement('div');
+  statusDiv.style.cssText = 'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#4ade80;text-align:center;';
+  statusDiv.id = 'firebase-status';
+  document.querySelector('.btn-all').insertAdjacentElement('beforebegin', statusDiv);
+  
+  db.collection('quizzes_pool').limit(1).get()
+    .then(() => { statusDiv.textContent = '✅ متصل بـ Firebase — جاهز للرفع'; })
+    .catch(err => { 
+      statusDiv.style.background = 'rgba(239,68,68,0.1)';
+      statusDiv.style.borderColor = 'rgba(239,68,68,0.3)';
+      statusDiv.style.color = '#f87171';
+      statusDiv.textContent = '❌ مش متصل: ' + err.message;
+    });
+});
+
 const Q = {
   11:[
     {q:"من هو الهداف التاريخي لكأس العالم بمجموع الأهداف في جميع نسخه؟",options:["ميروسلاف كلوزه","رونالدو البرازيلي","غيرد مولر","جاست فونتين"],correctIndex:0},
@@ -264,12 +281,4 @@ const Q = {
     {q:"من هو المدرب الذي حقق الأبطال مع بورتو عام 2004؟",options:["أنشيلوتي","كلوب","زيدان","مورينيو"],correctIndex:3},
     {q:"ما هو النادي الذي حقق الثلاثية التاريخية عام 1999؟",options:["أرسنال","تشيلسي","مانشستر يونايتد","ليفربول"],correctIndex:2},
     {q:"من هو صانع الألعاب البلجيكي الذي تألق مع مانشستر سيتي؟",options:["هازارد","دي بروين","لوكاكو","كورتوا"],correctIndex:1},
-    {q:"ما هو الفريق الإيطالي الذي كسر احتكار يوفنتوس للدوري موسم 2022-2023؟",options:["الإنتر","ميلان","روما","نابولي"],correctIndex:3}
-  ],
-  18:[
-    {q:"من هو النادي الإنجليزي الأكثر تتويجاً بلقب الدوري عبر التاريخ؟",options:["ليفربول","أرسنال","مانشستر يونايتد","مانشستر سيتي"],correctIndex:2},
-    {q:"المنتخب الوحيد الذي شارك في كل نسخ كأس العالم منذ 1930؟",options:["الأرجنتين","إيطاليا","البرازيل","ألمانيا"],correctIndex:2},
-    {q:"أي نادي ألماني يلعب في ملعب 'سيجنال إيدونا بارك'؟",options:["بايرن","لايبزيج","دورتموند","ليفركوزن"],correctIndex:2},
-    {q:"من هو أكثر لاعب شارك في مباريات بدوري الأبطال؟",options:["ميسي","كاسياس","تشافي","رونالدو"],correctIndex:3},
-    {q:"ما هو اسم الجائزة التي تمنح لهداف الدوريات الأوروبية؟",options:["الكرة الذهبية","ذا بيست","الحذاء الذهبي","بوشكاش"],correctIndex:2},
-    {q:"أي ملعب يعرف بلقب 'حديقة الأمراء'؟",options:["مارسيليا","ليون","باريس سان
+    {q:"ما هو الفريق الإيطالي الذي كسر احتكار يوفنتوس للدوري موسم 2022-2023؟
