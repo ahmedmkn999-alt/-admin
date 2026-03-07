@@ -4,59 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚽ رفع أسئلة الكورة</title>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js">
-async function go(day) {
-  const btn  = document.getElementById('b-' + day);
-  const st   = document.getElementById('st-' + day);
-  const card = document.getElementById('card-' + day);
-  if (!btn || !st) { alert('عنصر مش موجود: ' + day); return; }
-
-  btn.disabled = true;
-  btn.textContent = '⏳ جاري الرفع...';
-  st.textContent  = '⏳ جاري الرفع على Firebase...';
-  st.style.color  = '#fbbf24';
-
-  if (!Q[day]) {
-    st.textContent = '❌ مفيش أسئلة للجولة ' + day;
-    st.style.color = '#f87171';
-    btn.disabled = false;
-    btn.textContent = '🔄 إعادة المحاولة';
-    return;
-  }
-
-  try {
-    const docRef = db.collection('quizzes_pool').doc('day_' + day);
-    const doc    = await docRef.get();
-    let variations = doc.exists ? (doc.data().variations || {}) : {};
-    variations['0'] = { questions: Q[day] };
-    await docRef.set({ variations, dayNumber: day }, { merge: true });
-
-    st.textContent  = '✅ تم! ' + Q[day].length + ' سؤال محفوظ بنجاح';
-    st.style.color  = '#4ade80';
-    if (card) card.style.borderColor = 'rgba(34,197,94,0.5)';
-    btn.textContent = '✅ تم الرفع';
-    btn.style.background = 'rgba(34,197,94,0.2)';
-  } catch(err) {
-    st.textContent  = '❌ ' + err.message;
-    st.style.color  = '#f87171';
-    btn.disabled    = false;
-    btn.textContent = '🔄 إعادة المحاولة';
-  }
-}
-
-async function uploadAll() {
-  const btn = document.getElementById('btn-all');
-  btn.disabled = true;
-  btn.textContent = '⏳ جاري رفع الكل...';
-  for (const d of [11,12,13,14,15,16,17,18]) {
-    await go(d);
-    await new Promise(r => setTimeout(r, 600));
-  }
-  btn.textContent = '✅ تم رفع كل الجولات!';
-}
-
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -131,11 +80,11 @@ async function uploadAll() {
 
 <div class="header">
   <h1>⚽ رفع أسئلة الكورة</h1>
-  <p>15 سؤال صعب جداً لكل جولة — الجولات 11 و 12 و 13 و 14</p>
+  <p>15 سؤال لكل جولة — الجولات 11 حتى 18</p>
 </div>
 
 <button class="btn-all" id="btn-all" onclick="uploadAll()">
-  🚀 رفع الجولات 11-18 دفعة واحدة
+  🚀 رفع الجولات 11 و12 و13 و14 و15 و16 دفعة واحدة
 </button>
 
 <div class="card" id="card-11">
@@ -186,6 +135,7 @@ async function uploadAll() {
   <div class="status" id="st-18">جاهز للرفع...</div>
   <button class="btn-green" id="b-18" onclick="go(18)">⬆️ رفع جولة 18</button>
 </div>
+
 <a class="back-link" href="dashboard.html">← رجوع للوحة الأدمن</a>
 
 <script>
@@ -196,23 +146,6 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// فحص الاتصال عند التحميل
-window.addEventListener('load', () => {
-  const statusDiv = document.createElement('div');
-  statusDiv.style.cssText = 'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#4ade80;text-align:center;';
-  statusDiv.id = 'firebase-status';
-  document.querySelector('.btn-all').insertAdjacentElement('beforebegin', statusDiv);
-  
-  db.collection('quizzes_pool').limit(1).get()
-    .then(() => { statusDiv.textContent = '✅ متصل بـ Firebase — جاهز للرفع'; })
-    .catch(err => { 
-      statusDiv.style.background = 'rgba(239,68,68,0.1)';
-      statusDiv.style.borderColor = 'rgba(239,68,68,0.3)';
-      statusDiv.style.color = '#f87171';
-      statusDiv.textContent = '❌ مش متصل: ' + err.message;
-    });
-});
 
 const Q = {
   11:[
@@ -319,4 +252,25 @@ const Q = {
   ],
   17:[
     {q:"ما هو النادي الوحيد الذي حقق دوري أبطال أوروبا 3 مرات متتالية بنظامه الحديث؟",options:["بايرن ميونخ","ريال مدريد","ميلان","برشلونة"],correctIndex:1},
-    {q:"أي منتخب هو الأكثر فوزاً بكأس العالم تاريخياً؟",options:["ألمانيا","إيطاليا","البرازيل","الأرجنتين"],corr
+    {q:"أي منتخب هو الأكثر فوزاً بكأس العالم تاريخياً؟",options:["ألمانيا","إيطاليا","البرازيل","الأرجنتين"],correctIndex:2},
+    {q:"من هو الهداف التاريخي للدوريات الخمس الكبرى في أوروبا؟",options:["ميسي","رونالدو","جيمي جريفز","إبراهيموفيتش"],correctIndex:1},
+    {q:"ما هو النادي الإسباني الملقب بـ الروخي بلانكوس؟",options:["أتلتيك بلباو","أتلتيكو مدريد","إشبيلية","فالنسيا"],correctIndex:1},
+    {q:"كم لقباً حققه جوارديولا في عام 2009 مع برشلونة؟",options:["5","6","4","7"],correctIndex:1},
+    {q:"من هو أول لاعب في التاريخ يفوز بالكرة الذهبية عام 1956؟",options:["دي ستيفانو","ستانلي ماثيوز","بيليه","أوزيبيو"],correctIndex:1},
+    {q:"ما هو النادي الملقب بالغواصات الصفراء في الدوري الإسباني؟",options:["فياريال","قادش","دورتموند","ليفانتي"],correctIndex:0},
+    {q:"من هو المدرب الذي قاد إيطاليا للتتويج بمونديال 2006؟",options:["كونتي","مارتشيلو ليبي","أنشيلوتي","كابيلو"],correctIndex:1},
+    {q:"صاحب أسرع هدف في تاريخ اليورو كيريتشينكو كان يمثل أي منتخب؟",options:["روسيا","اليونان","فرنسا","إنجلترا"],correctIndex:0},
+    {q:"أي لاعب يلقب بالظاهرة؟",options:["رونالدينيو","رونالدو نازاريو","ريفالدو","كاكا"],correctIndex:1},
+    {q:"في أي دولة يقع نادي بورتو؟",options:["إسبانيا","فرنسا","البرتغال","إيطاليا"],correctIndex:2},
+    {q:"من هو المدرب الذي حقق الأبطال مع بورتو عام 2004؟",options:["أنشيلوتي","كلوب","زيدان","مورينيو"],correctIndex:3},
+    {q:"ما هو النادي الذي حقق الثلاثية التاريخية عام 1999؟",options:["أرسنال","تشيلسي","مانشستر يونايتد","ليفربول"],correctIndex:2},
+    {q:"من هو صانع الألعاب البلجيكي الذي تألق مع مانشستر سيتي؟",options:["هازارد","دي بروين","لوكاكو","كورتوا"],correctIndex:1},
+    {q:"ما هو الفريق الإيطالي الذي كسر احتكار يوفنتوس للدوري موسم 2022-2023؟",options:["الإنتر","ميلان","روما","نابولي"],correctIndex:3}
+  ],
+  18:[
+    {q:"من هو النادي الإنجليزي الأكثر تتويجاً بلقب الدوري عبر التاريخ؟",options:["ليفربول","أرسنال","مانشستر يونايتد","مانشستر سيتي"],correctIndex:2},
+    {q:"المنتخب الوحيد الذي شارك في كل نسخ كأس العالم منذ 1930؟",options:["الأرجنتين","إيطاليا","البرازيل","ألمانيا"],correctIndex:2},
+    {q:"أي نادي ألماني يلعب في ملعب سيجنال إيدونا بارك؟",options:["بايرن","لايبزيج","دورتموند","ليفركوزن"],correctIndex:2},
+    {q:"من هو أكثر لاعب شارك في مباريات بدوري الأبطال؟",options:["ميسي","كاسياس","تشافي","رونالدو"],correctIndex:3},
+    {q:"ما هو اسم الجائزة التي تمنح لهداف الدوريات الأوروبية؟",options:["الكرة الذهبية","ذا بيست","الحذاء الذهبي","بوشكاش"],correctIndex:2},
+    {q:"أي ملعب يعرف بلقب حديقة الأمراء؟",options:["مارسيليا","ليون","باريس سان جيرمان","مونا
